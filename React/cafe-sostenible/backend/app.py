@@ -14,8 +14,13 @@ load_dotenv()
 app = Flask(__name__)
 CORS(app,
     supports_credentials=True,
-    origins=["https://cafe-sostenible-1.onrender.com"]   # <-- cambia a tu URL del front
+    origins=[
+        "https://cafe-sostenible-1.onrender.com", 
+        "capacitor://localhost",
+        "http://localhost"
+    ]
 )
+
 
 
 app.secret_key = os.getenv("FLASK_SECRET_KEY", "dev-secret-key")
