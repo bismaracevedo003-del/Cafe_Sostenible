@@ -3,6 +3,9 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../index.css';
 
+// === URL BASE DE LA API (dev: /api, prod: https://cafe-sostenible.onrender.com/api) ===
+const API_BASE = import.meta.env.VITE_API_URL;
+
 export default function Login() {
   const [isRegistering, setIsRegistering] = useState(false);
   const [message, setMessage] = useState({ text: '', type: '' });
@@ -13,6 +16,15 @@ export default function Login() {
   const showMessage = (text, type = 'error') => {
     setMessage({ text, type });
     setTimeout(() => setMessage({ text: '', type: '' }), 5000);
+  };
+
+  // === FUNCIÓN GENÉRICA PARA BOTÓN LOADING ===
+  const setButtonLoading = (btn, loading) => {
+    if (!btn) return;
+    btn.disabled = loading;
+    btn.textContent = loading 
+      ? (isRegistering ? 'Registrando...' : 'Entrando...') 
+      : (isRegistering ? 'Registrar' : 'Entrar');
   };
 
   // === LOGIN ===
@@ -27,18 +39,19 @@ export default function Login() {
       return;
     }
 
-    const btn = e.target.querySelector('button');
+    const btn = e.target.querySelector('button[type="submit"]');
     const originalText = btn.textContent;
-    btn.disabled = true;
-    btn.textContent = 'Entrando...';
+    setButtonLoading(btn, true);
 
     try {
-      const res = await fetch('/api/login', {
+      const res = await fetch(`${API_BASE}/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: new URLSearchParams({ username, password }),
         credentials: 'include',
       });
+
+      if (!res.ok) throw new Error('Respuesta no OK');
 
       const data = await res.json();
 
@@ -49,9 +62,10 @@ export default function Login() {
         showMessage(data.message || 'Credenciales incorrectas', 'error');
       }
     } catch (err) {
+      console.error(err);
       showMessage('Error de conexión. Revisa el backend.', 'error');
     } finally {
-      btn.disabled = false;
+      setButtonLoading(btn, false);
       btn.textContent = originalText;
     }
   };
@@ -60,17 +74,22 @@ export default function Login() {
   const handleRegister = async (e) => {
     e.preventDefault();
     const formData = new FormData(e.target);
-    const btn = e.target.querySelector('button');
+    const btn = e.target.querySelector('button[type="submit"]');
     const originalText = btn.textContent;
-    btn.disabled = true;
-    btn.textContent = 'Registrando...';
+    setButtonLoading(btn, true);
+
+    // Limpia foto si está vacía
+    const foto = formData.get('foto_perfil');
+    if (foto && foto.size === 0) formData.delete('foto_perfil');
 
     try {
-      const res = await fetch('/api/register', {
+      const res = await fetch(`${API_BASE}/register`, {
         method: 'POST',
         body: formData,
         credentials: 'include',
       });
+
+      if (!res.ok) throw new Error('Respuesta no OK');
 
       const data = await res.json();
 
@@ -83,9 +102,10 @@ export default function Login() {
         showMessage(data.message || 'Error en el registro', 'error');
       }
     } catch (err) {
+      console.error(err);
       showMessage('Error de conexión. Revisa el backend.', 'error');
     } finally {
-      btn.disabled = false;
+      setButtonLoading(btn, false);
       btn.textContent = originalText;
     }
   };
@@ -113,6 +133,13 @@ export default function Login() {
     const reader = new FileReader();
     reader.onload = (ev) => setPreviewUrl(ev.target.result);
     reader.readAsDataURL(file);
+  };
+
+  // === TOGGLE REGISTRO (limpia mensaje y preview) ===
+  const toggleRegister = (value) => {
+    setIsRegistering(value);
+    setMessage({ text: '', type: '' });
+    setPreviewUrl('');
   };
 
   return (
@@ -165,7 +192,7 @@ export default function Login() {
 
           {/* ENLACE A REGISTRO */}
           <p className={`toggle-register ${isRegistering ? 'hidden' : ''}`} id="register-toggle">
-            ¿No tienes cuenta? <a href="#" id="show-register" onClick={(e) => { e.preventDefault(); setIsRegistering(true); }}>Regístrate aquí</a>
+            ¿No tienes cuenta? <a href="#" id="show-register" onClick={(e) => { e.preventDefault(); toggleRegister(true); }}>Regístrate aquí</a>
           </p>
 
           {/* REGISTRO */}
@@ -221,7 +248,7 @@ export default function Login() {
             </form>
 
             <p className="toggle-register">
-              <a href="#" id="show-login" onClick={(e) => { e.preventDefault(); setIsRegistering(false); }}>
+              <a href="#" id="show-login" onClick={(e) => { e.preventDefault(); toggleRegister(false); }}>
                 Volver al inicio de sesión
               </a>
             </p>

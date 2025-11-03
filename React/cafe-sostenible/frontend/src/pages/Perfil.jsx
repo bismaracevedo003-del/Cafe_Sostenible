@@ -85,7 +85,18 @@ export default function Perfil() {
     navigate('/login');
   };
 
-  if (loading) return <div className="loading">Cargando perfil...</div>;
+    if (loading) {
+    return (
+      <div className="coffee-loader">
+        <div className="coffee-cup">
+          <div className="steam"></div>
+          <div className="steam"></div>
+          <div className="steam"></div>
+        </div>
+        <p className="coffee-text">Preparando tu café...</p>
+      </div>
+    );
+  }
   if (!user) return <div className="loading">Redirigiendo...</div>;
 
   return (
