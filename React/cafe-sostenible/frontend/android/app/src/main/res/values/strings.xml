@@ -1,7 +1,0 @@
-<?xml version='1.0' encoding='utf-8'?>
-<resources>
-    <string name="app_name">cafe-sostenible</string>
-    <string name="title_activity_main">cafe-sostenible</string>
-    <string name="package_name">com.cafe.sostenible</string>
-    <string name="custom_url_scheme">com.cafe.sostenible</string>
-</resources>
