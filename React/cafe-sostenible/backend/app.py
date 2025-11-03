@@ -182,6 +182,10 @@ def api_logout():
     session.clear()
     return jsonify({"status": "success", "message": "Sesión cerrada"})
 
+@app.route('/')
+def home():
+    return jsonify({"mensaje": "API MQ135 funcionando correctamente"})
+
 # --- INICIAR ---
 if __name__ == '__main__':
     print("API corriendo en http://localhost:5000")
