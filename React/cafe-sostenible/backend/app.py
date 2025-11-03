@@ -25,7 +25,7 @@ CORS(app,
 app.secret_key = os.getenv("FLASK_SECRET_KEY", "dev-secret-key")
 app.config['SESSION_COOKIE_HTTPONLY'] = True
 app.config['SESSION_COOKIE_SAMESITE'] = 'None'
-app.config['SESSION_COOKIE_SECURE'] = False  # True en producción
+app.config['SESSION_COOKIE_SECURE'] = True  # True en producción
 app.config['PERMANENT_SESSION_LIFETIME'] = 3600
 
 # --- BASE DE DATOS ---
