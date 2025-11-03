@@ -16,7 +16,8 @@ CORS(app,
     supports_credentials=True,
     origins=[
         "https://cafe-sostenible-1.onrender.com",
-        "capacitor://localhost",                     # app móvil
+        "capacitor://localhost",    
+        "https://localhost",                 # app móvil
         "http://localhost:5173" 
     ]
 )

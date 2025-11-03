@@ -2,5 +2,8 @@
   "appId": "com.cafe.sostenible",
   "appName": "cafe-sostenible",
   "webDir": "build",
-  "bundledWebRuntime": false
+  "bundledWebRuntime": true,
+  "android": {
+    "scheme": "https"
+  }
 }
