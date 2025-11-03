@@ -13,17 +13,14 @@ load_dotenv()
 # --- INICIALIZACIÓN ---
 app = Flask(__name__)
 CORS(app,
-     supports_credentials=True,
-     origins=[
-         "capacitor://localhost",
-         "http://localhost",
-         "http://localhost:5173",
-         "https://cafe-sostenible-1.onrender.com"
-     ],
-     allow_headers=["Content-Type"],
-     expose_headers=["Content-Type"]
+    supports_credentials=True,
+    origins=[
+        "https://cafe-sostenible-1.onrender.com",
+        "capacitor://localhost",    
+        "https://localhost",                 # app móvil
+        "http://localhost:5173" 
+    ]
 )
-
 
 app.secret_key = os.getenv("FLASK_SECRET_KEY", "dev-secret-key")
 app.config['SESSION_COOKIE_HTTPONLY'] = True
@@ -87,8 +84,7 @@ def home():
 
 @app.route('/api/login', methods=['POST'])
 def api_login():
-    data = request.get_json()
-
+    data = request.form
     username = data.get('username')
     password = data.get('password')
 
