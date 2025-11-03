@@ -14,7 +14,7 @@ export default function Perfil() {
 
   // === CARGAR USUARIO ===
   useEffect(() => {
-    fetch('${API_BASE}/api/user', { credentials: 'include' })
+    fetch(`${API_BASE}/api/user`, { credentials: 'include' })
       .then(res => {
         if (!res.ok) throw new Error('No autorizado');
         return res.json();
@@ -34,7 +34,6 @@ export default function Perfil() {
     const file = e.target.files[0];
     if (!file) return;
 
-    // Validaciones
     if (file.size > 5 * 1024 * 1024) {
       showMessage('Imagen demasiado grande (máx 5MB)', 'error');
       e.target.value = '';
@@ -52,7 +51,7 @@ export default function Perfil() {
     formData.append('foto_perfil', file);
 
     try {
-      const res = await fetch('${API_BASE}/api/cambiar-foto', {
+      const res = await fetch(`${API_BASE}/api/cambiar-foto`, {
         method: 'POST',
         body: formData,
         credentials: 'include',
@@ -83,11 +82,11 @@ export default function Perfil() {
 
   // === LOGOUT ===
   const handleLogout = async () => {
-    await fetch('${API_BASE}/api/logout', { method: 'POST', credentials: 'include' });
+    await fetch(`${API_BASE}/api/logout`, { method: 'POST', credentials: 'include' });
     navigate('/login');
   };
 
-    if (loading) {
+  if (loading) {
     return (
       <div className="coffee-loader">
         <div className="coffee-cup">
@@ -100,6 +99,7 @@ export default function Perfil() {
     );
   }
   if (!user) return <div className="loading">Redirigiendo...</div>;
+
 
   return (
     <>
