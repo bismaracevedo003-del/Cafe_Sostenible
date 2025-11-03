@@ -79,16 +79,7 @@ def login_required(f):
 # --- API REST ---
 @app.route('/')
 def home():
-    return jsonify({
-        "status": "success",
-        "message": "Backend Café Sostenible vivo 🌿",
-        "version": "1.0",
-        "endpoints": {
-            "login": "/api/login",
-            "register": "/api/register",
-            "user": "/api/user"
-        }
-    }), 200
+    return jsonify({"mensaje": "API MQ135 funcionando correctamente"})
 
 @app.route('/api/login', methods=['POST'])
 def api_login():
