@@ -1,6 +1,6 @@
 // src/pages/Login.jsx
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import '../index.css';
 
 // === URL BASE DE LA API (dev: /api, prod: https://cafe-sostenible.onrender.com/api) ===
@@ -148,7 +148,9 @@ export default function Login() {
         {/* PANEL IZQUIERDO */}
         <div className="logo-panel">
           <div className="logo">
-            <img src="/img/IMG_6194.PNG" alt="Logo Café Sostenible" />
+            <Link to="/Home">
+              <img src="/img/IMG_6194.PNG" alt="Logo Café Sostenible" />
+            </Link>
           </div>
           <div className="divider"></div>
           <div className="brand-title">CAFÉ SOSTENIBLE</div>

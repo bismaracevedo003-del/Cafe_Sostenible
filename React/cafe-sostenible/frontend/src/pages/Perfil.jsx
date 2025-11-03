@@ -3,6 +3,8 @@ import { useEffect, useState, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import '../index.css';
 
+const API_BASE = import.meta.env.VITE_API_URL;
+
 export default function Perfil() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -12,7 +14,7 @@ export default function Perfil() {
 
   // === CARGAR USUARIO ===
   useEffect(() => {
-    fetch('/api/user', { credentials: 'include' })
+    fetch('${API_BASE}/api/user', { credentials: 'include' })
       .then(res => {
         if (!res.ok) throw new Error('No autorizado');
         return res.json();
@@ -50,7 +52,7 @@ export default function Perfil() {
     formData.append('foto_perfil', file);
 
     try {
-      const res = await fetch('/api/cambiar-foto', {
+      const res = await fetch('${API_BASE}/api/cambiar-foto', {
         method: 'POST',
         body: formData,
         credentials: 'include',

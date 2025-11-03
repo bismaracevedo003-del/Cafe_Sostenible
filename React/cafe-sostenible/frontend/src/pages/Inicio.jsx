@@ -81,8 +81,9 @@ console.log('API_BASE:', import.meta.env.VITE_API_URL);
     return <div className="coffee-text">Redirigiendo...</div>;
   }
 
-  return (
+   return (
     <>
+      {/* HEADER */}
       <header className="header">
         <div className="logo-section">
           <img src="/img/IMG_6194.PNG" alt="Logo" className="logo-img" />
@@ -94,7 +95,9 @@ console.log('API_BASE:', import.meta.env.VITE_API_URL);
         <a href="#" className="news-link">Noticias</a>
       </header>
 
+      {/* MAIN CONTAINER */}
       <div className="main-container">
+        {/* SIDEBAR */}
         <aside className="sidebar">
           <nav className="nav-menu">
             <Link to="/inicio" className="nav-item active">
@@ -119,31 +122,44 @@ console.log('API_BASE:', import.meta.env.VITE_API_URL);
           </nav>
         </aside>
 
+        {/* CONTENT */}
         <main className="content">
-          <div className="welcome-card">
-            <h2>¡Bienvenido, {user.username || 'Caficultor'}! ☕</h2>
-            <p>Explora las herramientas para una caficultura más sostenible.</p>
+          <div className="user-profile">
+            <img
+              id="user-photo"
+              src={user.foto_src || "/img/usuarios/default-user.png"}
+              alt="Foto de perfil"
+            />
+            <div>
+              <h3 id="fullname">{user.nombre} {user.apellido}</h3>
+              <p id="username">@{user.username}</p>
+            </div>
           </div>
 
-          <div className="dashboard-grid">
-            <div className="card">
-              <h3>Huella de Carbono</h3>
-              <p>Calcula el impacto ambiental de tu finca.</p>
-              <Link to="/calculadora" className="btn-primary">Ir a calculadora</Link>
-            </div>
-            <div className="card">
-              <h3>Historial</h3>
-              <p>Revisa tus cálculos anteriores.</p>
-              <Link to="/historial" className="btn-primary">Ver historial</Link>
-            </div>
-            <div className="card">
-              <h3>Perfil</h3>
-              <p>Actualiza tu información personal.</p>
-              <Link to="/perfil" className="btn-primary">Editar perfil</Link>
-            </div>
+          <div className="cards-grid">
+            <Link to="/calculadora" className="card">
+              <img src="/img/icon-calculator.svg" alt="Calculadora" />
+            </Link>
+            <Link to="/historial" className="card">
+              <img src="/img/icon-history.svg" alt="Historial" />
+            </Link>
+            <Link to="/perfil" className="card">
+              <img src="/img/icon-profile.svg" alt="Perfil" />
+            </Link>
           </div>
         </main>
       </div>
+
+      <style jsx>{`
+        .loading-screen {
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          height: 100vh;
+          font-size: 18px;
+          color: #2d6a4f;
+        }
+      `}</style>
     </>
   );
 }
