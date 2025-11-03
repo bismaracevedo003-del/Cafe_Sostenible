@@ -148,7 +148,7 @@ export default function Login() {
         {/* PANEL IZQUIERDO */}
         <div className="logo-panel">
           <div className="logo">
-            <Link to="/Home">
+            <Link to="/home">
               <img src="/img/IMG_6194.PNG" alt="Logo Café Sostenible" />
             </Link>
           </div>
