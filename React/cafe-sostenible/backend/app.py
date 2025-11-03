@@ -77,6 +77,19 @@ def login_required(f):
     return decorated
 
 # --- API REST ---
+@app.route('/')
+def home():
+    return jsonify({
+        "status": "success",
+        "message": "Backend Café Sostenible vivo 🌿",
+        "version": "1.0",
+        "endpoints": {
+            "login": "/api/login",
+            "register": "/api/register",
+            "user": "/api/user"
+        }
+    }), 200
+
 @app.route('/api/login', methods=['POST'])
 def api_login():
     data = request.form
