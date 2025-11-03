@@ -14,13 +14,9 @@ load_dotenv()
 app = Flask(__name__)
 CORS(app,
     supports_credentials=True,
-    origins=[
-        "https://cafe-sostenible-1.onrender.com",
-        "capacitor://localhost",    
-        "https://localhost",                 # app móvil
-        "http://localhost:5173" 
-    ]
+    origins=["https://cafe-sostenible-1.onrender.com"]   # <-- cambia a tu URL del front
 )
+
 
 app.secret_key = os.getenv("FLASK_SECRET_KEY", "dev-secret-key")
 app.config['SESSION_COOKIE_HTTPONLY'] = True
@@ -78,10 +74,6 @@ def login_required(f):
     return decorated
 
 # --- API REST ---
-@app.route('/')
-def home():
-    return jsonify({"mensaje": "API MQ135 funcionando correctamente"})
-
 @app.route('/api/login', methods=['POST'])
 def api_login():
     data = request.form
@@ -193,4 +185,4 @@ def api_logout():
 # --- INICIAR ---
 if __name__ == '__main__':
     print("API corriendo en http://localhost:5000")
-    app.run(host='0.0.0.0', port=5000)
+    app.run(debug=True, port=5000)
