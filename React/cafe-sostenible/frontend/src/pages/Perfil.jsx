@@ -83,7 +83,7 @@ export default function Perfil() {
 
   // === LOGOUT ===
   const handleLogout = async () => {
-    await fetch('/api/logout', { method: 'POST', credentials: 'include' });
+    await fetch('${API_BASE}/api/logout', { method: 'POST', credentials: 'include' });
     navigate('/login');
   };
 

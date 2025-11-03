@@ -124,29 +124,7 @@ console.log('API_BASE:', import.meta.env.VITE_API_URL);
 
         {/* CONTENT */}
         <main className="content">
-          <div className="user-profile">
-            <img
-              id="user-photo"
-              src={user.foto_src || "/img/usuarios/default-user.png"}
-              alt="Foto de perfil"
-            />
-            <div>
-              <h3 id="fullname">{user.nombre} {user.apellido}</h3>
-              <p id="username">@{user.username}</p>
-            </div>
-          </div>
-
-          <div className="cards-grid">
-            <Link to="/calculadora" className="card">
-              <img src="/img/icon-calculator.svg" alt="Calculadora" />
-            </Link>
-            <Link to="/historial" className="card">
-              <img src="/img/icon-history.svg" alt="Historial" />
-            </Link>
-            <Link to="/perfil" className="card">
-              <img src="/img/icon-profile.svg" alt="Perfil" />
-            </Link>
-          </div>
+         
         </main>
       </div>
 
