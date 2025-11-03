@@ -12,12 +12,16 @@ load_dotenv()
 
 # --- INICIALIZACIÓN ---
 app = Flask(__name__)
-CORS(app, supports_credentials=True)  # Crucial para cookies
+CORS(app,
+    supports_credentials=True,
+    origins=["https://cafe-sostenible-1.onrender.com"]   # <-- cambia a tu URL del front
+)
+
 
 app.secret_key = os.getenv("FLASK_SECRET_KEY", "dev-secret-key")
 app.config['SESSION_COOKIE_HTTPONLY'] = True
-app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
-app.config['SESSION_COOKIE_SECURE'] = False  # True en producción
+app.config['SESSION_COOKIE_SAMESITE'] = 'None'
+app.config['SESSION_COOKIE_SECURE'] = True  # True en producción
 app.config['PERMANENT_SESSION_LIFETIME'] = 3600
 
 # --- BASE DE DATOS ---
