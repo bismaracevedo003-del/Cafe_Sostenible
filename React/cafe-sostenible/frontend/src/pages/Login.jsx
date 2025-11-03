@@ -44,11 +44,11 @@ export default function Login() {
     setButtonLoading(btn, true);
 
     try {
-      fetch(`${API_BASE}/register`, {
-        method: 'POST',
-        body: formData,
-        credentials: 'include',
-      });
+     const res = await fetch(`${API_BASE}/login`, {  // <-- Corregido
+      method: 'POST',
+      body: formData,
+      credentials: 'include',
+    });
 
 
       if (!res.ok) throw new Error('Respuesta no OK');
