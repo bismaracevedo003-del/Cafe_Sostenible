@@ -15,11 +15,11 @@ app = Flask(__name__)
 CORS(app,
     supports_credentials=True,
     origins=[
-        "https://cafe-sostenible-1.onrender.com", 
+        "https://cafe-sostenible-1.onrender.com",
+        "capacitor://localhost",                     # app móvil
+        "http://localhost:5173" 
     ]
 )
-
-
 
 app.secret_key = os.getenv("FLASK_SECRET_KEY", "dev-secret-key")
 app.config['SESSION_COOKIE_HTTPONLY'] = True
@@ -192,4 +192,4 @@ def api_logout():
 # --- INICIAR ---
 if __name__ == '__main__':
     print("API corriendo en http://localhost:5000")
-    app.run(debug=True, port=5000)
+    app.run(host='0.0.0.0', port=5000)
