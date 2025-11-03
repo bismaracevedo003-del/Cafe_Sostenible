@@ -14,7 +14,7 @@ export default function Perfil() {
 
   // === CARGAR USUARIO ===
   useEffect(() => {
-    fetch(`${API_BASE}/api/user`, { credentials: 'include' })
+    fetch(`${API_BASE}/user`, { credentials: 'include' })
       .then(res => {
         if (!res.ok) throw new Error('No autorizado');
         return res.json();
@@ -51,7 +51,7 @@ export default function Perfil() {
     formData.append('foto_perfil', file);
 
     try {
-      const res = await fetch(`${API_BASE}/api/cambiar-foto`, {
+      const res = await fetch(`${API_BASE}/cambiar-foto`, {
         method: 'POST',
         body: formData,
         credentials: 'include',
@@ -82,7 +82,7 @@ export default function Perfil() {
 
   // === LOGOUT ===
   const handleLogout = async () => {
-    await fetch(`${API_BASE}/api/logout`, { method: 'POST', credentials: 'include' });
+    await fetch(`${API_BASE}/logout`, { method: 'POST', credentials: 'include' });
     navigate('/login');
   };
 
