@@ -44,12 +44,12 @@ export default function Login() {
     setButtonLoading(btn, true);
 
     try {
-      fetch(`${API_BASE}/register`, {
+      const res = await fetch(`${API_BASE}/login`, {
         method: 'POST',
-        body: formData,
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams({ username, password }),
         credentials: 'include',
       });
-
 
       if (!res.ok) throw new Error('Respuesta no OK');
 
