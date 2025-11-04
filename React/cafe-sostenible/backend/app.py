@@ -242,7 +242,7 @@ def obtener_historial():
 
 @app.route('/')
 def home():
-    return jsonify({"mensaje": "API MQ135 funcionando correctamente"})
+    return jsonify({"mensaje": "API funcionando correctamente"})
 
 # --- INICIAR ---
 if __name__ == '__main__':

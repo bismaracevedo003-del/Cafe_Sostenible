@@ -163,13 +163,13 @@ export default function Calculadora() {
           nombreFinca: form.nombreFinca || 'Cálculo EUDR',
           ...form,
           ...resultado,
-          fecha: new Date().toISOString(),
         }),
       });
       if (!res.ok) throw new Error('Error al guardar');
       alert('Cálculo EUDR guardado');
       setForm(prev => ({
         ...prev,
+        nombreFinca: prev.nombreFinca,
         areaCultivada: '',
         produccionVerde: '',
         fertilizanteTotal: '',
