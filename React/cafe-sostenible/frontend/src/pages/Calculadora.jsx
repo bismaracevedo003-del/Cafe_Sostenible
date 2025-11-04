@@ -428,13 +428,37 @@ export default function Calculadora() {
       </div>
 
       <style jsx>{`
-        /* ... tus estilos originales ... */
-        .form-group input[readonly] {
-          background-color: #f8f9fa !important;
-          color: #2d6a4f;
-          font-weight: 600;
-          cursor: not-allowed;
-        }
+        .calculadora-container { max-width: 1000px; margin: 0 auto; padding: 20px; }
+        .section-title { text-align: center; color: #2d6a4f; margin-bottom: 30px; font-size: 24px; }
+        .calculadora-form { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin-bottom: 30px; }
+        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; margin-bottom: 20px; }
+        .form-group label { display: block; margin-bottom: 6px; font-weight: 600; color: #2d6a4f; font-size: 14px; }
+        .form-group input, .form-group select { width: 100%; padding: 10px; border: 1px solid #95d5b2; border-radius: 8px; font-size: 15px; }
+        .form-group input:focus, .form-group select:focus { outline: none; border-color: #2d6a4f; box-shadow: 0 0 0 2px rgba(45,106,79,0.2); }
+        .btn-calcular { width: 100%; padding: 14px; background: #2d6a4f; color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; }
+        .btn-calcular:hover { background: #1f4d38; }
+        .resultado-section { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); text-align: center; }
+        .resultado-section h3 { color: #2d6a4f; margin-bottom: 20px; }
+        .resultado-cards { display: flex; justify-content: center; gap: 30px; flex-wrap: wrap; margin-bottom: 30px; }
+        .card { background: #f1f8f5; padding: 20px; border-radius: 12px; min-width: 160px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+        .card-title { font-size: 14px; color: #555; margin-bottom: 8px; }
+        .card-value { font-size: 24px; font-weight: 700; color: #2d6a4f; }
+        .chart-container { margin: 30px 0; padding: 20px; background: #f9f9f9; border-radius: 12px; }
+        .chart-wrapper { display: flex; justify-content: center; margin-bottom: 20px; }
+        .pie-chart-svg { filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1)); }
+        .pie-center-total { font-size: 28px; font-weight: 700; fill: #2d6a4f; }
+        .pie-center-label { font-size: 14px; fill: #555; }
+        .legend { display: flex; flex-direction: column; gap: 8px; max-width: 320px; margin: 0 auto; }
+        .legend-item { display: flex; align-items: center; font-size: 14px; }
+        .legend-color { width: 16px; height: 16px; border-radius: 4px; display: inline-block; margin-right: 10px; }
+        .legend-label { color: #444; }
+        .eudr-indicators { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin: 25px 0; padding: 15px; background: #f8f9fa; border-radius: 10px; }
+        .indicator { font-size: 15px; display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #eee; }
+        .indicator:last-child { border-bottom: none; }
+        .btn-guardar { margin-top: 20px; padding: 12px 30px; background: #40916c; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; }
+        .btn-guardar:hover:not(:disabled) { background: #2d6a4f; }
+        .btn-guardar:disabled { background: #95d5b2; cursor: not-allowed; }
+        @media (max-width: 768px) { .form-grid { grid-template-columns: 1fr; } .eudr-indicators { grid-template-columns: 1fr; } }
       `}</style>
     </>
   );
