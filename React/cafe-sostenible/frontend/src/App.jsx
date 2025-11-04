@@ -5,7 +5,9 @@ import Home from './pages/Home';
 import Login from './pages/Login';
 import Inicio from './pages/Inicio';
 import Perfil from './pages/Perfil';
+import Calculadora from './pages/Calculadora';
 import './index.css';
+
 
 // Componente que verifica sesión y redirige
 function Root() {
@@ -38,6 +40,7 @@ export default function App() {
         <Route path="/inicio" element={<Inicio />} />
         <Route path="/perfil" element={<Perfil />} />
         <Route path="/home" element={<Home />} />
+        <Route path="/calculadora" element={<Calculadora />} />
       </Routes>
     </Router>
   );
