@@ -98,8 +98,8 @@ export default function Perfil() {
       </div>
     );
   }
-  if (!user) return <div className="loading">Redirigiendo...</div>;
 
+  if (!user) return <div className="loading">Redirigiendo...</div>;
 
   return (
     <>
@@ -157,6 +157,7 @@ export default function Perfil() {
                   <img
                     src={user.foto_src || "/img/usuarios/default-user.png"}
                     alt="Foto del productor"
+                    className="producer-photo"
                   />
                   <label htmlFor="cambiar-foto" className="change-photo-btn">
                     <span>Cambiar foto</span>
@@ -183,8 +184,13 @@ export default function Perfil() {
             <div className="profile-card">
               <h2>Perfil de la finca</h2>
               <div className="finca-info">
-                <p><strong>Nombre de la finca:</strong> <span>Finca El Sol</span></p>
-                {/* Puedes expandir con más datos */}
+                <p>
+                  <strong>Nombre de la finca:</strong>{' '}
+                  <span className="finca-nombre">
+                    {user.nombreFinca || 'No asignada'}
+                  </span>
+                </p>
+                {/* Puedes agregar más datos de la finca aquí */}
               </div>
             </div>
           </div>
@@ -200,6 +206,7 @@ export default function Perfil() {
           font-size: 18px;
           color: #2d6a4f;
         }
+
         .message {
           position: fixed;
           top: 20px;
@@ -209,9 +216,119 @@ export default function Perfil() {
           color: white;
           font-weight: 600;
           z-index: 1000;
+          animation: slideIn 0.3s ease;
         }
+
         .message.success { background: #2d6a4f; }
         .message.error { background: #d00000; }
+
+        @keyframes slideIn {
+          from { transform: translateX(100%); opacity: 0; }
+          to { transform: translateX(0); opacity: 1; }
+        }
+
+        .profile-grid {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 24px;
+          max-width: 900px;
+          margin: 0 auto;
+          padding: 20px;
+        }
+
+        .profile-card {
+          background: white;
+          border-radius: 12px;
+          padding: 24px;
+          box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .profile-card h2 {
+          color: #2d6a4f;
+          margin-bottom: 20px;
+          font-size: 20px;
+          text-align: center;
+        }
+
+        .producer-info {
+          display: flex;
+          gap: 24px;
+          align-items: flex-start;
+        }
+
+        .producer-photo-container {
+          position: relative;
+          flex-shrink: 0;
+        }
+
+        .producer-photo {
+          width: 120px;
+          height: 120px;
+          border-radius: 50%;
+          object-fit: cover;
+          border: 4px solid #95d5b2;
+          box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .change-photo-btn {
+          position: absolute;
+          bottom: 0;
+          left: 50%;
+          transform: translateX(-50%);
+          background: #2d6a4f;
+          color: white;
+          padding: 6px 12px;
+          border-radius: 20px;
+          font-size: 12px;
+          font-weight: 600;
+          cursor: pointer;
+          transition: background 0.3s;
+          text-align: center;
+        }
+
+        .change-photo-btn:hover {
+          background: #1f4d38;
+        }
+
+        .producer-details p {
+          margin: 10px 0;
+          font-size: 15px;
+          color: #444;
+        }
+
+        .producer-details strong {
+          color: #2d6a4f;
+        }
+
+        .finca-info p {
+          margin: 12px 0;
+          font-size: 16px;
+          color: #444;
+        }
+
+        .finca-info strong {
+          color: #2d6a4f;
+        }
+
+        .finca-nombre {
+          font-weight: 600;
+          color: #1f4d38;
+          font-size: 17px;
+        }
+
+        @media (max-width: 768px) {
+          .profile-grid {
+            grid-template-columns: 1fr;
+          }
+          .producer-info {
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+          }
+          .producer-photo-container {
+            margin-bottom: 16px;
+          }
+        }
       `}</style>
     </>
   );

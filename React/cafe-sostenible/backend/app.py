@@ -40,7 +40,7 @@ app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
 }
 
 # --- IMPORTAR MODELOS ---
-from models import db, User, Finca
+from models import db, User, Finca, CalculoEUDR
 db.init_app(app)
 
 # --- CREAR TABLAS (SEGURO Y COMPATIBLE) ---
@@ -151,11 +151,15 @@ def api_user():
         foto_base64 = base64.b64encode(user.foto_perfil).decode()
         foto_src = f"data:{user.foto_mime};base64,{foto_base64}"
 
+    # NUEVO: nombre de la finca (para la calculadora)
+    nombre_finca = finca.nombre if finca else "Sin finca"
+
     return jsonify({
         "username": user.username,
         "nombre": user.nombre,
         "apellido": user.apellido,
         "codigo_asociado": codigo_plano,
+        "nombreFinca": nombre_finca,          # <-- campo añadido
         "foto_src": foto_src
     })
 
@@ -181,6 +185,60 @@ def cambiar_foto():
 def api_logout():
     session.clear()
     return jsonify({"status": "success", "message": "Sesión cerrada"})
+
+# === GUARDAR CÁLCULO EUDR ===
+@app.route('/historial', methods=['POST'])
+@login_required
+def guardar_historial():
+    data = request.get_json()
+    if not data:
+        return jsonify({"status": "error", "message": "Datos JSON requeridos"}), 400
+
+    try:
+        calculo = CalculoEUDR(
+            user_id=session['user_id'],
+            nombre_finca=data.get('nombreFinca', 'Cálculo sin nombre'),
+            area_cultivada=float(data['areaCultivada']),
+            produccion_verde=float(data['produccionVerde']),
+            fertilizante_total=float(data.get('fertilizanteTotal', 0)) if data.get('fertilizanteTotal') else None,
+            tipo_fertilizante=data.get('tipoFertilizante'),
+            energia_electrica=float(data.get('energiaElectrica', 0)) if data.get('energiaElectrica') else None,
+            combustible_litros=float(data.get('combustibleLitros', 0)) if data.get('combustibleLitros') else None,
+            tipo_combustible=data.get('tipoCombustible'),
+            arboles_sombra=int(data.get('arbolesSombra', 0)) if data.get('arbolesSombra') else None,
+            area_copa_promedio=float(data.get('areaCopaPromedio', 0)) if data.get('areaCopaPromedio') else None,
+            distancia_km=float(data.get('distanciaKm', 0)) if data.get('distanciaKm') else None,
+            volumen_cargas=float(data.get('volumenCargas', 0)) if data.get('volumenCargas') else None,
+            tipo_procesamiento=data.get('tipoProcesamiento'),
+            residuos_totales=float(data.get('residuosTotales', 0)) if data.get('residuosTotales') else None,
+            residuos_compostados=float(data.get('residuosCompostados', 0)) if data.get('residuosCompostados') else None,
+            bosque_base=float(data.get('bosqueBase', 0)) if data.get('bosqueBase') else None,
+            bosque_actual=float(data.get('bosqueActual', 0)) if data.get('bosqueActual') else None,
+            huella_total=float(data['total']),
+            huella_por_kg=float(data['porKg']),
+            fert_por_ha=float(data.get('fertPorHa', 0)) if data.get('fertPorHa') else None,
+            rendimiento=float(data.get('rendimiento', 0)) if data.get('rendimiento') else None,
+            energia_total=float(data.get('energiaTotal', 0)) if data.get('energiaTotal') else None,
+            arboles_por_ha=float(data.get('arbolesPorHa', 0)) if data.get('arbolesPorHa') else None,
+            cobertura_porc=float(data.get('coberturaPorc', 0)) if data.get('coberturaPorc') else None,
+            distancia_prom=float(data.get('distanciaProm', 0)) if data.get('distanciaProm') else None,
+            fraccion_compost=float(data.get('fraccionCompost', 0)) if data.get('fraccionCompost') else None,
+            deforestacion_porc=float(data.get('deforestacionPorc', 0)) if data.get('deforestacionPorc') else None,
+        )
+        db.session.add(calculo)
+        db.session.commit()
+        return jsonify({"status": "success", "message": "Cálculo guardado"}), 201
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"status": "error", "message": str(e)}), 400
+
+# === OBTENER HISTORIAL ===
+@app.route('/historial', methods=['GET'])
+@login_required
+def obtener_historial():
+    calculos = CalculoEUDR.query.filter_by(user_id=session['user_id']) \
+        .order_by(CalculoEUDR.fecha.desc()).all()
+    return jsonify([c.to_dict() for c in calculos])
 
 @app.route('/')
 def home():
