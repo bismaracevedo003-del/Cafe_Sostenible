@@ -339,39 +339,34 @@ export default function Calculadora() {
                   </div>
                 </div>
 
-                {/* ← DONUT SIMPLE CON CSS (sin SVG) */}
+                {/* ← GRÁFICO DE BARRAS HORIZONTALES */}
                 <div className="chart-container">
-                  <div className="donut-chart">
-                    <div
-                      className="donut-ring"
-                      style={{
-                        background: `conic-gradient(
-                          ${chartData
-                            .map((d, i) => {
-                              const start = chartData.slice(0, i).reduce((a, b) => a + b.value, 0) / parseFloat(resultado.total) * 100;
-                              const end = start + (d.value / parseFloat(resultado.total)) * 100;
-                              return `${COLORS[i % COLORS.length]} ${start}% ${end}%`;
-                            })
-                            .join(', ')},
-                          #e0e0e0 0%
-                        )`,
-                      }}
-                    />
-                    <div className="donut-center">
-                      <div>{resultado.porKg}</div>
-                      <small>kg CO₂e/kg</small>
-                    </div>
+                  <div className="bars-chart">
+                    {chartData.map((d, i) => {
+                      const percent = (d.value / parseFloat(resultado.total)) * 100;
+                      return (
+                        <div key={i} className="bar-item">
+                          <div className="bar-label">
+                            <span className="bar-name">{d.name}</span>
+                            <span className="bar-value">{d.value.toFixed(1)} kg ({percent.toFixed(0)}%)</span>
+                          </div>
+                          <div className="bar-container">
+                            <div
+                              className="bar-fill"
+                              style={{
+                                width: `${percent}%`,
+                                backgroundColor: COLORS[i % COLORS.length],
+                              }}
+                            />
+                          </div>
+                        </div>
+                      );
+                    })}
                   </div>
 
-                  <div className="legend">
-                    {chartData.map((d, i) => (
-                      <div key={i} className="legend-item">
-                        <span className="legend-color" style={{ backgroundColor: COLORS[i % COLORS.length] }}></span>
-                        <span className="legend-label">
-                          {d.name}: {d.value.toFixed(1)} kg ({((d.value / parseFloat(resultado.total)) * 100).toFixed(0)}%)
-                        </span>
-                      </div>
-                    ))}
+                  <div className="total-center">
+                    <div className="total-value">{resultado.porKg}</div>
+                    <small>kg CO₂e/kg</small>
                   </div>
                 </div>
 
@@ -432,18 +427,102 @@ export default function Calculadora() {
         .card { background: #f1f8f5; padding: 20px; border-radius: 12px; min-width: 160px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
         .card-title { font-size: 14px; color: #555; margin-bottom: 8px; }
         .card-value { font-size: 24px; font-weight: 700; color: #2d6a4f; }
-        .chart-container { margin: 30px 0; padding: 20px; background: #f9f9f9; border-radius: 12px; }
-        .legend { display: flex; flex-direction: column; gap: 8px; max-width: 320px; margin: 20px auto 0; }
-        .legend-item { display: flex; align-items: center; font-size: 14px; }
-        .legend-color { width: 16px; height: 16px; border-radius: 4px; display: inline-block; margin-right: 10px; }
-        .legend-label { color: #444; }
         .eudr-indicators { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin: 25px 0; padding: 15px; background: #f8f9fa; border-radius: 10px; }
         .indicator { font-size: 15px; display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #eee; }
         .indicator:last-child { border-bottom: none; }
         .btn-guardar { margin-top: 20px; padding: 12px 30px; background: #40916c; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; }
         .btn-guardar:hover:not(:disabled) { background: #2d6a4f; }
         .btn-guardar:disabled { background: #95d5b2; cursor: not-allowed; }
-        @media (max-width: 768px) { .form-grid { grid-template-columns: 1fr; } .eudr-indicators { grid-template-columns: 1fr; } }
+
+        /* ← GRÁFICO DE BARRAS HORIZONTALES (100% FIABLE) */
+        .chart-container {
+          margin: 30px 0;
+          padding: 20px;
+          background: #f9f9f9;
+          border-radius: 12px;
+          position: relative;
+        }
+
+        .bars-chart {
+          display: flex;
+          flex-direction: column;
+          gap: 14px;
+          max-width: 500px;
+          margin: 0 auto;
+        }
+
+        .bar-item {
+          display: flex;
+          flex-direction: column;
+          gap: 6px;
+        }
+
+        .bar-label {
+          display: flex;
+          justify-content: space-between;
+          font-size: 14.5px;
+          color: #444;
+          font-weight: 600;
+        }
+
+        .bar-name {
+          color: #2d6a4f;
+        }
+
+        .bar-value {
+          font-weight: normal;
+          color: #666;
+        }
+
+        .bar-container {
+          height: 26px;
+          background: #e0e0e0;
+          border-radius: 13px;
+          overflow: hidden;
+          position: relative;
+          box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .bar-fill {
+          height: 100%;
+          border-radius: 13px;
+          transition: width 0.8s ease-out;
+          animation: fillBar 1s ease-out forwards;
+          width: 0%;
+        }
+
+        .total-center {
+          text-align: center;
+          margin-top: 24px;
+          padding: 18px;
+          background: white;
+          border-radius: 14px;
+          box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+
+        .total-value {
+          font-size: 30px;
+          font-weight: 700;
+          color: #2d6a4f;
+        }
+
+        .total-center small {
+          font-size: 14px;
+          color: #555;
+          display: block;
+          margin-top: 6px;
+        }
+
+        @keyframes fillBar {
+          from { width: 0%; }
+          to { width: 100%; }
+        }
+
+        @media (max-width: 768px) {
+          .form-grid { grid-template-columns: 1fr; }
+          .eudr-indicators { grid-template-columns: 1fr; }
+          .bars-chart { max-width: 100%; }
+        }
 
         .success-toast {
           position: fixed;
@@ -525,71 +604,6 @@ export default function Calculadora() {
 
         @keyframes drawX {
           to { stroke-dashoffset: 0; }
-        }
-
-        /* ← DONUT SIMPLE CON CSS (sin SVG) */
-        /* ← DONUT 100% FIABLE CON CONIC-GRADIENT */
-        .donut-chart {
-          position: relative;
-          width: 220px;
-          height: 220px;
-          margin: 0 auto 20px;
-          filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
-        }
-
-        .donut-ring {
-          width: 100%;
-          height: 100%;
-          border-radius: 50%;
-          background: #e0e0e0; /* fallback */
-          position: relative;
-          overflow: hidden;
-          /* Máscara para donut (anillo) */
-          mask: radial-gradient(transparent 55px, black 56px);
-          -webkit-mask: radial-gradient(transparent 55px, black 56px);
-          /* Animación de relleno */
-          animation: fillDonut 1.2s ease-out forwards;
-        }
-
-        .donut-center {
-          position: absolute;
-          top: 50%;
-          left: 50%;
-          transform: translate(-50%, -50%);
-          background: white;
-          width: 110px;
-          height: 110px;
-          border-radius: 50%;
-          display: flex;
-          flex-direction: column;
-          justify-content: center;
-          align-items: center;
-          font-weight: 700;
-          color: #2d6a4f;
-          font-size: 28px;
-          box-shadow: 0 0 0 18px white;
-          z-index: 10;
-        }
-
-        .donut-center small {
-          font-size: 13px;
-          color: #555;
-          font-weight: normal;
-          margin-top: 4px;
-        }
-
-        @keyframes fillDonut {
-          0% {
-            background: #e0e0e0;
-          }
-          100% {
-            background: inherit; /* toma el conic-gradient del style */
-          }
-        }
-
-        .legend-item:hover .legend-color {
-          transform: scale(1.3);
-          transition: transform 0.2s;
         }
       `}</style>
     </>
