@@ -330,11 +330,11 @@ export default function Calculadora() {
                 <h3>Resultados EUDR – {form.nombreFinca}</h3>
                 <div className="resultado-cards">
                   <div className="card">
-                    <p className="card-title">Huella Total</p>
+                    <p className="card-title">Huella Total </p>
                     <p className="card-value">{resultado.total} kg CO₂e</p>
                   </div>
                   <div className="card">
-                    <p className="card-title">Por kg de café</p>
+                    <p className="card-title">Por kg de café </p>
                     <p className="card-value">{resultado.porKg} kg CO₂e/kg</p>
                   </div>
                 </div>
@@ -342,17 +342,19 @@ export default function Calculadora() {
                 {/* ← DONUT SIMPLE CON CSS (sin SVG) */}
                 <div className="chart-container">
                   <div className="donut-chart">
-                    <div 
+                    <div
                       className="donut-ring"
                       style={{
                         background: `conic-gradient(
-                          ${chartData.map((d, i) => {
-                            const start = chartData.slice(0, i).reduce((a, b) => a + b.value, 0) / parseFloat(resultado.total) * 100;
-                            const end = start + (d.value / parseFloat(resultado.total)) * 100;
-                            return `${COLORS[i % COLORS.length]} ${start}% ${end}%`;
-                          }).join(', ')},
+                          ${chartData
+                            .map((d, i) => {
+                              const start = chartData.slice(0, i).reduce((a, b) => a + b.value, 0) / parseFloat(resultado.total) * 100;
+                              const end = start + (d.value / parseFloat(resultado.total)) * 100;
+                              return `${COLORS[i % COLORS.length]} ${start}% ${end}%`;
+                            })
+                            .join(', ')},
                           #e0e0e0 0%
-                        )`
+                        )`,
                       }}
                     />
                     <div className="donut-center">
@@ -526,7 +528,7 @@ export default function Calculadora() {
         }
 
         /* ← DONUT SIMPLE CON CSS (sin SVG) */
-/* ← DONUT FIABLE CON CONIC-GRADIENT GLOBAL */
+        /* ← DONUT 100% FIABLE CON CONIC-GRADIENT */
         .donut-chart {
           position: relative;
           width: 220px;
@@ -539,11 +541,13 @@ export default function Calculadora() {
           width: 100%;
           height: 100%;
           border-radius: 50%;
-          background: #e0e0e0;
+          background: #e0e0e0; /* fallback */
           position: relative;
           overflow: hidden;
-          mask: radial-gradient(transparent 50px, black 50px);
-          -webkit-mask: radial-gradient(transparent 50px, black 50px);
+          /* Máscara para donut (anillo) */
+          mask: radial-gradient(transparent 55px, black 56px);
+          -webkit-mask: radial-gradient(transparent 55px, black 56px);
+          /* Animación de relleno */
           animation: fillDonut 1.2s ease-out forwards;
         }
 
@@ -575,8 +579,12 @@ export default function Calculadora() {
         }
 
         @keyframes fillDonut {
-          from { background: #e0e0e0; }
-          to { background: var(--gradient, #e0e0e0); }
+          0% {
+            background: #e0e0e0;
+          }
+          100% {
+            background: inherit; /* toma el conic-gradient del style */
+          }
         }
 
         .legend-item:hover .legend-color {
