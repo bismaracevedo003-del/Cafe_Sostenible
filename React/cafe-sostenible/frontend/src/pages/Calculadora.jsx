@@ -489,10 +489,8 @@ export default function Calculadora() {
 /* Barra que crece SOLO al % real */
 .bar-fill {
   height: 100%;
-  width: 0%; /* Inicia en 0 */
   border-radius: 16px;
   transition: width 1.2s ease-out;
-  animation: growBar 1.2s ease-out forwards;
 }
 
 .total-center {
@@ -515,11 +513,6 @@ export default function Calculadora() {
   color: #555;
   display: block;
   margin-top: 6px;
-}
-
-@keyframes growBar {
-  from { width: 0%; }
-  to { width: 100%; }
 }
 
 @media (max-width: 768px) {
