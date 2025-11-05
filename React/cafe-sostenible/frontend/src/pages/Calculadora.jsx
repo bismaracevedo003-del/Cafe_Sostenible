@@ -204,51 +204,53 @@ export default function Calculadora() {
   if (!user) return null;
 
   // ← CORREGIDO: generateSVG con animación suave y sin errores
-  const generateSVG = () => {
-    if (!resultado || chartData.length === 0) return null;
-    const total = parseFloat(resultado.total);
-    let cumulative = 0;
-    const radius = 80;
-    const circumference = 2 * Math.PI * radius;
+const generateSVG = () => {
+  if (!resultado || chartData.length === 0) return null;
+  const total = parseFloat(resultado.total);
+  let cumulative = 0;
+  const radius = 80;
+  const circumference = 2 * Math.PI * radius;
 
-    return (
-      <svg width="200" height="200" viewBox="0 0 200 200" className="pie-chart-svg">
-        <g transform="translate(100,100)">
-          <circle r={radius} fill="none" stroke="#e0e0e0" strokeWidth="36" />
-          {chartData.map((item, i) => {
-            const percent = (item.value / total) * 100;
-            const dashArray = (percent / 100) * circumference;
-            const dashOffset = circumference - (cumulative / total) * circumference;
-            cumulative += item.value;
+return (
+    <svg width="200" height="200" viewBox="0 0 200 200" className="pie-chart-svg">
+      <g transform="translate(100,100)">
+        {/* Fondo gris */}
+        <circle r={radius} fill="none" stroke="#e0e0e0" strokeWidth="36" />
+        
+        {/* Segmentos: SIN stroke inline → CSS controla el color */}
+        {chartData.map((item, i) => {
+          const percent = (item.value / total) * 100;
+          const dashArray = (percent / 100) * circumference;
+          const dashOffset = circumference - (cumulative / total) * circumference;
+          cumulative += item.value;
 
-            return (
-              <circle
-                key={i}
-                r={radius}
-                fill="none"
-                stroke={COLORS[i % COLORS.length]}
-                strokeWidth="36"
-                strokeDasharray={`${dashArray} ${circumference}`}
-                strokeDashoffset={dashOffset}
-                transform="rotate(-90)"
-                className="pie-segment"
-                style={{
-                  opacity: 0,
-                  animation: `fadeInSegment 0.6s ease-out ${i * 0.15}s forwards`
-                }}
-              />
-            );
-          })}
-        </g>
-        <text x="100" y="95" textAnchor="middle" className="pie-center-total">
-          {resultado.porKg}
-        </text>
-        <text x="100" y="115" textAnchor="middle" className="pie-center-label">
-          kg CO₂e/kg
-        </text>
-      </svg>
-    );
-  };
+          return (
+            <circle
+              key={i}
+              r={radius}
+              fill="none"
+              strokeWidth="36"
+              strokeDasharray={`${dashArray} ${circumference}`}
+              strokeDashoffset={dashOffset}
+              transform="rotate(-90)"
+              className={`pie-segment segment-${i}`}
+              style={{
+                opacity: 0,
+                animation: `fadeInSegment 0.6s ease-out ${i * 0.15}s forwards`
+              }}
+            />
+          );
+        })}
+      </g>
+      <text x="100" y="95" textAnchor="middle" className="pie-center-total">
+        {resultado.porKg}
+      </text>
+      <text x="100" y="115" textAnchor="middle" className="pie-center-label">
+        kg CO₂e/kg
+      </text>
+    </svg>
+  );
+};
 
   return (
     <>
