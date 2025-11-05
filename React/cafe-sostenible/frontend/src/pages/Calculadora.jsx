@@ -36,6 +36,9 @@ export default function Calculadora() {
   const [resultado, setResultado] = useState(null);
   const [chartData, setChartData] = useState([]);
 
+  // ← ESTADO AÑADIDO (ya estaba, lo mantenemos)
+  const [showSuccess, setShowSuccess] = useState(false);
+
   useEffect(() => {
     const checkAuth = async () => {
       try {
@@ -166,7 +169,11 @@ export default function Calculadora() {
         }),
       });
       if (!res.ok) throw new Error('Error al guardar');
-      alert('Cálculo EUDR guardado');
+
+      // ← AÑADIDO: animación de éxito
+      setShowSuccess(true);
+      setTimeout(() => setShowSuccess(false), 3000); // desaparece en 3 segundos
+
       setForm(prev => ({
         ...prev,
         nombreFinca: prev.nombreFinca,
@@ -427,6 +434,16 @@ export default function Calculadora() {
         </main>
       </div>
 
+      {/* ← AÑADIDO: Toast de éxito */}
+      {showSuccess && (
+        <div className="success-toast">
+          <svg className="check-icon" viewBox="0 0 24 24">
+            <polyline points="20 6 9 17 4 12" />
+          </svg>
+          <span>Cálculo EUDR guardado</span>
+        </div>
+      )}
+
       <style jsx>{`
         .calculadora-container { max-width: 1000px; margin: 0 auto; padding: 20px; }
         .section-title { text-align: center; color: #2d6a4f; margin-bottom: 30px; font-size: 24px; }
@@ -459,6 +476,53 @@ export default function Calculadora() {
         .btn-guardar:hover:not(:disabled) { background: #2d6a4f; }
         .btn-guardar:disabled { background: #95d5b2; cursor: not-allowed; }
         @media (max-width: 768px) { .form-grid { grid-template-columns: 1fr; } .eudr-indicators { grid-template-columns: 1fr; } }
+
+        /* ← AÑADIDO: Animación de éxito */
+        .success-toast {
+          position: fixed;
+          bottom: 30px;
+          right: 30px;
+          background: #2d6a4f;
+          color: white;
+          padding: 14px 24px;
+          border-radius: 12px;
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          font-weight: 600;
+          box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+          z-index: 1000;
+          animation: slideIn 0.4s ease-out, fadeOut 0.5s 2.5s forwards;
+        }
+
+        .check-icon {
+          width: 24px;
+          height: 24px;
+          stroke: white;
+          stroke-width: 3;
+          fill: none;
+          stroke-linecap: round;
+          stroke-linejoin: round;
+        }
+
+        .check-icon polyline {
+          stroke-dasharray: 22;
+          stroke-dashoffset: 66;
+          animation: drawCheck 0.6s ease-out 0.3s forwards;
+        }
+
+        @keyframes slideIn {
+          from { transform: translateX(100%); opacity: 0; }
+          to { transform: translateX(0); opacity: 1; }
+        }
+
+        @keyframes fadeOut {
+          to { opacity: 0; transform: translateY(20px); }
+        }
+
+        @keyframes drawCheck {
+          to { stroke-dashoffset: 0; }
+        }
       `}</style>
     </>
   );
