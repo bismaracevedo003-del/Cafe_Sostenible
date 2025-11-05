@@ -342,23 +342,19 @@ export default function Calculadora() {
                 {/* ← DONUT SIMPLE CON CSS (sin SVG) */}
                 <div className="chart-container">
                   <div className="donut-chart">
-                    <div className="donut-ring">
-                      {chartData.map((d, i) => {
-                        const percent = (d.value / parseFloat(resultado.total)) * 100;
-                        const offset = chartData.slice(0, i).reduce((a, b) => a + (b.value / parseFloat(resultado.total)) * 100, 0);
-                        return (
-                          <div
-                            key={i}
-                            className="donut-segment"
-                            style={{
-                              '--percent': percent,
-                              '--offset': offset,
-                              '--color': COLORS[i % COLORS.length],
-                            }}
-                          />
-                        );
-                      })}
-                    </div>
+                    <div 
+                      className="donut-ring"
+                      style={{
+                        background: `conic-gradient(
+                          ${chartData.map((d, i) => {
+                            const start = chartData.slice(0, i).reduce((a, b) => a + b.value, 0) / parseFloat(resultado.total) * 100;
+                            const end = start + (d.value / parseFloat(resultado.total)) * 100;
+                            return `${COLORS[i % COLORS.length]} ${start}% ${end}%`;
+                          }).join(', ')},
+                          #e0e0e0 0%
+                        )`
+                      }}
+                    />
                     <div className="donut-center">
                       <div>{resultado.porKg}</div>
                       <small>kg CO₂e/kg</small>
@@ -530,10 +526,11 @@ export default function Calculadora() {
         }
 
         /* ← DONUT SIMPLE CON CSS (sin SVG) */
+/* ← DONUT FIABLE CON CONIC-GRADIENT GLOBAL */
         .donut-chart {
           position: relative;
-          width: 200px;
-          height: 200px;
+          width: 220px;
+          height: 220px;
           margin: 0 auto 20px;
           filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
         }
@@ -545,23 +542,9 @@ export default function Calculadora() {
           background: #e0e0e0;
           position: relative;
           overflow: hidden;
-        }
-
-        .donut-segment {
-          position: absolute;
-          width: 100%;
-          height: 100%;
-          border-radius: 50%;
-          clip-path: polygon(50% 50%, 50% 0%, 100% 0%, 100% 100%, 0% 100%, 0% 0%, 50% 0%);
-          transform: rotate(calc(var(--offset) * 3.6deg));
-          background: conic-gradient(
-            var(--color) 0%,
-            var(--color) calc(var(--percent) * 3.6%),
-            transparent calc(var(--percent) * 3.6%),
-            transparent 100%
-          );
-          animation: revealDonut 1s ease-out forwards;
-          animation-delay: calc(var(--offset) * 0.01s);
+          mask: radial-gradient(transparent 50px, black 50px);
+          -webkit-mask: radial-gradient(transparent 50px, black 50px);
+          animation: fillDonut 1.2s ease-out forwards;
         }
 
         .donut-center {
@@ -570,8 +553,8 @@ export default function Calculadora() {
           left: 50%;
           transform: translate(-50%, -50%);
           background: white;
-          width: 100px;
-          height: 100px;
+          width: 110px;
+          height: 110px;
           border-radius: 50%;
           display: flex;
           flex-direction: column;
@@ -579,19 +562,21 @@ export default function Calculadora() {
           align-items: center;
           font-weight: 700;
           color: #2d6a4f;
+          font-size: 28px;
           box-shadow: 0 0 0 18px white;
           z-index: 10;
         }
 
         .donut-center small {
-          font-size: 12px;
+          font-size: 13px;
           color: #555;
           font-weight: normal;
+          margin-top: 4px;
         }
 
-        @keyframes revealDonut {
-          from { clip-path: polygon(50% 50%, 50% 50%, 50% 50%, 50% 50%, 50% 50%, 50% 50%, 50% 50%); }
-          to { clip-path: polygon(50% 50%, 50% 0%, 100% 0%, 100% 100%, 0% 100%, 0% 0%, 50% 0%); }
+        @keyframes fillDonut {
+          from { background: #e0e0e0; }
+          to { background: var(--gradient, #e0e0e0); }
         }
 
         .legend-item:hover .legend-color {
