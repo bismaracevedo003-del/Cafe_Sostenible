@@ -12,9 +12,15 @@ load_dotenv()
 
 # --- INICIALIZACIÓN ---
 app = Flask(__name__)
-CORS(app,
-    supports_credentials=True,
-    origins=["https://cafe-sostenible-1.onrender.com"]   # <-- cambia a tu URL del front
+CORS(app, 
+     supports_credentials=True,
+     origins=[
+         "https://cafe-sostenible-1.onrender.com",  # Tu frontend en producción
+         "http://localhost:5173",                    # Desarrollo local (Vite)
+         "https://localhost:5173"                    # Si usas HTTPS local
+     ],
+     methods=['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],  # Explícito: permite OPTIONS
+     allow_headers=['Content-Type', 'Authorization']        # Headers comunes
 )
 
 
