@@ -422,12 +422,58 @@ export default function Calculadora() {
         .form-group input:focus, .form-group select:focus { outline: none; border-color: #2d6a4f; box-shadow: 0 0 0 2px rgba(45,106,79,0.2); }
         .btn-calcular { width: 100%; padding: 14px; background: #2d6a4f; color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; }
         .btn-calcular:hover { background: #1f4d38; }
-        .resultado-section { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); text-align: center; }
-        .resultado-section h3 { color: #2d6a4f; margin-bottom: 20px; }
-        .resultado-cards { display: flex; justify-content: center; gap: 30px; flex-wrap: wrap; margin-bottom: 30px; }
-        .card { background: #f1f8f5; padding: 20px; border-radius: 12px; min-width: 160px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
-        .card-title { font-size: 14px; color: #555; margin-bottom: 8px; }
-        .card-value { font-size: 24px; font-weight: 700; color: #2d6a4f; }
+        .resultado-section {
+          margin-top: 2rem;
+          padding: 1.5rem;
+          border-radius: 12px;
+          background: #f8f9fa;
+          border: 1px solid #e3e3e3;
+        }
+
+        .resultado-section h3 {
+          text-align: center;
+          margin-bottom: 1.8rem;
+          font-size: 1.4rem;
+          font-weight: 600;
+          color: #333;
+        }
+
+        .resultado-cards {
+          display: flex;
+          justify-content: center;
+          gap: 1.5rem;
+          flex-wrap: wrap;
+        }
+
+        .card {
+          background: white;
+          padding: 1.2rem 1.6rem;
+          border-radius: 10px;
+          border: 1px solid #dedede;
+          width: 230px;
+          text-align: center;
+          box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+          transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .card:hover {
+          transform: translateY(-4px);
+          box-shadow: 0 6px 14px rgba(0,0,0,0.12);
+        }
+
+        .card-title {
+          font-size: 0.95rem;
+          font-weight: 500;
+          color: #555;
+          margin-bottom: 0.5rem;
+        }
+
+        .card-value {
+          font-size: 1.25rem;
+          font-weight: 700;
+          color: #007b5e; /* Puedes cambiar el color principal aquí */
+        }
+
         .eudr-indicators { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin: 25px 0; padding: 15px; background: #f8f9fa; border-radius: 10px; }
         .indicator { font-size: 15px; display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #eee; }
         .indicator:last-child { border-bottom: none; }
