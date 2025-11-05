@@ -193,7 +193,7 @@ def api_logout():
     return jsonify({"status": "success", "message": "Sesión cerrada"})
 
 # === GUARDAR CÁLCULO EUDR ===
-@app.route('/historial', methods=['POST'])
+@app.route('/api/historial', methods=['POST'])
 @login_required
 def guardar_historial():
     data = request.get_json()
@@ -239,7 +239,7 @@ def guardar_historial():
         return jsonify({"status": "error", "message": str(e)}), 400
 
 # === OBTENER HISTORIAL ===
-@app.route('/historial', methods=['GET'])
+@app.route('/api/historial', methods=['GET'])
 @login_required
 def obtener_historial():
     calculos = CalculoEUDR.query.filter_by(user_id=session['user_id']) \
