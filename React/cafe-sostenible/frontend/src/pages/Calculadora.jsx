@@ -340,6 +340,7 @@ export default function Calculadora() {
                 </div>
 
                 {/* ← GRÁFICO DE BARRAS HORIZONTALES */}
+                {/* ← GRÁFICO DE BARRAS PROPORCIONALES AL PORCENTAJE */}
                 <div className="chart-container">
                   <div className="bars-chart">
                     {chartData.map((d, i) => {
@@ -350,7 +351,7 @@ export default function Calculadora() {
                             <span className="bar-name">{d.name}</span>
                             <span className="bar-value">{d.value.toFixed(1)} kg ({percent.toFixed(0)}%)</span>
                           </div>
-                          <div className="bar-container">
+                          <div className="bar-wrapper">
                             <div
                               className="bar-fill"
                               style={{
@@ -435,94 +436,95 @@ export default function Calculadora() {
         .btn-guardar:disabled { background: #95d5b2; cursor: not-allowed; }
 
         /* ← GRÁFICO DE BARRAS HORIZONTALES (100% FIABLE) */
-        .chart-container {
-          margin: 30px 0;
-          padding: 20px;
-          background: #f9f9f9;
-          border-radius: 12px;
-          position: relative;
-        }
+        /* ← GRÁFICO DE BARRAS PROPORCIONALES (100% AL PORCENTAJE) */
+.chart-container {
+  margin: 30px 0;
+  padding: 20px;
+  background: #f9f9f9;
+  border-radius: 12px;
+}
 
-        .bars-chart {
-          display: flex;
-          flex-direction: column;
-          gap: 14px;
-          max-width: 500px;
-          margin: 0 auto;
-        }
+.bars-chart {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-width: 600px;
+  margin: 0 auto;
+}
 
-        .bar-item {
-          display: flex;
-          flex-direction: column;
-          gap: 6px;
-        }
+.bar-item {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
 
-        .bar-label {
-          display: flex;
-          justify-content: space-between;
-          font-size: 14.5px;
-          color: #444;
-          font-weight: 600;
-        }
+.bar-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 14.5px;
+  font-weight: 600;
+  color: #444;
+}
 
-        .bar-name {
-          color: #2d6a4f;
-        }
+.bar-name {
+  color: #2d6a4f;
+}
 
-        .bar-value {
-          font-weight: normal;
-          color: #666;
-        }
+.bar-value {
+  color: #666;
+  font-weight: normal;
+}
 
-        .bar-container {
-          height: 26px;
-          background: #e0e0e0;
-          border-radius: 13px;
-          overflow: hidden;
-          position: relative;
-          box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
-        }
+/* Fondo gris claro que siempre ocupa el 100% */
+.bar-wrapper {
+  width: 100%;
+  height: 32px;
+  background: #e8ecef;
+  border-radius: 16px;
+  overflow: hidden;
+  position: relative;
+  box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+}
 
-        .bar-fill {
-          height: 100%;
-          border-radius: 13px;
-          transition: width 0.8s ease-out;
-          animation: fillBar 1s ease-out forwards;
-          width: 0%;
-        }
+/* Barra que crece SOLO al % real */
+.bar-fill {
+  height: 100%;
+  width: 0%; /* Inicia en 0 */
+  border-radius: 16px;
+  transition: width 1.2s ease-out;
+  animation: growBar 1.2s ease-out forwards;
+}
 
-        .total-center {
-          text-align: center;
-          margin-top: 24px;
-          padding: 18px;
-          background: white;
-          border-radius: 14px;
-          box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-        }
+.total-center {
+  text-align: center;
+  margin-top: 28px;
+  padding: 18px;
+  background: white;
+  border-radius: 14px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
 
-        .total-value {
-          font-size: 30px;
-          font-weight: 700;
-          color: #2d6a4f;
-        }
+.total-value {
+  font-size: 30px;
+  font-weight: 700;
+  color: #2d6a4f;
+}
 
-        .total-center small {
-          font-size: 14px;
-          color: #555;
-          display: block;
-          margin-top: 6px;
-        }
+.total-center small {
+  font-size: 14px;
+  color: #555;
+  display: block;
+  margin-top: 6px;
+}
 
-        @keyframes fillBar {
-          from { width: 0%; }
-          to { width: 100%; }
-        }
+@keyframes growBar {
+  from { width: 0%; }
+  to { width: 100%; }
+}
 
-        @media (max-width: 768px) {
-          .form-grid { grid-template-columns: 1fr; }
-          .eudr-indicators { grid-template-columns: 1fr; }
-          .bars-chart { max-width: 100%; }
-        }
+@media (max-width: 768px) {
+  .bars-chart { max-width: 100%; }
+}
 
         .success-toast {
           position: fixed;
