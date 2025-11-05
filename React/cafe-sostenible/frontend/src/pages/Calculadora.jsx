@@ -38,6 +38,8 @@ export default function Calculadora() {
 
   // ← ESTADO AÑADIDO (ya estaba, lo mantenemos)
   const [showSuccess, setShowSuccess] = useState(false);
+  // ← AÑADIDO: estado para error
+  const [showError, setShowError] = useState(false);
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -194,7 +196,8 @@ export default function Calculadora() {
       setResultado(null);
       setChartData([]);
     } catch (err) {
-      alert('Error al guardar');
+      setShowError(true);
+      setTimeout(() => setShowError(false), 3000); // desaparece en 3 segundos
     } finally {
       setSaving(false);
     }
@@ -230,7 +233,10 @@ export default function Calculadora() {
     return (
       <svg width="200" height="200" viewBox="0 0 200 200" className="pie-chart-svg">
         <g transform="translate(100,100)">
+          {/* Fondo gris */}
           <circle r={radius} fill="none" stroke="#e0e0e0" strokeWidth="36" />
+          
+          {/* Segmentos con colores */}
           {chartData.map((item, i) => {
             const percent = (item.value / total) * 100;
             const dashOffset = circumference - (cumulative / total) * circumference;
@@ -246,6 +252,7 @@ export default function Calculadora() {
                 strokeDashoffset={-dashOffset}
                 transform="rotate(-90)"
                 className="pie-segment"
+                style={{ animation: `growSegment ${0.8 + i * 0.2}s ease-out forwards` }}
               />
             );
           })}
@@ -444,6 +451,17 @@ export default function Calculadora() {
         </div>
       )}
 
+      {/* ← AÑADIDO: Toast de error */}
+      {showError && (
+        <div className="error-toast">
+          <svg className="error-icon" viewBox="0 0 24 24">
+            <line x1="18" y1="6" x2="6" y2="18" />
+            <line x1="6" y1="6" x2="18" y2="18" />
+          </svg>
+          <span>Error al guardar</span>
+        </div>
+      )}
+
       <style jsx>{`
         .calculadora-container { max-width: 1000px; margin: 0 auto; padding: 20px; }
         .section-title { text-align: center; color: #2d6a4f; margin-bottom: 30px; font-size: 24px; }
@@ -511,6 +529,39 @@ export default function Calculadora() {
           animation: drawCheck 0.6s ease-out 0.3s forwards;
         }
 
+        /* ← AÑADIDO: Animación de error */
+        .error-toast {
+          position: fixed;
+          bottom: 30px;
+          right: 30px;
+          background: #c62828;
+          color: white;
+          padding: 14px 24px;
+          border-radius: 12px;
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          font-weight: 600;
+          box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+          z-index: 1000;
+          animation: slideIn 0.4s ease-out, fadeOut 0.5s 2.5s forwards;
+        }
+
+        .error-icon {
+          width: 24px;
+          height: 24px;
+          stroke: white;
+          stroke-width: 3;
+          fill: none;
+          stroke-linecap: round;
+        }
+
+        .error-icon line {
+          stroke-dasharray: 18;
+          stroke-dashoffset: 36;
+          animation: drawX 0.6s ease-out 0.3s forwards;
+        }
+
         @keyframes slideIn {
           from { transform: translateX(100%); opacity: 0; }
           to { transform: translateX(0); opacity: 1; }
@@ -522,6 +573,42 @@ export default function Calculadora() {
 
         @keyframes drawCheck {
           to { stroke-dashoffset: 0; }
+        }
+
+        @keyframes drawX {
+          to { stroke-dashoffset: 0; }
+        }
+
+        /* ← MEJORADO: Gráfico con colores visibles y animación */
+        .pie-segment {
+          opacity: 0;
+          transform: rotate(-90deg);
+          transform-origin: center;
+        }
+
+        @keyframes growSegment {
+          0% {
+            opacity: 0;
+            stroke-dasharray: 0 ${circumference};
+          }
+          100% {
+            opacity: 1;
+            stroke-dasharray: var(--dasharray, ${circumference / 2} ${circumference});
+          }
+        }
+
+        /* Asegurar que los colores se apliquen */
+        .pie-segment:nth-child(1) { stroke: #2d6a4f; }
+        .pie-segment:nth-child(2) { stroke: #40916c; }
+        .pie-segment:nth-child(3) { stroke: #52b788; }
+        .pie-segment:nth-child(4) { stroke: #74c69d; }
+        .pie-segment:nth-child(5) { stroke: #95d5b2; }
+        .pie-segment:nth-child(6) { stroke: #2d6a4f; } /* fallback */
+
+        /* Hover en leyenda para resaltar segmento */
+        .legend-item:hover .legend-color {
+          transform: scale(1.3);
+          transition: transform 0.2s;
         }
       `}</style>
     </>
