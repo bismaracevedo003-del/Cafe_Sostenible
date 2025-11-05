@@ -36,9 +36,7 @@ export default function Calculadora() {
   const [resultado, setResultado] = useState(null);
   const [chartData, setChartData] = useState([]);
 
-  // ← ESTADO AÑADIDO (ya estaba, lo mantenemos)
   const [showSuccess, setShowSuccess] = useState(false);
-  // ← AÑADIDO: estado para error
   const [showError, setShowError] = useState(false);
 
   useEffect(() => {
@@ -49,7 +47,6 @@ export default function Calculadora() {
         const data = await res.json();
         setUser(data);
 
-        // Llenar automáticamente el nombre de la finca
         if (data.nombreFinca) {
           setForm(prev => ({ ...prev, nombreFinca: data.nombreFinca }));
         }
@@ -89,39 +86,23 @@ export default function Calculadora() {
       return;
     }
 
-    // 1. Fertilizante (kg/ha)
     const fertPorHa = fert / ha;
     const fertEmision = fertPorHa * (f.tipoFertilizante === 'sintetico' ? 4.5 : 1.2);
-
-    // 2. Rendimiento
     const rendimiento = prod / ha;
-
-    // 3. Energía
     const poderCalorifico = f.tipoCombustible === 'diesel' ? 36 : f.tipoCombustible === 'gas' ? 38 : 45;
     const energiaComb = (comb * poderCalorifico) / 3.6;
     const energiaTotal = elec + energiaComb;
-
-    // 4. Cobertura arbórea
     const arbolesPorHa = parseFloat(f.arbolesSombra) / ha || 0;
     const coberturaPorc = (parseFloat(f.areaCopaPromedio) * parseFloat(f.arbolesSombra)) / (ha * 10000) * 100 || 0;
-
-    // 5. Transporte
     const distanciaProm = (dist * vol) / vol || 0;
     const transpEmision = distanciaProm * 0.12;
-
-    // 6. Procesamiento
     const coefProcesamiento = { lavado: 0.30, miel: 0.20, natural: 0.10 };
     const procEmision = prod * coefProcesamiento[f.tipoProcesamiento];
-
-    // 7. Residuos
     const fraccionCompost = residuosTot > 0 ? compost / residuosTot : 0;
     const residuosEmision = (residuosTot - compost) * 0.5;
-
-    // 8. Deforestación
     const deforestacionPorc = bosqueBase > 0 ? ((bosqueBase - bosqueAct) / ha) * 100 : 0;
     const deforestacionEmision = deforestacionPorc > 0 ? deforestacionPorc * 1500 : 0;
 
-    // Total
     const total =
       (fertEmision * ha) +
       (energiaTotal * 0.45) +
@@ -172,9 +153,8 @@ export default function Calculadora() {
       });
       if (!res.ok) throw new Error('Error al guardar');
 
-      // ← AÑADIDO: animación de éxito
       setShowSuccess(true);
-      setTimeout(() => setShowSuccess(false), 3000); // desaparece en 3 segundos
+      setTimeout(() => setShowSuccess(false), 3000);
 
       setForm(prev => ({
         ...prev,
@@ -197,7 +177,7 @@ export default function Calculadora() {
       setChartData([]);
     } catch (err) {
       setShowError(true);
-      setTimeout(() => setShowError(false), 3000); // desaparece en 3 segundos
+      setTimeout(() => setShowError(false), 3000);
     } finally {
       setSaving(false);
     }
@@ -223,6 +203,7 @@ export default function Calculadora() {
 
   if (!user) return null;
 
+  // ← CORREGIDO: generateSVG con animación suave y sin errores
   const generateSVG = () => {
     if (!resultado || chartData.length === 0) return null;
     const total = parseFloat(resultado.total);
@@ -233,14 +214,13 @@ export default function Calculadora() {
     return (
       <svg width="200" height="200" viewBox="0 0 200 200" className="pie-chart-svg">
         <g transform="translate(100,100)">
-          {/* Fondo gris */}
           <circle r={radius} fill="none" stroke="#e0e0e0" strokeWidth="36" />
-          
-          {/* Segmentos con colores */}
           {chartData.map((item, i) => {
             const percent = (item.value / total) * 100;
+            const dashArray = (percent / 100) * circumference;
             const dashOffset = circumference - (cumulative / total) * circumference;
             cumulative += item.value;
+
             return (
               <circle
                 key={i}
@@ -248,11 +228,14 @@ export default function Calculadora() {
                 fill="none"
                 stroke={COLORS[i % COLORS.length]}
                 strokeWidth="36"
-                strokeDasharray={`${(percent / 100) * circumference} ${circumference}`}
-                strokeDashoffset={-dashOffset}
+                strokeDasharray={`${dashArray} ${circumference}`}
+                strokeDashoffset={dashOffset}
                 transform="rotate(-90)"
                 className="pie-segment"
-                style={{ animation: `growSegment ${0.8 + i * 0.2}s ease-out forwards` }}
+                style={{
+                  opacity: 0,
+                  animation: `fadeInSegment 0.6s ease-out ${i * 0.15}s forwards`
+                }}
               />
             );
           })}
@@ -309,7 +292,6 @@ export default function Calculadora() {
                     style={{ backgroundColor: '#f8f9fa', cursor: 'not-allowed' }}
                   />
                 </div>
-                {/* Resto de campos... */}
                 <div className="form-group">
                   <label>Área cultivada (ha)</label>
                   <input type="number" name="areaCultivada" value={form.areaCultivada} onChange={handleInputChange} min="0" step="0.1" required />
@@ -393,7 +375,6 @@ export default function Calculadora() {
             {resultado && (
               <div className="resultado-section">
                 <h3>Resultados EUDR – {form.nombreFinca}</h3>
-                {/* ... resto del resultado ... */}
                 <div className="resultado-cards">
                   <div className="card">
                     <p className="card-title">Huella Total</p>
@@ -441,7 +422,6 @@ export default function Calculadora() {
         </main>
       </div>
 
-      {/* ← AÑADIDO: Toast de éxito */}
       {showSuccess && (
         <div className="success-toast">
           <svg className="check-icon" viewBox="0 0 24 24">
@@ -451,7 +431,6 @@ export default function Calculadora() {
         </div>
       )}
 
-      {/* ← AÑADIDO: Toast de error */}
       {showError && (
         <div className="error-toast">
           <svg className="error-icon" viewBox="0 0 24 24">
@@ -495,7 +474,6 @@ export default function Calculadora() {
         .btn-guardar:disabled { background: #95d5b2; cursor: not-allowed; }
         @media (max-width: 768px) { .form-grid { grid-template-columns: 1fr; } .eudr-indicators { grid-template-columns: 1fr; } }
 
-        /* ← AÑADIDO: Animación de éxito */
         .success-toast {
           position: fixed;
           bottom: 30px;
@@ -529,7 +507,6 @@ export default function Calculadora() {
           animation: drawCheck 0.6s ease-out 0.3s forwards;
         }
 
-        /* ← AÑADIDO: Animación de error */
         .error-toast {
           position: fixed;
           bottom: 30px;
@@ -579,33 +556,24 @@ export default function Calculadora() {
           to { stroke-dashoffset: 0; }
         }
 
-        /* ← MEJORADO: Gráfico con colores visibles y animación */
+        /* ← CORREGIDO: Animación suave sin errores */
         .pie-segment {
           opacity: 0;
-          transform: rotate(-90deg);
           transform-origin: center;
         }
 
-        @keyframes growSegment {
-          0% {
-            opacity: 0;
-            stroke-dasharray: 0 ${circumference};
-          }
-          100% {
-            opacity: 1;
-            stroke-dasharray: var(--dasharray, ${circumference / 2} ${circumference});
-          }
+        @keyframes fadeInSegment {
+          to { opacity: 1; }
         }
 
-        /* Asegurar que los colores se apliquen */
+        /* Forzar colores */
         .pie-segment:nth-child(1) { stroke: #2d6a4f; }
         .pie-segment:nth-child(2) { stroke: #40916c; }
         .pie-segment:nth-child(3) { stroke: #52b788; }
         .pie-segment:nth-child(4) { stroke: #74c69d; }
         .pie-segment:nth-child(5) { stroke: #95d5b2; }
-        .pie-segment:nth-child(6) { stroke: #2d6a4f; } /* fallback */
+        .pie-segment:nth-child(6) { stroke: #2d6a4f; }
 
-        /* Hover en leyenda para resaltar segmento */
         .legend-item:hover .legend-color {
           transform: scale(1.3);
           transition: transform 0.2s;
