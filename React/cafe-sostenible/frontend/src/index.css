@@ -232,9 +232,9 @@ section h2 {
     min-height: 60vh;
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: right;
     padding: 40px;
-    text-align: right;
+    text-align: center;
 }
 
 .stats-container {
