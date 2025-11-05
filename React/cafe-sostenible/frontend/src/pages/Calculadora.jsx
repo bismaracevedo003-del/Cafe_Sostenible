@@ -203,55 +203,6 @@ export default function Calculadora() {
 
   if (!user) return null;
 
-  // ← CORREGIDO: generateSVG con animación suave y sin errores
-const generateSVG = () => {
-  if (!resultado || chartData.length === 0) return null;
-  const total = parseFloat(resultado.total);
-  let cumulative = 0;
-  const radius = 80;
-  const circumference = 2 * Math.PI * radius;
-
-return (
-    <svg width="200" height="200" viewBox="0 0 200 200" className="pie-chart-svg">
-      <g transform="translate(100,100)">
-        {/* Fondo gris */}
-        <circle r={radius} fill="none" stroke="#e0e0e0" strokeWidth="36" />
-        
-        {/* Segmentos: SIN stroke inline → CSS controla el color */}
-        {chartData.map((item, i) => {
-          const percent = (item.value / total) * 100;
-          const dashArray = (percent / 100) * circumference;
-          const dashOffset = circumference - (cumulative / total) * circumference;
-          cumulative += item.value;
-
-          return (
-            <circle
-              key={i}
-              r={radius}
-              fill="none"
-              strokeWidth="36"
-              strokeDasharray={`${dashArray} ${circumference}`}
-              strokeDashoffset={dashOffset}
-              transform="rotate(-90)"
-              className={`pie-segment segment-${i}`}
-              style={{
-                opacity: 0,
-                animation: `fadeInSegment 0.6s ease-out ${i * 0.15}s forwards`
-              }}
-            />
-          );
-        })}
-      </g>
-      <text x="100" y="95" textAnchor="middle" className="pie-center-total">
-        {resultado.porKg}
-      </text>
-      <text x="100" y="115" textAnchor="middle" className="pie-center-label">
-        kg CO₂e/kg
-      </text>
-    </svg>
-  );
-};
-
   return (
     <>
       <header className="header">
@@ -388,8 +339,32 @@ return (
                   </div>
                 </div>
 
+                {/* ← DONUT SIMPLE CON CSS (sin SVG) */}
                 <div className="chart-container">
-                  <div className="chart-wrapper">{generateSVG()}</div>
+                  <div className="donut-chart">
+                    <div className="donut-ring">
+                      {chartData.map((d, i) => {
+                        const percent = (d.value / parseFloat(resultado.total)) * 100;
+                        const offset = chartData.slice(0, i).reduce((a, b) => a + (b.value / parseFloat(resultado.total)) * 100, 0);
+                        return (
+                          <div
+                            key={i}
+                            className="donut-segment"
+                            style={{
+                              '--percent': percent,
+                              '--offset': offset,
+                              '--color': COLORS[i % COLORS.length],
+                            }}
+                          />
+                        );
+                      })}
+                    </div>
+                    <div className="donut-center">
+                      <div>{resultado.porKg}</div>
+                      <small>kg CO₂e/kg</small>
+                    </div>
+                  </div>
+
                   <div className="legend">
                     {chartData.map((d, i) => (
                       <div key={i} className="legend-item">
@@ -443,143 +418,187 @@ return (
         </div>
       )}
 
-<style jsx>{`
-  .calculadora-container { max-width: 1000px; margin: 0 auto; padding: 20px; }
-  .section-title { text-align: center; color: #2d6a4f; margin-bottom: 30px; font-size: 24px; }
-  .calculadora-form { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin-bottom: 30px; }
-  .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; margin-bottom: 20px; }
-  .form-group label { display: block; margin-bottom: 6px; font-weight: 600; color: #2d6a4f; font-size: 14px; }
-  .form-group input, .form-group select { width: 100%; padding: 10px; border: 1px solid #95d5b2; border-radius: 8px; font-size: 15px; }
-  .form-group input:focus, .form-group select:focus { outline: none; border-color: #2d6a4f; box-shadow: 0 0 0 2px rgba(45,106,79,0.2); }
-  .btn-calcular { width: 100%; padding: 14px; background: #2d6a4f; color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; }
-  .btn-calcular:hover { background: #1f4d38; }
-  .resultado-section { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); text-align: center; }
-  .resultado-section h3 { color: #2d6a4f; margin-bottom: 20px; }
-  .resultado-cards { display: flex; justify-content: center; gap: 30px; flex-wrap: wrap; margin-bottom: 30px; }
-  .card { background: #f1f8f5; padding: 20px; border-radius: 12px; min-width: 160px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
-  .card-title { font-size: 14px; color: #555; margin-bottom: 8px; }
-  .card-value { font-size: 24px; font-weight: 700; color: #2d6a4f; }
-  .chart-container { margin: 30px 0; padding: 20px; background: #f9f9f9; border-radius: 12px; }
-  .chart-wrapper { display: flex; justify-content: center; margin-bottom: 20px; }
-  .pie-chart-svg { filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1)); }
-  .pie-center-total { font-size: 28px; font-weight: 700; fill: #2d6a4f; }
-  .pie-center-label { font-size: 14px; fill: #555; }
-  .legend { display: flex; flex-direction: column; gap: 8px; max-width: 320px; margin: 0 auto; }
-  .legend-item { display: flex; align-items: center; font-size: 14px; }
-  .legend-color { width: 16px; height: 16px; border-radius: 4px; display: inline-block; margin-right: 10px; }
-  .legend-label { color: #444; }
-  .eudr-indicators { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin: 25px 0; padding: 15px; background: #f8f9fa; border-radius: 10px; }
-  .indicator { font-size: 15px; display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #eee; }
-  .indicator:last-child { border-bottom: none; }
-  .btn-guardar { margin-top: 20px; padding: 12px 30px; background: #40916c; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; }
-  .btn-guardar:hover:not(:disabled) { background: #2d6a4f; }
-  .btn-guardar:disabled { background: #95d5b2; cursor: not-allowed; }
-  @media (max-width: 768px) { .form-grid { grid-template-columns: 1fr; } .eudr-indicators { grid-template-columns: 1fr; } }
+      <style jsx>{`
+        .calculadora-container { max-width: 1000px; margin: 0 auto; padding: 20px; }
+        .section-title { text-align: center; color: #2d6a4f; margin-bottom: 30px; font-size: 24px; }
+        .calculadora-form { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin-bottom: 30px; }
+        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; margin-bottom: 20px; }
+        .form-group label { display: block; margin-bottom: 6px; font-weight: 600; color: #2d6a4f; font-size: 14px; }
+        .form-group input, .form-group select { width: 100%; padding: 10px; border: 1px solid #95d5b2; border-radius: 8px; font-size: 15px; }
+        .form-group input:focus, .form-group select:focus { outline: none; border-color: #2d6a4f; box-shadow: 0 0 0 2px rgba(45,106,79,0.2); }
+        .btn-calcular { width: 100%; padding: 14px; background: #2d6a4f; color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; }
+        .btn-calcular:hover { background: #1f4d38; }
+        .resultado-section { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); text-align: center; }
+        .resultado-section h3 { color: #2d6a4f; margin-bottom: 20px; }
+        .resultado-cards { display: flex; justify-content: center; gap: 30px; flex-wrap: wrap; margin-bottom: 30px; }
+        .card { background: #f1f8f5; padding: 20px; border-radius: 12px; min-width: 160px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+        .card-title { font-size: 14px; color: #555; margin-bottom: 8px; }
+        .card-value { font-size: 24px; font-weight: 700; color: #2d6a4f; }
+        .chart-container { margin: 30px 0; padding: 20px; background: #f9f9f9; border-radius: 12px; }
+        .legend { display: flex; flex-direction: column; gap: 8px; max-width: 320px; margin: 20px auto 0; }
+        .legend-item { display: flex; align-items: center; font-size: 14px; }
+        .legend-color { width: 16px; height: 16px; border-radius: 4px; display: inline-block; margin-right: 10px; }
+        .legend-label { color: #444; }
+        .eudr-indicators { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin: 25px 0; padding: 15px; background: #f8f9fa; border-radius: 10px; }
+        .indicator { font-size: 15px; display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #eee; }
+        .indicator:last-child { border-bottom: none; }
+        .btn-guardar { margin-top: 20px; padding: 12px 30px; background: #40916c; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; }
+        .btn-guardar:hover:not(:disabled) { background: #2d6a4f; }
+        .btn-guardar:disabled { background: #95d5b2; cursor: not-allowed; }
+        @media (max-width: 768px) { .form-grid { grid-template-columns: 1fr; } .eudr-indicators { grid-template-columns: 1fr; } }
 
-  .success-toast {
-    position: fixed;
-    bottom: 30px;
-    right: 30px;
-    background: #2d6a4f;
-    color: white;
-    padding: 14px 24px;
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    font-weight: 600;
-    box-shadow: 0 8px 20px rgba(0,0,0,0.15);
-    z-index: 1000;
-    animation: slideIn 0.4s ease-out, fadeOut 0.5s 2.5s forwards;
-  }
+        .success-toast {
+          position: fixed;
+          bottom: 30px;
+          right: 30px;
+          background: #2d6a4f;
+          color: white;
+          padding: 14px 24px;
+          border-radius: 12px;
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          font-weight: 600;
+          box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+          z-index: 1000;
+          animation: slideIn 0.4s ease-out, fadeOut 0.5s 2.5s forwards;
+        }
 
-  .check-icon {
-    width: 24px;
-    height: 24px;
-    stroke: white;
-    stroke-width: 3;
-    fill: none;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-  }
+        .check-icon {
+          width: 24px;
+          height: 24px;
+          stroke: white;
+          stroke-width: 3;
+          fill: none;
+          stroke-linecap: round;
+          stroke-linejoin: round;
+        }
 
-  .check-icon polyline {
-    stroke-dasharray: 22;
-    stroke-dashoffset: 66;
-    animation: drawCheck 0.6s ease-out 0.3s forwards;
-  }
+        .check-icon polyline {
+          stroke-dasharray: 22;
+          stroke-dashoffset: 66;
+          animation: drawCheck 0.6s ease-out 0.3s forwards;
+        }
 
-  .error-toast {
-    position: fixed;
-    bottom: 30px;
-    right: 30px;
-    background: #c62828;
-    color: white;
-    padding: 14px 24px;
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    font-weight: 600;
-    box-shadow: 0 8px 20px rgba(0,0,0,0.2);
-    z-index: 1000;
-    animation: slideIn 0.4s ease-out, fadeOut 0.5s 2.5s forwards;
-  }
+        .error-toast {
+          position: fixed;
+          bottom: 30px;
+          right: 30px;
+          background: #c62828;
+          color: white;
+          padding: 14px 24px;
+          border-radius: 12px;
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          font-weight: 600;
+          box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+          z-index: 1000;
+          animation: slideIn 0.4s ease-out, fadeOut 0.5s 2.5s forwards;
+        }
 
-  .error-icon {
-    width: 24px;
-    height: 24px;
-    stroke: white;
-    stroke-width: 3;
-    fill: none;
-    stroke-linecap: round;
-  }
+        .error-icon {
+          width: 24px;
+          height: 24px;
+          stroke: white;
+          stroke-width: 3;
+          fill: none;
+          stroke-linecap: round;
+        }
 
-  .error-icon line {
-    stroke-dasharray: 18;
-    stroke-dashoffset: 36;
-    animation: drawX 0.6s ease-out 0.3s forwards;
-  }
+        .error-icon line {
+          stroke-dasharray: 18;
+          stroke-dashoffset: 36;
+          animation: drawX 0.6s ease-out 0.3s forwards;
+        }
 
-  @keyframes slideIn {
-    from { transform: translateX(100%); opacity: 0; }
-    to { transform: translateX(0); opacity: 1; }
-  }
+        @keyframes slideIn {
+          from { transform: translateX(100%); opacity: 0; }
+          to { transform: translateX(0); opacity: 1; }
+        }
 
-  @keyframes fadeOut {
-    to { opacity: 0; transform: translateY(20px); }
-  }
+        @keyframes fadeOut {
+          to { opacity: 0; transform: translateY(20px); }
+        }
 
-  @keyframes drawCheck {
-    to { stroke-dashoffset: 0; }
-  }
+        @keyframes drawCheck {
+          to { stroke-dashoffset: 0; }
+        }
 
-  @keyframes drawX {
-    to { stroke-dashoffset: 0; }
-  }
+        @keyframes drawX {
+          to { stroke-dashoffset: 0; }
+        }
 
-  /* ← CORREGIDO: Colores 100% visibles */
-  .pie-segment {
-    opacity: 0;
-    transform-origin: center;
-  }
+        /* ← DONUT SIMPLE CON CSS (sin SVG) */
+        .donut-chart {
+          position: relative;
+          width: 200px;
+          height: 200px;
+          margin: 0 auto 20px;
+          filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
+        }
 
-  @keyframes fadeInSegment {
-    to { opacity: 1; }
-  }
+        .donut-ring {
+          width: 100%;
+          height: 100%;
+          border-radius: 50%;
+          background: #e0e0e0;
+          position: relative;
+          overflow: hidden;
+        }
 
-  .pie-segment.segment-0 { stroke: #2d6a4f; }
-  .pie-segment.segment-1 { stroke: #40916c; }
-  .pie-segment.segment-2 { stroke: #52b788; }
-  .pie-segment.segment-3 { stroke: #74c69d; }
-  .pie-segment.segment-4 { stroke: #95d5b2; }
-  .pie-segment.segment-5 { stroke: #2d6a4f; }
+        .donut-segment {
+          position: absolute;
+          width: 100%;
+          height: 100%;
+          border-radius: 50%;
+          clip-path: polygon(50% 50%, 50% 0%, 100% 0%, 100% 100%, 0% 100%, 0% 0%, 50% 0%);
+          transform: rotate(calc(var(--offset) * 3.6deg));
+          background: conic-gradient(
+            var(--color) 0%,
+            var(--color) calc(var(--percent) * 3.6%),
+            transparent calc(var(--percent) * 3.6%),
+            transparent 100%
+          );
+          animation: revealDonut 1s ease-out forwards;
+          animation-delay: calc(var(--offset) * 0.01s);
+        }
 
-  .legend-item:hover .legend-color {
-    transform: scale(1.3);
-    transition: transform 0.2s;
-  }
-`}</style>
+        .donut-center {
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          background: white;
+          width: 100px;
+          height: 100px;
+          border-radius: 50%;
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          align-items: center;
+          font-weight: 700;
+          color: #2d6a4f;
+          box-shadow: 0 0 0 18px white;
+          z-index: 10;
+        }
+
+        .donut-center small {
+          font-size: 12px;
+          color: #555;
+          font-weight: normal;
+        }
+
+        @keyframes revealDonut {
+          from { clip-path: polygon(50% 50%, 50% 50%, 50% 50%, 50% 50%, 50% 50%, 50% 50%, 50% 50%); }
+          to { clip-path: polygon(50% 50%, 50% 0%, 100% 0%, 100% 100%, 0% 100%, 0% 0%, 50% 0%); }
+        }
+
+        .legend-item:hover .legend-color {
+          transform: scale(1.3);
+          transition: transform 0.2s;
+        }
+      `}</style>
     </>
   );
 }
