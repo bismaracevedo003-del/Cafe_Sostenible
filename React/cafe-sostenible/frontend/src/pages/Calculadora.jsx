@@ -283,8 +283,12 @@ export default function Calculadora() {
                                     max={max}
                                     className="range-slider"
                                     style={{
-                                      background: `linear-gradient(to right, #2e7d32 0%, #ffeb3b 50%, #d32f2f 100%) 0% 0% / ${progress}% 100% no-repeat #e0e0e0`
-                                    }}
+                                            background: `linear-gradient(to right,
+                                              hsl(${120 - ((value / max) * 120)}, 75%, 45%) 0%,
+                                              hsl(${120 - ((value / max) * 120)}, 75%, 45%) ${(value / max) * 100}%,
+                                              #e0e0e0 ${(value / max) * 100}%,
+                                              #e0e0e0 100%)`
+                                          }}
                                   />
                                   <span className="slider-value">{value || 0} {campo.name.includes('ha') ? 'ha' : campo.name.includes('kg') ? 'kg' : campo.name.includes('kWh') ? 'kWh' : campo.name.includes('litros') ? 'L' : campo.name.includes('km') ? 'km' : campo.name.includes('cargas') ? 'cargas' : 'm²'}</span>
                                 </div>
