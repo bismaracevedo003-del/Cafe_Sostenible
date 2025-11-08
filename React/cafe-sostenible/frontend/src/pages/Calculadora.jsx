@@ -241,35 +241,79 @@ export default function Calculadora() {
               ))}
             </div>
 
+            {/* ← NUEVO: Formulario con sliders */}
             <form onSubmit={calcularHuella} className="wizard-form">
               <div className="form-card-wrapper" style={{ transform: `translateX(-${paso * 100}%)` }}>
                 {pasos.map((grupo, index) => (
                   <div className="form-card" key={index}>
                     <div className="form-grid">
-                      {grupo.map((campo, i) => (
-                        <div className="form-group" key={i}>
-                          <label>{campo.label}</label>
-                          {campo.type === "select" ? (
-                            <select name={campo.name} value={form[campo.name]} onChange={handleInputChange}>
-                              {campo.options.map(opt => (
-                                <option key={opt} value={opt}>
-                                  {opt === 'sintetico' ? 'Sintético' : opt === 'organico' ? 'Orgánico' : opt.charAt(0).toUpperCase() + opt.slice(1)}
-                                </option>
-                              ))}
-                            </select>
-                          ) : (
-                            <input
-                              type="number"
-                              name={campo.name}
-                              value={form[campo.name]}
-                              onChange={handleInputChange}
-                              step={campo.step || "1"}
-                              min="0"
-                              placeholder="0"
-                            />
-                          )}
-                        </div>
-                      ))}
+                      {grupo.map((campo, i) => {
+                        const value = form[campo.name] || '';
+                        const isNumber = campo.type === "number";
+                        const step = campo.step || "1";
+                        const min = 0;
+                        const max = campo.name === "areaCultivada" ? 1000 :
+                                    campo.name === "produccionVerde" ? 100000 :
+                                    campo.name === "fertilizanteTotal" ? 50000 :
+                                    campo.name === "energiaElectrica" ? 100000 :
+                                    campo.name === "combustibleLitros" ? 10000 :
+                                    campo.name === "arbolesSombra" ? 10000 :
+                                    campo.name === "areaCopaPromedio" ? 100 :
+                                    campo.name === "distanciaKm" ? 1000 :
+                                    campo.name === "volumenCargas" ? 1000 :
+                                    campo.name === "residuosTotales" ? 50000 :
+                                    campo.name === "residuosCompostados" ? 50000 :
+                                    campo.name === "bosqueBase" ? 1000 :
+                                    campo.name === "bosqueActual" ? 1000 : 1000;
+
+                        return (
+                          <div className="form-group" key={i}>
+                            <label>{campo.label}</label>
+
+                            {campo.type === "select" ? (
+                              <select name={campo.name} value={form[campo.name]} onChange={handleInputChange}>
+                                {campo.options.map(opt => (
+                                  <option key={opt} value={opt}>
+                                    {opt === 'sintetico' ? 'Sintético' : opt === 'organico' ? 'Orgánico' : opt.charAt(0).toUpperCase() + opt.slice(1)}
+                                  </option>
+                                ))}
+                              </select>
+                            ) : (
+                              <>
+                                <input
+                                  type="number"
+                                  name={campo.name}
+                                  value={value}
+                                  onChange={handleInputChange}
+                                  step={step}
+                                  min={min}
+                                  max={max}
+                                  placeholder="0"
+                                  className="number-input"
+                                />
+
+                                {/* ← SLIDER ANIMADO */}
+                                <div className="slider-container">
+                                  <input
+                                    type="range"
+                                    name={campo.name}
+                                    value={value || 0}
+                                    onChange={handleInputChange}
+                                    step={step}
+                                    min={min}
+                                    max={max}
+                                    className="range-slider"
+                                    style={{
+                                      background: `linear-gradient(to right, #2e7d32 0%, #2e7d32 ${((value || 0) / max) * 100}%, #e0e0e0 ${((value || 0) / max) * 100}%, #e0e0e0 100%)`
+                                    }}
+                                  />
+                                  <span className="slider-value">{value || 0} {campo.name.includes('ha') ? 'ha' : campo.name.includes('kg') ? 'kg' : campo.name.includes('kWh') ? 'kWh' : campo.name.includes('litros') ? 'L' : campo.name.includes('km') ? 'km' : campo.name.includes('cargas') ? 'cargas' : 'm²'}</span>
+                                </div>
+                              </>
+                            )}
+                          </div>
+                        );
+                      })}
                     </div>
                   </div>
                 ))}
@@ -378,463 +422,159 @@ export default function Calculadora() {
   @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
   * { font-family: 'Roboto', sans-serif; box-sizing: border-box; }
 
-  /* ← WIZARD CONTAINER */
-  .wizard-container {
-    max-width: 600px;
-    margin: 40px auto;
-    padding: 20px;
-    background: #e8f5e9;
-    border-radius: 16px;
-    box-shadow: 0 8px 25px rgba(0,0,0,0.1);
-  }
+  /* ← WIZARD */
+  .wizard-container { max-width: 600px; margin: 40px auto; padding: 20px; background: #e8f5e9; border-radius: 16px; box-shadow: 0 8px 25px rgba(0,0,0,0.1); }
+  .wizard-title { text-align: center; font-size: 28px; font-weight: 700; color: #1b5e20; margin-bottom: 8px; }
+  .wizard-subtitle { text-align: center; color: #2e7d32; font-size: 16px; margin-bottom: 30px; }
+  .steps-indicator { display: flex; justify-content: center; gap: 12px; margin-bottom: 30px; }
+  .step-circle { width: 40px; height: 40px; border-radius: 50%; background: #c8e6c9; color: #2e7d32; font-weight: 600; font-size: 16px; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; }
+  .step-circle.active { background: #2e7d32; color: white; transform: scale(1.1); }
 
-  .wizard-title {
-    text-align: center;
-    font-size: 28px;
-    font-weight: 700;
-    color: #1b5e20;
-    margin-bottom: 8px;
-  }
+  .wizard-form { overflow: hidden; border-radius: 12px; background: white; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+  .form-card-wrapper { display: flex; transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
+  .form-card { min-width: 100%; padding: 30px; }
+  .form-grid { display: grid; grid-template-columns: 1fr; gap: 24px; }
 
-  .wizard-subtitle {
-    text-align: center;
-    color: #2e7d32;
-    font-size: 16px;
-    margin-bottom: 30px;
-  }
+  .form-group label { display: block; margin-bottom: 8px; font-weight: 500; color: #1b5e20; font-size: 15px; }
 
-  .steps-indicator {
-    display: flex;
-    justify-content: center;
-    gap: 12px;
-    margin-bottom: 30px;
-  }
-
-  .step-circle {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    background: #c8e6c9;
-    color: #2e7d32;
-    font-weight: 600;
-    font-size: 16px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.3s ease;
-  }
-
-  .step-circle.active {
-    background: #2e7d32;
-    color: white;
-    transform: scale(1.1);
-  }
-
-  /* ← FORMULARIO */
-  .wizard-form {
-    overflow: hidden;
-    border-radius: 12px;
-    background: white;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-  }
-
-  .form-card-wrapper {
-    display: flex;
-    transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-
-  .form-card {
-    min-width: 100%;
-    padding: 30px;
-  }
-
-  .form-grid {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 20px;
-  }
-
-  .form-group label {
-    display: block;
-    margin-bottom: 8px;
-    font-weight: 500;
-    color: #1b5e20;
-    font-size: 15px;
-  }
-
-  .form-group input,
-  .form-group select {
+  /* ← INPUT NUMÉRICO */
+  .number-input {
     width: 100%;
     padding: 14px;
     border: 2px solid #a5d6a7;
     border-radius: 8px;
     font-size: 16px;
     transition: border 0.3s ease;
+    margin-bottom: 8px;
   }
+  .number-input:focus { outline: none; border-color: #2e7d32; box-shadow: 0 0 0 3px rgba(46, 125, 50, 0.1); }
 
-  .form-group input:focus,
-  .form-group select:focus {
-    outline: none;
-    border-color: #2e7d32;
-    box-shadow: 0 0 0 3px rgba(46, 125, 50, 0.1);
-  }
-
-  /* ← NAVEGACIÓN */
-  .nav-buttons {
-    display: flex;
-    justify-content: space-between;
-    padding: 20px 30px 30px;
+  /* ← SELECT */
+  .form-group select {
+    width: 100%;
+    padding: 14px;
+    border: 2px solid #a5d6a7;
+    border-radius: 8px;
+    font-size: 16px;
     background: white;
   }
+  .form-group select:focus { outline: none; border-color: #2e7d32; box-shadow: 0 0 0 3px rgba(46, 125, 50, 0.1); }
 
-  .btn-nav {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 14px 24px;
-    background: #2e7d32;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    font-weight: 600;
-    font-size: 16px;
-    cursor: pointer;
+  /* ← SLIDER ANIMADO */
+  .slider-container {
+    position: relative;
+    margin-top: 8px;
+  }
+
+  .range-slider {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 8px;
+    border-radius: 4px;
+    outline: none;
     transition: background 0.3s ease;
   }
 
-  .btn-nav:hover {
-    background: #1b5e20;
-  }
-
-  .btn-nav.prev {
-    background: #a5d6a7;
-    color: #1b5e20;
-  }
-
-  .btn-nav.prev:hover {
-    background: #81c784;
-  }
-
-  .arrow-icon {
+  .range-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
     width: 20px;
     height: 20px;
-    fill: none;
-    stroke: currentColor;
-    stroke-width: 3;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-  }
-
-  .btn-calcular {
-    width: 100%;
-    padding: 16px;
     background: #2e7d32;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    font-size: 18px;
-    font-weight: 700;
+    border-radius: 50%;
     cursor: pointer;
-    transition: background 0.3s ease;
-  }
-
-  .btn-calcular:hover {
-    background: #1b5e20;
-  }
-
-  /* ← RESULTADOS */
-  .resultado-section {
-    margin-top: 40px;
-    padding: 30px;
-    background: white;
-    border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-  }
-
-  .resultado-section h3 {
-    text-align: center;
-    color: #1b5e20;
-    font-size: 22px;
-    font-weight: 600;
-    margin-bottom: 25px;
-  }
-
-  .resultado-cards {
-    display: flex;
-    justify-content: center;
-    gap: 20px;
-    flex-wrap: wrap;
-    margin-bottom: 30px;
-  }
-
-  .card {
-    background: #f1f8e9;
-    padding: 20px;
-    border-radius: 12px;
-    width: 200px;
-    text-align: center;
-    border: 1px solid #c8e6c9;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
     transition: transform 0.2s ease;
   }
 
-  .card:hover {
-    transform: translateY(-4px);
+  .range-slider::-webkit-slider-thumb:hover {
+    transform: scale(1.2);
   }
 
-  .card-title {
-    font-size: 14px;
-    color: #2e7d32;
-    margin-bottom: 8px;
-    font-weight: 500;
-  }
-
-  .card-value {
-    font-size: 24px;
-    font-weight: 700;
-    color: #1b5e20;
-  }
-
-  /* ← GRÁFICO DE BARRAS */
-  .chart-container {
-    margin: 35px 0;
-    padding: 25px;
-    background: #f9f9f9;
-    border-radius: 12px;
-    border: 1px solid #e0e0e0;
-  }
-
-  .bars-chart {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-    max-width: 100%;
-  }
-
-  .bar-item {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-  }
-
-  .bar-label {
-    display: flex;
-    justify-content: space-between;
-    font-size: 14.5px;
-    font-weight: 600;
-    color: #444;
-  }
-
-  .bar-name {
-    color: #1b5e20;
-  }
-
-  .bar-value {
-    color: #666;
-    font-weight: normal;
-  }
-
-  .bar-wrapper {
-    width: 100%;
-    height: 34px;
-    background: #e8ecef;
-    border-radius: 17px;
-    overflow: hidden;
-    position: relative;
-    box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
-  }
-
-  .bar-fill {
-    height: 100%;
-    border-radius: 17px;
-    transition: width 1.2s ease-out;
-  }
-
-  .total-center {
-    text-align: center;
-    margin-top: 30px;
-    padding: 20px;
-    background: white;
-    border-radius: 14px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-    border: 1px solid #c8e6c9;
-  }
-
-  .total-value {
-    font-size: 32px;
-    font-weight: 700;
-    color: #1b5e20;
-  }
-
-  .total-center small {
-    font-size: 14px;
-    color: #2e7d32;
-    display: block;
-    margin-top: 6px;
-  }
-
-  /* ← INDICADORES EUDR */
-  .eudr-indicators {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    gap: 12px;
-    margin: 30px 0;
-    padding: 20px;
-    background: #f1f8e9;
-    border-radius: 12px;
-    border: 1px dashed #a5d6a7;
-  }
-
-  .indicator {
-    font-size: 15px;
-    display: flex;
-    justify-content: space-between;
-    padding: 8px 0;
-    border-bottom: 1px solid #c8e6c9;
-  }
-
-  .indicator:last-child {
-    border-bottom: none;
-  }
-
-  .indicator span {
-    color: #2e7d32;
-    font-weight: 500;
-  }
-
-  .indicator strong {
-    color: #1b5e20;
-    font-weight: 700;
-  }
-
-  .indicator.deforestacion {
-    color: #d32f2f;
-  }
-
-  .indicator.deforestacion span {
-    color: #c62828;
-  }
-
-  .indicator.deforestacion strong {
-    color: #b71c1c;
-  }
-
-  /* ← BOTÓN GUARDAR */
-  .btn-guardar {
-    margin-top: 20px;
-    width: 100%;
-    padding: 16px;
+  .range-slider::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
     background: #2e7d32;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    font-weight: 600;
-    font-size: 16px;
+    border-radius: 50%;
     cursor: pointer;
-    transition: background 0.3s ease;
+    border: none;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
   }
 
-  .btn-guardar:hover:not(:disabled) {
-    background: #1b5e20;
-  }
-
-  .btn-guardar:disabled {
-    background: #a5d6a7;
-    cursor: not-allowed;
-  }
-
-  /* ← TOASTS */
-  .success-toast,
-  .error-toast {
-    position: fixed;
-    bottom: 30px;
-    right: 30px;
-    padding: 16px 28px;
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
+  .slider-value {
+    position: absolute;
+    right: 0;
+    top: -28px;
+    font-size: 13px;
     font-weight: 600;
-    box-shadow: 0 8px 20px rgba(0,0,0,0.15);
-    z-index: 1000;
-    animation: slideIn 0.4s ease-out, fadeOut 0.5s 2.5s forwards;
+    color: #2e7d32;
+    background: white;
+    padding: 2px 6px;
+    border-radius: 4px;
+    border: 1px solid #a5d6a7;
   }
 
-  .success-toast {
-    background: #2e7d32;
-    color: white;
-  }
+  /* ← NAVEGACIÓN */
+  .nav-buttons { display: flex; justify-content: space-between; padding: 20px 30px 30px; background: white; }
+  .btn-nav { display: flex; align-items: center; gap: 8px; padding: 14px 24px; background: #2e7d32; color: white; border: none; border-radius: 8px; font-weight: 600; font-size: 16px; cursor: pointer; transition: background 0.3s ease; }
+  .btn-nav:hover { background: #1b5e20; }
+  .btn-nav.prev { background: #a5d6a7; color: #1b5e20; }
+  .btn-nav.prev:hover { background: #81c784; }
+  .arrow-icon { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+  .btn-calcular { width: 100%; padding: 16px; background: #2e7d32; color: white; border: none; border-radius: 8px; font-size: 18px; font-weight: 700; cursor: pointer; transition: background 0.3s ease; }
+  .btn-calcular:hover { background: #1b5e20; }
 
-  .error-toast {
-    background: #c62828;
-    color: white;
-  }
+  /* ← RESULTADOS */
+  .resultado-section { margin-top: 40px; padding: 30px; background: white; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+  .resultado-section h3 { text-align: center; color: #1b5e20; font-size: 22px; font-weight: 600; margin-bottom: 25px; }
+  .resultado-cards { display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; margin-bottom: 30px; }
+  .card { background: #f1f8e9; padding: 20px; border-radius: 12px; width: 200px; text-align: center; border: 1px solid #c8e6c9; transition: transform 0.2s ease; }
+  .card:hover { transform: translateY(-4px); }
+  .card-title { font-size: 14px; color: #2e7d32; margin-bottom: 8px; font-weight: 500; }
+  .card-value { font-size: 24px; font-weight: 700; color: #1b5e20; }
 
-  .check-icon,
-  .error-icon {
-    width: 24px;
-    height: 24px;
-    stroke: white;
-    stroke-width: 3;
-    fill: none;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-  }
+  .chart-container { margin: 35px 0; padding: 25px; background: #f9f9f9; border-radius: 12px; border: 1px solid #e0e0e0; }
+  .bars-chart { display: flex; flex-direction: column; gap: 16px; max-width: 100%; }
+  .bar-item { display: flex; flex-direction: column; gap: 6px; }
+  .bar-label { display: flex; justify-content: space-between; font-size: 14.5px; font-weight: 600; color: #444; }
+  .bar-name { color: #1b5e20; }
+  .bar-value { color: #666; font-weight: normal; }
+  .bar-wrapper { width: 100%; height: 34px; background: #e8ecef; border-radius: 17px; overflow: hidden; position: relative; box-shadow: inset 0 1px 3px rgba(0,0,0,0.1); }
+  .bar-fill { height: 100%; border-radius: 17px; transition: width 1.2s ease-out; }
+  .total-center { text-align: center; margin-top: 30px; padding: 20px; background: white; border-radius: 14px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); border: 1px solid #c8e6c9; }
+  .total-value { font-size: 32px; font-weight: 700; color: #1b5e20; }
+  .total-center small { font-size: 14px; color: #2e7d32; display: block; margin-top: 6px; }
 
-  .check-icon polyline {
-    stroke-dasharray: 22;
-    stroke-dashoffset: 66;
-    animation: drawCheck 0.6s ease-out 0.3s forwards;
-  }
+  .eudr-indicators { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin: 30px 0; padding: 20px; background: #f1f8e9; border-radius: 12px; border: 1px dashed #a5d6a7; }
+  .indicator { font-size: 15px; display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #c8e6c9; }
+  .indicator:last-child { border-bottom: none; }
+  .indicator span { color: #2e7d32; font-weight: 500; }
+  .indicator strong { color: #1b5e20; font-weight: 700; }
+  .indicator.deforestacion span { color: #c62828; }
+  .indicator.deforestacion strong { color: #b71c1c; }
 
-  .error-icon line {
-    stroke-dasharray: 18;
-    stroke-dashoffset: 36;
-    animation: drawX 0.6s ease-out 0.3s forwards;
-  }
+  .btn-guardar { margin-top: 20px; width: 100%; padding: 16px; background: #2e7d32; color: white; border: none; border-radius: 8px; font-weight: 600; font-size: 16px; cursor: pointer; transition: background 0.3s ease; }
+  .btn-guardar:hover:not(:disabled) { background: #1b5e20; }
+  .btn-guardar:disabled { background: #a5d6a7; cursor: not-allowed; }
 
-  @keyframes slideIn {
-    from { transform: translateX(100%); opacity: 0; }
-    to { transform: translateX(0); opacity: 1; }
-  }
+  .success-toast, .error-toast { position: fixed; bottom: 30px; right: 30px; padding: 16px 28px; border-radius: 12px; display: flex; align-items: center; gap: 12px; font-weight: 600; box-shadow: 0 8px 20px rgba(0,0,0,0.15); z-index: 1000; animation: slideIn 0.4s ease-out, fadeOut 0.5s 2.5s forwards; }
+  .success-toast { background: #2e7d32; color: white; }
+  .error-toast { background: #c62828; color: white; }
+  .check-icon, .error-icon { width: 24px; height: 24px; stroke: white; stroke-width: 3; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+  .check-icon polyline { stroke-dasharray: 22; stroke-dashoffset: 66; animation: drawCheck 0.6s ease-out 0.3s forwards; }
+  .error-icon line { stroke-dasharray: 18; stroke-dashoffset: 36; animation: drawX 0.6s ease-out 0.3s forwards; }
 
-  @keyframes fadeOut {
-    to { opacity: 0; transform: translateY(20px); }
-  }
+  @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+  @keyframes fadeOut { to { opacity: 0; transform: translateY(20px); } }
+  @keyframes drawCheck { to { stroke-dashoffset: 0; } }
+  @keyframes drawX { to { stroke-dashoffset: 0; } }
 
-  @keyframes drawCheck {
-    to { stroke-dashoffset: 0; }
-  }
-
-  @keyframes drawX {
-    to { stroke-dashoffset: 0; }
-  }
-
-  /* ← RESPONSIVE */
   @media (max-width: 640px) {
-    .wizard-container {
-      margin: 20px;
-      padding: 15px;
-    }
-    .form-card {
-      padding: 20px;
-    }
-    .nav-buttons {
-      flex-direction: column;
-      gap: 12px;
-    }
-    .btn-nav,
-    .btn-calcular,
-    .btn-guardar {
-      width: 100%;
-    }
-    .resultado-cards {
-      flex-direction: column;
-      align-items: center;
-    }
-    .card {
-      width: 100%;
-      max-width: 280px;
-    }
+    .wizard-container { margin: 20px; padding: 15px; }
+    .form-card { padding: 20px; }
+    .nav-buttons { flex-direction: column; gap: 12px; }
+    .btn-nav, .btn-calcular, .btn-guardar { width: 100%; }
+    .resultado-cards { flex-direction: column; align-items: center; }
+    .card { width: 100%; max-width: 280px; }
   }
 `}</style>
     </>

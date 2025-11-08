@@ -37,10 +37,10 @@ console.log('API_BASE:', import.meta.env.VITE_API_URL);
         console.error('Auth falló:', err);
         localStorage.removeItem('justLoggedIn');
         if (!justLoggedIn) {
-          setTimeout(() => navigate('/index'), 800);
+          setTimeout(() => navigate('/login'), 800);
         } else {
           // Si falló incluso después de login → fuerza redirección
-          setTimeout(() => navigate('/index'), 2000);
+          setTimeout(() => navigate('/login'), 2000);
         }
       } finally {
         setLoading(false);
