@@ -4,7 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import '../index.css';
 
 const API_BASE = import.meta.env.VITE_API_URL;
-
+const [step, setStep] = useState(0);
 const COLORS = ['#2d6a4f', '#40916c', '#52b788', '#74c69d', '#95d5b2'];
 
 export default function Calculadora() {
@@ -231,99 +231,163 @@ export default function Calculadora() {
           <div className="calculadora-container">
             <h2 className="section-title">Calculadora de Huella de Carbono – EUDR</h2>
 
-            <form onSubmit={calcularHuella} className="calculadora-form">
-              <div className="form-grid">
-                <div className="form-group">
-                  <label>Nombre de la finca</label>
-                  <input
-                    type="text"
-                    name="nombreFinca"
-                    value={form.nombreFinca}
-                    onChange={handleInputChange}
-                    placeholder="Cargando finca..."
-                    readOnly
-                    style={{ backgroundColor: '#f8f9fa', cursor: 'not-allowed' }}
-                  />
-                </div>
-                <div className="form-group">
-                  <label>Área cultivada (ha)</label>
-                  <input type="number" name="areaCultivada" value={form.areaCultivada} onChange={handleInputChange} min="0" step="0.1" required />
-                </div>
-                <div className="form-group">
-                  <label>Producción café verde (kg)</label>
-                  <input type="number" name="produccionVerde" value={form.produccionVerde} onChange={handleInputChange} min="0" step="1" required />
-                </div>
-                <div className="form-group">
-                  <label>Fertilizante total (kg)</label>
-                  <input type="number" name="fertilizanteTotal" value={form.fertilizanteTotal} onChange={handleInputChange} min="0" step="1" />
-                </div>
-                <div className="form-group">
-                  <label>Tipo de fertilizante</label>
-                  <select name="tipoFertilizante" value={form.tipoFertilizante} onChange={handleInputChange}>
-                    <option value="sintetico">Sintético</option>
-                    <option value="organico">Orgánico</option>
-                  </select>
-                </div>
-                <div className="form-group">
-                  <label>Energía eléctrica (kWh)</label>
-                  <input type="number" name="energiaElectrica" value={form.energiaElectrica} onChange={handleInputChange} min="0" step="1" />
-                </div>
-                <div className="form-group">
-                  <label>Combustible (litros)</label>
-                  <input type="number" name="combustibleLitros" value={form.combustibleLitros} onChange={handleInputChange} min="0" step="0.1" />
-                </div>
-                <div className="form-group">
-                  <label>Tipo de combustible</label>
-                  <select name="tipoCombustible" value={form.tipoCombustible} onChange={handleInputChange}>
-                    <option value="diesel">Diésel</option>
-                    <option value="gas">Gasolina</option>
-                    <option value="leña">Leña</option>
-                  </select>
-                </div>
-                <div className="form-group">
-                  <label>Número de árboles de sombra</label>
-                  <input type="number" name="arbolesSombra" value={form.arbolesSombra} onChange={handleInputChange} min="0" step="1" />
-                </div>
-                <div className="form-group">
-                  <label>Área promedio de copa (m²/árbol)</label>
-                  <input type="number" name="areaCopaPromedio" value={form.areaCopaPromedio} onChange={handleInputChange} min="0" step="0.1" />
-                </div>
-                <div className="form-group">
-                  <label>Distancia promedio (km)</label>
-                  <input type="number" name="distanciaKm" value={form.distanciaKm} onChange={handleInputChange} min="0" step="0.1" />
-                </div>
-                <div className="form-group">
-                  <label>Volumen total (cargas)</label>
-                  <input type="number" name="volumenCargas" value={form.volumenCargas} onChange={handleInputChange} min="0" step="1" />
-                </div>
-                <div className="form-group">
-                  <label>Tipo de procesamiento</label>
-                  <select name="tipoProcesamiento" value={form.tipoProcesamiento} onChange={handleInputChange}>
-                    <option value="lavado">Lavado</option>
-                    <option value="miel">Miel</option>
-                    <option value="natural">Natural</option>
-                  </select>
-                </div>
-                <div className="form-group">
-                  <label>Residuos totales (kg)</label>
-                  <input type="number" name="residuosTotales" value={form.residuosTotales} onChange={handleInputChange} min="0" step="1" />
-                </div>
-                <div className="form-group">
-                  <label>Residuos compostados (kg)</label>
-                  <input type="number" name="residuosCompostados" value={form.residuosCompostados} onChange={handleInputChange} min="0" step="1" />
-                </div>
-                <div className="form-group">
-                  <label>Bosque base 2020 (ha)</label>
-                  <input type="number" name="bosqueBase" value={form.bosqueBase} onChange={handleInputChange} min="0" step="0.1" />
-                </div>
-                <div className="form-group">
-                  <label>Bosque actual (ha)</label>
-                  <input type="number" name="bosqueActual" value={form.bosqueActual} onChange={handleInputChange} min="0" step="0.1" />
-                </div>
-              </div>
+          <div className="progress-container">
 
-              <button type="submit" className="btn-calcular">Calcular Huella EUDR</button>
-            </form>
+            <div className="progress-bar">
+              <div className="progress-fill" style={{ width: `${(step+1) * (100/8)}%` }}></div>
+            </div>
+
+            <p className="progress-text">Paso {step+1} de 8</p>
+            
+            <div className="steps-indicators">
+              {Array.from({ length: 8 }).map((_, i) => (
+                <span key={i} className={`indicator ${step === i ? "active" : step > i ? "done" : ""}`}></span>
+              ))}
+            </div>
+
+          </div>
+
+<form onSubmit={calcularHuella} className="calculadora-form">
+
+  {/* 1. Identificación de la Finca */}
+  <h4 className="section-title">1. Información de la Finca</h4>
+  <div className="form-grid">
+    <div className="form-group">
+      <label>Nombre de la finca</label>
+      <input
+        type="text"
+        name="nombreFinca"
+        value={form.nombreFinca}
+        onChange={handleInputChange}
+        placeholder="Cargando finca..."
+        readOnly
+        style={{ backgroundColor: '#f8f9fa', cursor: 'not-allowed' }}
+      />
+    </div>
+
+    <div className="form-group">
+      <label>Área cultivada (ha)</label>
+      <input type="number" name="areaCultivada" value={form.areaCultivada} onChange={handleInputChange} min="0" step="0.1" required />
+    </div>
+
+    <div className="form-group">
+      <label>Producción café verde (kg)</label>
+      <input type="number" name="produccionVerde" value={form.produccionVerde} onChange={handleInputChange} min="0" step="1" required />
+    </div>
+  </div>
+
+  {/* 2. Fertilizantes */}
+  <h4 className="section-title">2. Fertilización</h4>
+  <div className="form-grid">
+    <div className="form-group">
+      <label>Fertilizante total (kg)</label>
+      <input type="number" name="fertilizanteTotal" value={form.fertilizanteTotal} onChange={handleInputChange} min="0" step="1" />
+    </div>
+
+    <div className="form-group">
+      <label>Tipo de fertilizante</label>
+      <select name="tipoFertilizante" value={form.tipoFertilizante} onChange={handleInputChange}>
+        <option value="sintetico">Sintético</option>
+        <option value="organico">Orgánico</option>
+      </select>
+    </div>
+  </div>
+
+  {/* 3. Energía */}
+  <h4 className="section-title">3. Energía en Beneficiado y Secado</h4>
+  <div className="form-grid">
+    <div className="form-group">
+      <label>Energía eléctrica (kWh)</label>
+      <input type="number" name="energiaElectrica" value={form.energiaElectrica} onChange={handleInputChange} min="0" step="1" />
+    </div>
+
+    <div className="form-group">
+      <label>Combustible (litros)</label>
+      <input type="number" name="combustibleLitros" value={form.combustibleLitros} onChange={handleInputChange} min="0" step="0.1" />
+    </div>
+
+    <div className="form-group">
+      <label>Tipo de combustible</label>
+      <select name="tipoCombustible" value={form.tipoCombustible} onChange={handleInputChange}>
+        <option value="diesel">Diésel</option>
+        <option value="gas">Gasolina</option>
+        <option value="leña">Leña</option>
+      </select>
+    </div>
+  </div>
+
+  {/* 4. Cobertura Arbórea */}
+  <h4 className="section-title">4. Cobertura Arbórea / Sombra</h4>
+  <div className="form-grid">
+    <div className="form-group">
+      <label>Número de árboles de sombra</label>
+      <input type="number" name="arbolesSombra" value={form.arbolesSombra} onChange={handleInputChange} min="0" step="1" />
+    </div>
+
+    <div className="form-group">
+      <label>Área promedio de copa (m²/árbol)</label>
+      <input type="number" name="areaCopaPromedio" value={form.areaCopaPromedio} onChange={handleInputChange} min="0" step="0.1" />
+    </div>
+  </div>
+
+  {/* 5. Transporte */}
+  <h4 className="section-title">5. Transporte del Café</h4>
+  <div className="form-grid">
+    <div className="form-group">
+      <label>Distancia promedio (km)</label>
+      <input type="number" name="distanciaKm" value={form.distanciaKm} onChange={handleInputChange} min="0" step="0.1" />
+    </div>
+
+    <div className="form-group">
+      <label>Volumen total (cargas)</label>
+      <input type="number" name="volumenCargas" value={form.volumenCargas} onChange={handleInputChange} min="0" step="1" />
+    </div>
+  </div>
+
+  {/* 6. Proceso */}
+  <h4 className="section-title">6. Tipo de Procesamiento</h4>
+  <div className="form-grid">
+    <div className="form-group">
+      <label>Tipo de procesamiento</label>
+      <select name="tipoProcesamiento" value={form.tipoProcesamiento} onChange={handleInputChange}>
+        <option value="lavado">Lavado</option>
+        <option value="miel">Miel</option>
+        <option value="natural">Natural</option>
+      </select>
+    </div>
+  </div>
+
+  {/* 7. Residuos */}
+  <h4 className="section-title">7. Residuos y Compostaje</h4>
+  <div className="form-grid">
+    <div className="form-group">
+      <label>Residuos totales (kg)</label>
+      <input type="number" name="residuosTotales" value={form.residuosTotales} onChange={handleInputChange} min="0" step="1" />
+    </div>
+
+    <div className="form-group">
+      <label>Residuos compostados (kg)</label>
+      <input type="number" name="residuosCompostados" value={form.residuosCompostados} onChange={handleInputChange} min="0" step="1" />
+    </div>
+  </div>
+
+  {/* 8. Deforestación / EUDR */}
+  <h4 className="section-title">8. Verificación EUDR - No Deforestación</h4>
+  <div className="form-grid">
+    <div className="form-group">
+      <label>Bosque base 2020 (ha)</label>
+      <input type="number" name="bosqueBase" value={form.bosqueBase} onChange={handleInputChange} min="0" step="0.1" />
+    </div>
+
+    <div className="form-group">
+      <label>Bosque actual (ha)</label>
+      <input type="number" name="bosqueActual" value={form.bosqueActual} onChange={handleInputChange} min="0" step="0.1" />
+    </div>
+  </div>
+
+  <button type="submit" className="btn-calcular">Calcular Huella EUDR</button>
+</form>
+
 
             {resultado && (
               <div className="resultado-section">
@@ -646,6 +710,60 @@ export default function Calculadora() {
         @keyframes drawX {
           to { stroke-dashoffset: 0; }
         }
+          .progress-container {
+          margin-bottom: 1.5rem;
+          text-align: center;
+          }
+
+      /* Barra de progreso */
+      .progress-bar {
+        width: 100%;
+        height: 8px;
+        background: #e7e7e7;
+        border-radius: 50px;
+        overflow: hidden;
+        margin-bottom: 8px;
+      }
+
+      .progress-fill {
+        height: 100%;
+        background: #2d6a4f; /* Color principal */
+        transition: width 0.4s ease;
+      }
+
+      /* Texto */
+      .progress-text {
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 10px;
+      }
+
+      /* Indicadores de pasos */
+      .steps-indicators {
+        display: flex;
+        justify-content: center;
+        gap: 8px;
+        margin-top: 6px;
+      }
+
+      .indicator {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: #bfbfbf;
+        transition: background 0.3s ease, transform 0.3s ease;
+      }
+
+      .indicator.active {
+        background: #2d6a4f; /* Paso actual */
+        transform: scale(1.3);
+      }
+
+      .indicator.done {
+        background: #74c69d; /* Pasos completados */
+      }
+
       `}</style>
     </>
   );

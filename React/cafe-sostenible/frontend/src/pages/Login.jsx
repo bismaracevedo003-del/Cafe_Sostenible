@@ -3,7 +3,6 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import '../index.css';
 
-// === URL BASE DE LA API (dev: /api, prod: https://cafe-sostenible.onrender.com/api) ===
 const API_BASE = import.meta.env.VITE_API_URL;
 
 export default function Login() {
@@ -44,7 +43,7 @@ export default function Login() {
     setButtonLoading(btn, true);
 
     try {
-     const res = await fetch(`${API_BASE}/login`, {  // <-- Corregido
+     const res = await fetch(`${API_BASE}/login`, { 
       method: 'POST',
       body: formData,
       credentials: 'include',
@@ -103,7 +102,7 @@ export default function Login() {
       }
     } catch (err) {
       console.error(err);
-      showMessage('Error de conexión. Revisa el backend.', 'error');
+      showMessage('Error de conexión con el servidor.', 'error');
     } finally {
       setButtonLoading(btn, false);
       btn.textContent = originalText;
@@ -204,22 +203,22 @@ export default function Login() {
             <form id="register-form" onSubmit={handleRegister} encType="multipart/form-data">
               <labeled-input>
                 <label htmlFor="reg_nombre">Nombre</label>
-                <input type="text" id="reg_nombre" name="nombre" placeholder="Tu nombre" required />
+                <input type="text" id="reg_nombre" name="nombre" placeholder="Ingresa tu nombre" required />
               </labeled-input>
 
               <labeled-input>
                 <label htmlFor="reg_apellido">Apellido</label>
-                <input type="text" id="reg_apellido" name="apellido" placeholder="Tu apellido" required />
+                <input type="text" id="reg_apellido" name="apellido" placeholder="Ingresa tu apellido" required />
               </labeled-input>
 
               <labeled-input>
                 <label htmlFor="reg_username">Usuario</label>
-                <input type="text" id="reg_username" name="username" placeholder="Elige un usuario" required />
+                <input type="text" id="reg_username" name="username" placeholder="Ingresa tu usuario" required />
               </labeled-input>
 
               <labeled-input>
                 <label htmlFor="reg_password">Contraseña</label>
-                <input type="password" id="reg_password" name="password" placeholder="Mínimo 6 caracteres" required />
+                <input type="password" id="reg_password" name="password" placeholder="Mínimo 6 caracteres" minLength={6} required />
               </labeled-input>
 
               <labeled-input>
