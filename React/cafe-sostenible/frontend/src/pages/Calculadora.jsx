@@ -897,6 +897,14 @@ export default function Calculadora() {
     stroke-linecap: round;
     stroke-linejoin: round;
   }
+  @keyframes slideIn {
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+  }
+  @keyframes fadeOut {
+    from { opacity: 1; }
+    to { opacity: 0; }
+  }
   /* ← RESPONSIVE */
   @media (max-width: 768px) {
     .wizard-container { margin: 20px; padding: 20px; }
