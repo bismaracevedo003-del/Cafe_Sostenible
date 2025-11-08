@@ -613,7 +613,7 @@ export default function Calculadora() {
     display: flex;
     align-items: center;
     gap: 10px;
-    padding: 14px 18px;
+    padding: 14px 12px;
     background: linear-gradient(135deg, #2e7d32, #1b5e20);
     color: white;
     border: none;
