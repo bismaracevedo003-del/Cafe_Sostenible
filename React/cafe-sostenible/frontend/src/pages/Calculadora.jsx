@@ -1,20 +1,17 @@
 // src/pages/Calculadora.jsx
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import '../index.css';
 
-// Colores para el gráfico (constante global única)
-const COLORS = ['#2d6a4f', '#40916c', '#52b788', '#74c69d', '#95d5b2'];
-
 const API_BASE = import.meta.env.VITE_API_URL;
+
+const COLORS = ['#2d6a4f', '#40916c', '#52b788', '#74c69d', '#95d5b2'];
 
 export default function Calculadora() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [errorMsg, setErrorMsg] = useState('');
   const navigate = useNavigate();
-  const [step, setStep] = useState(0);
 
   const [form, setForm] = useState({
     nombreFinca: '',
@@ -38,10 +35,10 @@ export default function Calculadora() {
 
   const [resultado, setResultado] = useState(null);
   const [chartData, setChartData] = useState([]);
+
   const [showSuccess, setShowSuccess] = useState(false);
   const [showError, setShowError] = useState(false);
 
-  // Cargar usuario autenticado
   useEffect(() => {
     const checkAuth = async () => {
       try {
@@ -49,6 +46,7 @@ export default function Calculadora() {
         if (!res.ok) throw new Error('No autorizado');
         const data = await res.json();
         setUser(data);
+
         if (data.nombreFinca) {
           setForm(prev => ({ ...prev, nombreFinca: data.nombreFinca }));
         }
@@ -62,78 +60,47 @@ export default function Calculadora() {
     checkAuth();
   }, [navigate]);
 
-  // Manejo de inputs
-  const handleInputChange = useCallback((e) => {
+  const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setForm(prev => ({ ...prev, [name]: value }));
-    setErrorMsg(''); // Limpiar errores al escribir
-  }, []);
+    setForm((prev) => ({ ...prev, [name]: value }));
+  };
 
-  // Validación y avance de pasos
-  const nextStep = useCallback(() => {
-    if (step === 0) {
-      const ha = parseFloat(form.areaCultivada) || 0;
-      const prod = parseFloat(form.produccionVerde) || 0;
-      if (ha <= 0 || prod <= 0) {
-        setErrorMsg('Área cultivada y producción deben ser mayores a 0');
-        return;
-      }
-    }
-    setErrorMsg('');
-    if (step < 7) setStep(step + 1);
-  }, [step, form]);
-
-  const prevStep = useCallback(() => {
-    setErrorMsg('');
-    if (step > 0) setStep(step - 1);
-  }, [step]);
-
-  // Cálculo de huella de carbono
   const calcularHuella = (e) => {
     e.preventDefault();
-    setErrorMsg('');
 
     const f = form;
     const ha = parseFloat(f.areaCultivada) || 0;
     const prod = parseFloat(f.produccionVerde) || 0;
+    const fert = parseFloat(f.fertilizanteTotal) || 0;
+    const elec = parseFloat(f.energiaElectrica) || 0;
+    const comb = parseFloat(f.combustibleLitros) || 0;
+    const dist = parseFloat(f.distanciaKm) || 0;
+    const vol = parseFloat(f.volumenCargas) || 0;
+    const residuosTot = parseFloat(f.residuosTotales) || 0;
+    const compost = parseFloat(f.residuosCompostados) || 0;
+    const bosqueBase = parseFloat(f.bosqueBase) || 0;
+    const bosqueAct = parseFloat(f.bosqueActual) || 0;
 
     if (ha <= 0 || prod <= 0) {
-      setErrorMsg('Área cultivada y producción deben ser mayores a 0');
+      alert('Área cultivada y producción deben ser mayores a 0');
       return;
     }
 
-    const fert = parseFloat(f.fertilizanteTotal) || 0;
     const fertPorHa = fert / ha;
     const fertEmision = fertPorHa * (f.tipoFertilizante === 'sintetico' ? 4.5 : 1.2);
-
-    const elec = parseFloat(f.energiaElectrica) || 0;
-    const comb = parseFloat(f.combustibleLitros) || 0;
+    const rendimiento = prod / ha;
     const poderCalorifico = f.tipoCombustible === 'diesel' ? 36 : f.tipoCombustible === 'gas' ? 38 : 45;
     const energiaComb = (comb * poderCalorifico) / 3.6;
     const energiaTotal = elec + energiaComb;
-
-    const arboles = parseFloat(f.arbolesSombra) || 0;
-    const copa = parseFloat(f.areaCopaPromedio) || 0;
-    const arbolesPorHa = arboles / ha || 0;
-    const coberturaPorc = ha > 0 ? (copa * arboles) / (ha * 10000) * 100 : 0;
-
-    const dist = parseFloat(f.distanciaKm) || 0;
-    const vol = parseFloat(f.volumenCargas) || 0;
-    const distanciaProm = vol > 0 ? dist : 0;
-    const transpEmision = prod > 0 ? (dist * vol * 0.12) / prod : 0;
-
+    const arbolesPorHa = parseFloat(f.arbolesSombra) / ha || 0;
+    const coberturaPorc = (parseFloat(f.areaCopaPromedio) * parseFloat(f.arbolesSombra)) / (ha * 10000) * 100 || 0;
+    const distanciaProm = (dist * vol) / vol || 0;
+    const transpEmision = distanciaProm * 0.12;
     const coefProcesamiento = { lavado: 0.30, miel: 0.20, natural: 0.10 };
     const procEmision = prod * coefProcesamiento[f.tipoProcesamiento];
-
-    const residuosTot = parseFloat(f.residuosTotales) || 0;
-    const compost = parseFloat(f.residuosCompostados) || 0;
     const fraccionCompost = residuosTot > 0 ? compost / residuosTot : 0;
     const residuosEmision = (residuosTot - compost) * 0.5;
-
-    const bosqueBase = parseFloat(f.bosqueBase) || 0;
-    const bosqueAct = parseFloat(f.bosqueActual) || 0;
-    const areaDeforestada = Math.max(0, bosqueBase - bosqueAct);
-    const deforestacionPorc = ha > 0 ? (areaDeforestada / ha) * 100 : 0;
+    const deforestacionPorc = bosqueBase > 0 ? ((bosqueBase - bosqueAct) / ha) * 100 : 0;
     const deforestacionEmision = deforestacionPorc > 0 ? deforestacionPorc * 1500 : 0;
 
     const total =
@@ -153,14 +120,14 @@ export default function Calculadora() {
       { name: 'Procesamiento', value: procEmision },
       { name: 'Residuos', value: residuosEmision },
       { name: 'Deforestación', value: deforestacionEmision },
-    ].filter(d => d.value > 0);
+    ].filter((d) => d.value > 0);
 
     setChartData(data);
     setResultado({
       total: total.toFixed(2),
       porKg: porKg.toFixed(3),
       fertPorHa: fertPorHa.toFixed(1),
-      rendimiento: (prod / ha).toFixed(0),
+      rendimiento: rendimiento.toFixed(0),
       energiaTotal: energiaTotal.toFixed(1),
       arbolesPorHa: arbolesPorHa.toFixed(0),
       coberturaPorc: coberturaPorc.toFixed(1),
@@ -170,7 +137,6 @@ export default function Calculadora() {
     });
   };
 
-  // Guardar en historial
   const guardarEnHistorial = async () => {
     if (!resultado) return;
     setSaving(true);
@@ -190,7 +156,6 @@ export default function Calculadora() {
       setShowSuccess(true);
       setTimeout(() => setShowSuccess(false), 3000);
 
-      // Resetear formulario (mantener nombreFinca)
       setForm(prev => ({
         ...prev,
         nombreFinca: prev.nombreFinca,
@@ -210,7 +175,6 @@ export default function Calculadora() {
       }));
       setResultado(null);
       setChartData([]);
-      setStep(0);
     } catch (err) {
       setShowError(true);
       setTimeout(() => setShowError(false), 3000);
@@ -259,7 +223,7 @@ export default function Calculadora() {
             <Link to="/calculadora" className="nav-item active"><img src="/img/icon-calculator.svg" alt="" className="nav-icon" /><span>Calculadora EUDR</span></Link>
             <Link to="/historial" className="nav-item"><img src="/img/icon-history.svg" alt="" className="nav-icon" /><span>Historial</span></Link>
             <Link to="/perfil" className="nav-item"><img src="/img/icon-profile.svg" alt="" className="nav-icon" /><span>Perfil</span></Link>
-            <button onClickClick={handleLogout} className="logout-btn">Cerrar sesión</button>
+            <button onClick={handleLogout} className="logout-btn">Cerrar sesión</button>
           </nav>
         </aside>
 
@@ -267,163 +231,98 @@ export default function Calculadora() {
           <div className="calculadora-container">
             <h2 className="section-title">Calculadora de Huella de Carbono – EUDR</h2>
 
-            <div className="progress-container">
-              <div className="progress-bar">
-                <div className="progress-fill" style={{ width: `${((step + 1) / 8) * 100}%` }}></div>
-              </div>
-              <p className="progress-text">Paso {step + 1} de 8</p>
-              <div className="steps-indicators">
-                {Array.from({ length: 8 }).map((_, i) => (
-                  <span key={i} className={`indicator ${step === i ? 'active' : step > i ? 'done' : ''}`}></span>
-                ))}
-              </div>
-            </div>
-
-            {errorMsg && <div className="error-toast" style={{ position: 'relative', marginBottom: '1rem' }}>{errorMsg}</div>}
-
             <form onSubmit={calcularHuella} className="calculadora-form">
-              <div className="form-steps" style={{ transform: `translateX(-${step * 100}%)` }}>
-                {/* Paso 1 */}
-                <div className="form-step">
-                  <h4 className="section-title">1. Información de la Finca</h4>
-                  <div className="form-grid">
-                    <div className="form-group">
-                      <label>Nombre de la finca</label>
-                      <input type="text" name="nombreFinca" value={form.nombreFinca} readOnly style={{ backgroundColor: '#f8f9fa', cursor: 'not-allowed' }} />
-                    </div>
-                    <div className="form-group">
-                      <label>Área cultivada (ha)</label>
-                      <input type="number" name="areaCultivada" value={form.areaCultivada} onChange={handleInputChange} min="0.1" step="0.1" required />
-                    </div>
-                    <div className="form-group">
-                      <label>Producción café verde (kg)</label>
-                      <input type="number" name="produccionVerde" value={form.produccionVerde} onChange={handleInputChange} min="1" step="1" required />
-                    </div>
-                  </div>
+              <div className="form-grid">
+                <div className="form-group">
+                  <label>Nombre de la finca</label>
+                  <input
+                    type="text"
+                    name="nombreFinca"
+                    value={form.nombreFinca}
+                    onChange={handleInputChange}
+                    placeholder="Cargando finca..."
+                    readOnly
+                    style={{ backgroundColor: '#f8f9fa', cursor: 'not-allowed' }}
+                  />
                 </div>
-
-                {/* Paso 2 */}
-                <div className="form-step">
-                  <h4 className="section-title">2. Fertilización</h4>
-                  <div className="form-grid">
-                    <div className="form-group">
-                      <label>Fertilizante total (kg)</label>
-                      <input type="number" name="fertilizanteTotal" value={form.fertilizanteTotal} onChange={handleInputChange} min="0" step="1" />
-                    </div>
-                    <div className="form-group">
-                      <label>Tipo de fertilizante</label>
-                      <select name="tipoFertilizante" value={form.tipoFertilizante} onChange={handleInputChange}>
-                        <option value="sintetico">Sintético</option>
-                        <option value="organico">Orgánico</option>
-                      </select>
-                    </div>
-                  </div>
+                <div className="form-group">
+                  <label>Área cultivada (ha)</label>
+                  <input type="number" name="areaCultivada" value={form.areaCultivada} onChange={handleInputChange} min="0" step="0.1" required />
                 </div>
-
-                {/* Paso 3 */}
-                <div className="form-step">
-                  <h4 className="section-title">3. Energía en Beneficiado y Secado</h4>
-                  <div className="form-grid">
-                    <div className="form-group">
-                      <label>Energía eléctrica (kWh)</label>
-                      <input type="number" name="energiaElectrica" value={form.energiaElectrica} onChange={handleInputChange} min="0" step="1" />
-                    </div>
-                    <div className="form-group">
-                      <label>Combustible (litros)</label>
-                      <input type="number" name="combustibleLitros" value={form.combustibleLitros} onChange={handleInputChange} min="0" step="0.1" />
-                    </div>
-                    <div className="form-group">
-                      <label>Tipo de combustible</label>
-                      <select name="tipoCombustible" value={form.tipoCombustible} onChange={handleInputChange}>
-                        <option value="diesel">Diésel</option>
-                        <option value="gas">Gasolina</option>
-                        <option value="leña">Leña</option>
-                      </select>
-                    </div>
-                  </div>
+                <div className="form-group">
+                  <label>Producción café verde (kg)</label>
+                  <input type="number" name="produccionVerde" value={form.produccionVerde} onChange={handleInputChange} min="0" step="1" required />
                 </div>
-
-                {/* Paso 4 */}
-                <div className="form-step">
-                  <h4 className="section-title">4. Cobertura Arbórea / Sombra</h4>
-                  <div className="form-grid">
-                    <div className="form-group">
-                      <label>Número de árboles de sombra</label>
-                      <input type="number" name="arbolesSombra" value={form.arbolesSombra} onChange={handleInputChange} min="0" step="1" />
-                    </div>
-                    <div className="form-group">
-                      <label>Área promedio de copa (m²/árbol)</label>
-                      <input type="number" name="areaCopaPromedio" value={form.areaCopaPromedio} onChange={handleInputChange} min="0" step="0.1" />
-                    </div>
-                  </div>
+                <div className="form-group">
+                  <label>Fertilizante total (kg)</label>
+                  <input type="number" name="fertilizanteTotal" value={form.fertilizanteTotal} onChange={handleInputChange} min="0" step="1" />
                 </div>
-
-                {/* Paso 5 */}
-                <div className="form-step">
-                  <h4 className="section-title">5. Transporte del Café</h4>
-                  <div className="form-grid">
-                    <div className="form-group">
-                      <label>Distancia promedio (km)</label>
-                      <input type="number" name="distanciaKm" value={form.distanciaKm} onChange={handleInputChange} min="0" step="0.1" />
-                    </div>
-                    <div className="form-group">
-                      <label>Volumen total (cargas)</label>
-                      <input type="number" name="volumenCargas" value={form.volumenCargas} onChange={handleInputChange} min="0" step="1" />
-                    </div>
-                  </div>
+                <div className="form-group">
+                  <label>Tipo de fertilizante</label>
+                  <select name="tipoFertilizante" value={form.tipoFertilizante} onChange={handleInputChange}>
+                    <option value="sintetico">Sintético</option>
+                    <option value="organico">Orgánico</option>
+                  </select>
                 </div>
-
-                {/* Paso 6 */}
-                <div className="form-step">
-                  <h4 className="section-title">6. Tipo de Procesamiento</h4>
-                  <div className="form-grid">
-                    <div className="form-group">
-                      <label>Tipo de procesamiento</label>
-                      <select name="tipoProcesamiento" value={form.tipoProcesamiento} onChange={handleInputChange}>
-                        <option value="lavado">Lavado</option>
-                        <option value="miel">Miel</option>
-                        <option value="natural">Natural</option>
-                      </select>
-                    </div>
-                  </div>
+                <div className="form-group">
+                  <label>Energía eléctrica (kWh)</label>
+                  <input type="number" name="energiaElectrica" value={form.energiaElectrica} onChange={handleInputChange} min="0" step="1" />
                 </div>
-
-                {/* Paso 7 */}
-                <div className="form-step">
-                  <h4 className="section-title">7. Residuos y Compostaje</h4>
-                  <div className="form-grid">
-                    <div className="form-group">
-                      <label>Residuos totales (kg)</label>
-                      <input type="number" name="residuosTotales" value={form.residuosTotales} onChange={handleInputChange} min="0" step="1" />
-                    </div>
-                    <div className="form-group">
-                      <label>Residuos compostados (kg)</label>
-                      <input type="number" name="residuosCompostados" value={form.residuosCompostados} onChange={handleInputChange} min="0" step="1" />
-                    </div>
-                  </div>
+                <div className="form-group">
+                  <label>Combustible (litros)</label>
+                  <input type="number" name="combustibleLitros" value={form.combustibleLitros} onChange={handleInputChange} min="0" step="0.1" />
                 </div>
-
-                {/* Paso 8 */}
-                <div className="form-step">
-                  <h4 className="section-title">8. Verificación EUDR - No Deforestación</h4>
-                  <div className="form-grid">
-                    <div className="form-group">
-                      <label>Bosque base 2020 (ha)</label>
-                      <input type="number" name="bosqueBase" value={form.bosqueBase} onChange={handleInputChange} min="0" step="0.1" />
-                    </div>
-                    <div className="form-group">
-                      <label>Bosque actual (ha)</label>
-                      <input type="number" name="bosqueActual" value={form.bosqueActual} onChange={handleInputChange} min="0" step="0.1" />
-                    </div>
-                  </div>
+                <div className="form-group">
+                  <label>Tipo de combustible</label>
+                  <select name="tipoCombustible" value={form.tipoCombustible} onChange={handleInputChange}>
+                    <option value="diesel">Diésel</option>
+                    <option value="gas">Gasolina</option>
+                    <option value="leña">Leña</option>
+                  </select>
+                </div>
+                <div className="form-group">
+                  <label>Número de árboles de sombra</label>
+                  <input type="number" name="arbolesSombra" value={form.arbolesSombra} onChange={handleInputChange} min="0" step="1" />
+                </div>
+                <div className="form-group">
+                  <label>Área promedio de copa (m²/árbol)</label>
+                  <input type="number" name="areaCopaPromedio" value={form.areaCopaPromedio} onChange={handleInputChange} min="0" step="0.1" />
+                </div>
+                <div className="form-group">
+                  <label>Distancia promedio (km)</label>
+                  <input type="number" name="distanciaKm" value={form.distanciaKm} onChange={handleInputChange} min="0" step="0.1" />
+                </div>
+                <div className="form-group">
+                  <label>Volumen total (cargas)</label>
+                  <input type="number" name="volumenCargas" value={form.volumenCargas} onChange={handleInputChange} min="0" step="1" />
+                </div>
+                <div className="form-group">
+                  <label>Tipo de procesamiento</label>
+                  <select name="tipoProcesamiento" value={form.tipoProcesamiento} onChange={handleInputChange}>
+                    <option value="lavado">Lavado</option>
+                    <option value="miel">Miel</option>
+                    <option value="natural">Natural</option>
+                  </select>
+                </div>
+                <div className="form-group">
+                  <label>Residuos totales (kg)</label>
+                  <input type="number" name="residuosTotales" value={form.residuosTotales} onChange={handleInputChange} min="0" step="1" />
+                </div>
+                <div className="form-group">
+                  <label>Residuos compostados (kg)</label>
+                  <input type="number" name="residuosCompostados" value={form.residuosCompostados} onChange={handleInputChange} min="0" step="1" />
+                </div>
+                <div className="form-group">
+                  <label>Bosque base 2020 (ha)</label>
+                  <input type="number" name="bosqueBase" value={form.bosqueBase} onChange={handleInputChange} min="0" step="0.1" />
+                </div>
+                <div className="form-group">
+                  <label>Bosque actual (ha)</label>
+                  <input type="number" name="bosqueActual" value={form.bosqueActual} onChange={handleInputChange} min="0" step="0.1" />
                 </div>
               </div>
 
-              <div className="form-nav">
-                {step > 0 && <button type="button" onClick={prevStep}>Anterior</button>}
-                {step < 7 && <button type="button" onClick={nextStep}>Siguiente</button>}
-                {step === 7 && <button type="submit" className="btn-calcular">Calcular Huella EUDR</button>}
-              </div>
+              <button type="submit" className="btn-calcular">Calcular Huella EUDR</button>
             </form>
 
             {resultado && (
@@ -431,22 +330,23 @@ export default function Calculadora() {
                 <h3>Resultados EUDR – {form.nombreFinca}</h3>
                 <div className="resultado-cards">
                   <div className="card">
-                    <p className="card-title">Huella Total</p>
+                    <p className="card-title">Huella Total </p>
                     <p className="card-value">{resultado.total} kg CO₂e</p>
                   </div>
                   <div className="card">
-                    <p className="card-title">Por kg de café</p>
+                    <p className="card-title">Por kg de café </p>
                     <p className="card-value">{resultado.porKg} kg CO₂e/kg</p>
                   </div>
                 </div>
 
+                {/* ← GRÁFICO DE BARRAS HORIZONTALES */}
+                {/* ← GRÁFICO DE BARRAS PROPORCIONALES AL PORCENTAJE */}
                 <div className="chart-container">
                   <div className="bars-chart">
-                    {chartData.map((d) => {
-                      const totalEmisiones = parseFloat(resultado.total) || 0;
-                      const percent = totalEmisiones > 0 ? (d.value / totalEmisiones) * 100 : 0;
+                    {chartData.map((d, i) => {
+                      const percent = (d.value / parseFloat(resultado.total)) * 100;
                       return (
-                        <div key={d.name} className="bar-item">
+                        <div key={i} className="bar-item">
                           <div className="bar-label">
                             <span className="bar-name">{d.name}</span>
                             <span className="bar-value">{d.value.toFixed(1)} kg ({percent.toFixed(0)}%)</span>
@@ -456,7 +356,7 @@ export default function Calculadora() {
                               className="bar-fill"
                               style={{
                                 width: `${percent}%`,
-                                backgroundColor: COLORS[chartData.indexOf(d) % COLORS.length],
+                                backgroundColor: COLORS[i % COLORS.length],
                               }}
                             />
                           </div>
@@ -493,7 +393,6 @@ export default function Calculadora() {
         </main>
       </div>
 
-      {/* Toasts */}
       {showSuccess && (
         <div className="success-toast">
           <svg className="check-icon" viewBox="0 0 24 24">
@@ -514,7 +413,7 @@ export default function Calculadora() {
       )}
 
       <style jsx>{`
-       .calculadora-container { max-width: 1000px; margin: 0 auto; padding: 20px; }
+        .calculadora-container { max-width: 1000px; margin: 0 auto; padding: 20px; }
         .section-title { text-align: center; color: #2d6a4f; margin-bottom: 30px; font-size: 24px; }
         .calculadora-form { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin-bottom: 30px; }
         .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; margin-bottom: 20px; }
@@ -582,6 +481,8 @@ export default function Calculadora() {
         .btn-guardar:hover:not(:disabled) { background: #2d6a4f; }
         .btn-guardar:disabled { background: #95d5b2; cursor: not-allowed; }
 
+        /* ← GRÁFICO DE BARRAS HORIZONTALES (100% FIABLE) */
+        /* ← GRÁFICO DE BARRAS PROPORCIONALES (100% AL PORCENTAJE) */
 .chart-container {
   margin: 30px 0;
   padding: 20px;
@@ -745,137 +646,6 @@ export default function Calculadora() {
         @keyframes drawX {
           to { stroke-dashoffset: 0; }
         }
-          .progress-container {
-          margin-bottom: 1.5rem;
-          text-align: center;
-          }
-
-      /* Barra de progreso */
-/* Contenedor principal del formulario */
-.calculadora-form {
-  overflow: hidden; /* Oculta los pasos fuera de vista */
-  width: 100%;
-  max-width: 800px; /* Ajusta según tu diseño */
-  margin: 0 auto;
-  padding: 20px;
-  background-color: #ffffff;
-  border-radius: 10px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-  font-family: 'Arial', sans-serif;
-}
-
-/* Contenedor de todos los pasos */
-.form-steps {
-  display: flex;
-  width: 800%; /* 8 pasos */
-  transition: transform 0.5s ease-in-out;
-}
-
-/* Cada paso individual */
-.form-step {
-  width: 100%;
-  flex-shrink: 0;
-  padding: 20px;
-  box-sizing: border-box;
-}
-
-/* Títulos de secciones */
-.section-title {
-  font-size: 1.2rem;
-  margin-bottom: 15px;
-  color: #333333;
-  border-bottom: 2px solid #f0f0f0;
-  padding-bottom: 5px;
-}
-
-/* Diseño de la cuadrícula de inputs */
-.form-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr; /* Ajusta según número de campos por fila */
-  gap: 20px;
-  margin-bottom: 20px;
-}
-
-@media (max-width: 900px) {
-  .form-grid {
-    grid-template-columns: 1fr 1fr;
-  }
-}
-
-@media (max-width: 600px) {
-  .form-grid {
-    grid-template-columns: 1fr;
-  }
-}
-
-/* Estilo de cada input y select */
-.form-group {
-  display: flex;
-  flex-direction: column;
-}
-
-.form-group label {
-  font-weight: 600;
-  margin-bottom: 5px;
-  color: #555555;
-}
-
-.form-group input,
-.form-group select {
-  padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  font-size: 1rem;
-  transition: border-color 0.3s;
-}
-
-.form-group input:focus,
-.form-group select:focus {
-  outline: none;
-  border-color: #007bff;
-}
-
-/* Inputs deshabilitados */
-.form-group input[readonly] {
-  background-color: #f8f9fa;
-  cursor: not-allowed;
-}
-
-/* Navegación */
-.form-nav {
-  display: flex;
-  justify-content: space-between;
-  margin-top: 20px;
-}
-
-.form-nav button {
-  padding: 10px 20px;
-  border: none;
-  background-color: #007bff;
-  color: white;
-  font-weight: bold;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: background-color 0.3s;
-}
-
-.form-nav button:hover {
-  background-color: #0056b3;
-}
-
-/* Botón de cálculo final */
-.btn-calcular {
-  background-color: #28a745;
-}
-
-.btn-calcular:hover {
-  background-color: #1e7e34;
-}
-
-/* Para mejorar la transición de los pasos */
-.form-steps {
-  will-change: transform;
-}
       `}</style>
     </>
   );
