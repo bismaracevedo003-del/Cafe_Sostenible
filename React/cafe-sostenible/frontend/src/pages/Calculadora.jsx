@@ -635,6 +635,7 @@ export default function Calculadora() {
   .btn-nav.prev:hover {
     box-shadow: 0 8px 20px rgba(129,199,132,0.3);
   }
+    
   .arrow-icon {
     width: 22px;
     height: 22px;
