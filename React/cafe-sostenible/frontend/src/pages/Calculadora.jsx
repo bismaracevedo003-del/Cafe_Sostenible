@@ -203,6 +203,27 @@ export default function Calculadora() {
 
   if (!user) return null;
 
+  const getSliderColor = (value, max) => {
+  const ratio = value / max;
+  if (ratio < 0.5) {
+    return `linear-gradient(to right, #2e7d32 0%, #2e7d32 ${ratio * 200}%, #e0e0e0 ${ratio * 200}%, #e0e0e0 100%)`;
+  } else if (ratio < 0.8) {
+    return `linear-gradient(to right, #2e7d32 0%, #f9a825 ${ratio * 125}%, #e0e0e0 ${ratio * 125}%, #e0e0e0 100%)`;
+  } else {
+    return `linear-gradient(to right, #2e7d32 0%, #c62828 ${ratio * 125}%, #e0e0e0 ${ratio * 125}%, #e0e0e0 100%)`;
+  }
+};
+
+const getUnit = (name) => {
+  if (name.includes('ha')) return 'ha';
+  if (name.includes('kg')) return 'kg';
+  if (name.includes('kWh')) return 'kWh';
+  if (name.includes('litros')) return 'L';
+  if (name.includes('km')) return 'km';
+  if (name.includes('cargas')) return 'cargas';
+  return 'm²';
+};
+
   return (
     <>
       <header className="header">
@@ -232,13 +253,15 @@ export default function Calculadora() {
             <h1 className="wizard-title">Calcula tu huella de carbono</h1>
             <p className="wizard-subtitle">Responde paso a paso para conocer el impacto ambiental de tu finca</p>
 
-            {/* ← INDICADOR DE PASOS */}
-            <div className="steps-indicator">
-              {Array.from({ length: totalPasos }, (_, i) => (
-                <div key={i} className={`step-circle ${i === paso ? 'active' : ''}`}>
-                  {i + 1}
-                </div>
-              ))}
+            {/* ← NUEVO: BARRA DE PROGRESO TIPO LINKEDIN */}
+            <div className="progress-container">
+              <div 
+                className="progress-bar" 
+                style={{ width: `${((paso + 1) / totalPasos) * 100}%` }}
+              />
+              <div className="progress-label">
+                Paso {paso + 1} de {totalPasos}
+              </div>
             </div>
 
             {/* ← NUEVO: Formulario con sliders */}
@@ -293,6 +316,7 @@ export default function Calculadora() {
                                 />
 
                                 {/* ← SLIDER ANIMADO */}
+                                {/* ← SLIDER CON COLOR DINÁMICO */}
                                 <div className="slider-container">
                                   <input
                                     type="range"
@@ -304,10 +328,12 @@ export default function Calculadora() {
                                     max={max}
                                     className="range-slider"
                                     style={{
-                                      background: `linear-gradient(to right, #2e7d32 0%, #2e7d32 ${((value || 0) / max) * 100}%, #e0e0e0 ${((value || 0) / max) * 100}%, #e0e0e0 100%)`
+                                      background: getSliderColor(value || 0, max)
                                     }}
                                   />
-                                  <span className="slider-value">{value || 0} {campo.name.includes('ha') ? 'ha' : campo.name.includes('kg') ? 'kg' : campo.name.includes('kWh') ? 'kWh' : campo.name.includes('litros') ? 'L' : campo.name.includes('km') ? 'km' : campo.name.includes('cargas') ? 'cargas' : 'm²'}</span>
+                                  <span className="slider-value">
+                                    {value || 0} {getUnit(campo.name)}
+                                  </span>
                                 </div>
                               </>
                             )}
@@ -324,12 +350,10 @@ export default function Calculadora() {
                 {paso > 0 && (
                   <button type="button" className="btn-nav prev" onClick={() => setPaso(paso - 1)}>
                     <svg viewBox="0 0 24 24" className="arrow-icon"><path d="M15 18l-6-6 6-6" /></svg>
-                    Anterior
                   </button>
                 )}
                 {paso < totalPasos - 1 && (
                   <button type="button" className="btn-nav next" onClick={() => setPaso(paso + 1)}>
-                    Siguiente
                     <svg viewBox="0 0 24 24" className="arrow-icon"><path d="M9 18l6-6-6-6" /></svg>
                   </button>
                 )}
@@ -419,13 +443,6 @@ export default function Calculadora() {
       )}
 
 <style jsx>{`
-  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-  * { 
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; 
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-  }
 
   /* ← WIZARD CONTAINER */
   .wizard-container {
@@ -455,60 +472,56 @@ export default function Calculadora() {
     color: #2e7d32;
     font-size: 16px;
     font-weight: 500;
-    margin-bottom: 32px;
+    margin-bottom: 20px;
     opacity: 0.9;
   }
 
-  /* ← PASOS INDICADOR */
-  .steps-indicator {
-    display: flex;
-    justify-content: center;
-    gap: 14px;
-    margin-bottom: 32px;
-  }
-
-  .step-circle {
-    width: 44px;
-    height: 44px;
-    border-radius: 50%;
-    background: white;
-    color: #81c784;
-    font-weight: 700;
-    font-size: 16px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border: 3px solid #c8e6c9;
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  /* ← BARRA DE PROGRESO TIPO LINKEDIN */
+  .progress-container {
     position: relative;
-    z-index: 1;
+    height: 8px;
+    background: #c8e6c9;
+    border-radius: 4px;
+    margin-bottom: 32px;
+    overflow: hidden;
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
   }
 
-  .step-circle::before {
+  .progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, #2e7d32, #1b5e20);
+    border-radius: 4px;
+    transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .progress-bar::after {
     content: '';
     position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 0;
-    height: 0;
-    background: #2e7d32;
-    border-radius: 50%;
-    transform: translate(-50%, -50%);
-    transition: all 0.4s ease;
-    z-index: -1;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+    animation: shimmer 1.5s infinite;
   }
 
-  .step-circle.active {
-    background: #2e7d32;
-    color: white;
-    border-color: #2e7d32;
-    transform: scale(1.15);
-    box-shadow: 0 0 0 6px rgba(46,125,50,0.2);
+  .progress-label {
+    position: absolute;
+    top: -28px;
+    left: 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: #1b5e20;
+    background: white;
+    padding: 4px 10px;
+    border-radius: 6px;
+    border: 1px solid #a5d6a7;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
   }
 
-  .step-circle.active::before {
-    width: 32px;
-    height: 32px;
+  @keyframes shimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
   }
 
   /* ← FORMULARIO */
@@ -561,9 +574,9 @@ export default function Calculadora() {
     border-radius: 10px;
     font-size: 16px;
     font-weight: 500;
-    transition: all 0.3s ease;
     background: #fafafa;
     margin-bottom: 10px;
+    transition: all 0.3s ease;
   }
 
   .number-input:focus {
@@ -598,7 +611,7 @@ export default function Calculadora() {
       0 4px 12px rgba(0,0,0,0.08);
   }
 
-  /* ← SLIDER ULTRA BONITO */
+  /* ← SLIDER CON COLOR DINÁMICO (VERDE → AMARILLO → ROJO) */
   .slider-container {
     position: relative;
     margin-top: 10px;
@@ -609,51 +622,39 @@ export default function Calculadora() {
     width: 100%;
     height: 10px;
     border-radius: 6px;
-    background: #e0e0e0;
     outline: none;
     overflow: hidden;
     box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
     transition: all 0.3s ease;
   }
 
-  .range-slider::-webkit-slider-runnable-track {
-    height: 10px;
-    border-radius: 6px;
-  }
-
   .range-slider::-webkit-slider-thumb {
     -webkit-appearance: none;
     width: 24px;
     height: 24px;
-    background: linear-gradient(135deg, #2e7d32, #1b5e20);
+    background: #fff;
+    border: 3px solid #2e7d32;
     border-radius: 50%;
     cursor: pointer;
-    box-shadow: 
-      0 3px 8px rgba(46,125,50,0.3),
-      0 0 0 6px rgba(46,125,50,0.15),
-      0 0 20px rgba(46,125,50,0.2);
+    box-shadow: 0 3px 8px rgba(0,0,0,0.2);
     transition: all 0.2s ease;
     margin-top: -7px;
-    position: relative;
   }
 
   .range-slider::-webkit-slider-thumb:hover {
     transform: scale(1.2);
-    box-shadow: 
-      0 4px 12px rgba(46,125,50,0.4),
-      0 0 0 8px rgba(46,125,50,0.2);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
   }
 
   .range-slider::-moz-range-thumb {
     width: 24px;
     height: 24px;
-    background: linear-gradient(135deg, #2e7d32, #1b5e20);
+    background: #fff;
+    border: 3px solid #2e7d32;
     border-radius: 50%;
     cursor: pointer;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.2);
     border: none;
-    box-shadow: 
-      0 3px 8px rgba(46,125,50,0.3),
-      0 0 0 6px rgba(46,125,50,0.15);
   }
 
   .slider-value {
@@ -672,10 +673,11 @@ export default function Calculadora() {
     text-align: center;
   }
 
-  /* ← NAVEGACIÓN */
+  /* ← NAVEGACIÓN: BOTONES ESTRECHOS Y CIRCULARES */
   .nav-buttons {
     display: flex;
     justify-content: space-between;
+    align-items: center;
     padding: 24px 32px 32px;
     background: white;
     border-top: 1px solid #e0e0e0;
@@ -684,36 +686,30 @@ export default function Calculadora() {
   .btn-nav {
     display: flex;
     align-items: center;
-    gap: 10px;
-    padding: 14px 26px;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
     background: linear-gradient(135deg, #2e7d32, #1b5e20);
     color: white;
     border: none;
-    border-radius: 10px;
-    font-weight: 600;
-    font-size: 16px;
+    border-radius: 50%;
     cursor: pointer;
     transition: all 0.3s ease;
     box-shadow: 0 4px 12px rgba(46,125,50,0.25);
   }
 
   .btn-nav:hover {
-    transform: translateY(-2px);
+    transform: translateY(-2px) scale(1.05);
     box-shadow: 0 8px 20px rgba(46,125,50,0.3);
   }
 
   .btn-nav.prev {
     background: linear-gradient(135deg, #a5d6a7, #81c784);
-    color: #1b5e20;
-  }
-
-  .btn-nav.prev:hover {
-    box-shadow: 0 8px 20px rgba(129,199,132,0.3);
   }
 
   .arrow-icon {
-    width: 22px;
-    height: 22px;
+    width: 20px;
+    height: 20px;
     fill: none;
     stroke: currentColor;
     stroke-width: 3;
@@ -722,13 +718,14 @@ export default function Calculadora() {
   }
 
   .btn-calcular {
-    width: 100%;
-    padding: 18px;
+    flex: 1;
+    margin-left: 16px;
+    padding: 16px;
     background: linear-gradient(135deg, #2e7d32, #1b5e20);
     color: white;
     border: none;
     border-radius: 12px;
-    font-size: 18px;
+    font-size: 17px;
     font-weight: 700;
     cursor: pointer;
     transition: all 0.3s ease;
@@ -806,7 +803,7 @@ export default function Calculadora() {
     letter-spacing: -0.5px;
   }
 
-  /* ← GRÁFICO ULTRA BONITO */
+  /* ← GRÁFICO DE BARRAS ANIMADO */
   .chart-container {
     margin: 38px 0;
     padding: 28px;
@@ -868,17 +865,10 @@ export default function Calculadora() {
   .bar-fill::after {
     content: '';
     position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
     background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
     animation: shimmer 2s infinite;
-  }
-
-  @keyframes shimmer {
-    0% { transform: translateX(-100%); }
-    100% { transform: translateX(100%); }
   }
 
   .total-center {
@@ -906,7 +896,7 @@ export default function Calculadora() {
     font-weight: 600;
   }
 
-  /* ← INDICADORES CON ÍCONOS */
+  /* ← INDICADORES EUDR */
   .eudr-indicators {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
@@ -980,7 +970,7 @@ export default function Calculadora() {
     box-shadow: none;
   }
 
-  /* ← TOASTS */
+  /* ← TOASTS ANIMADOS */
   .success-toast, .error-toast {
     position: fixed;
     bottom: 30px;
@@ -1010,13 +1000,23 @@ export default function Calculadora() {
     stroke-linejoin: round;
   }
 
+  @keyframes slideIn {
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+  }
+
+  @keyframes fadeOut {
+    to { opacity: 0; transform: translateY(20px); }
+  }
+
   /* ← RESPONSIVE */
   @media (max-width: 768px) {
     .wizard-container { margin: 20px; padding: 20px; }
     .wizard-title { font-size: 26px; }
     .form-card { padding: 24px; }
     .nav-buttons { flex-direction: column; gap: 14px; padding: 20px; }
-    .btn-nav, .btn-calcular, .btn-guardar { width: 100%; }
+    .btn-calcular { margin-left: 0; width: 100%; }
+    .btn-nav { width: 44px; height: 44px; }
     .resultado-cards { flex-direction: column; align-items: center; }
     .card { width: 100%; max-width: 300px; }
     .eudr-indicators { grid-template-columns: 1fr; }
@@ -1026,8 +1026,7 @@ export default function Calculadora() {
     .wizard-container { margin: 15px; padding: 16px; }
     .wizard-title { font-size: 24px; }
     .form-card { padding: 20px; }
-    .steps-indicator { gap: 10px; }
-    .step-circle { width: 38px; height: 38px; font-size: 14px; }
+    .progress-label { font-size: 13px; padding: 3px 8px; }
   }
 `}</style>
     </>
