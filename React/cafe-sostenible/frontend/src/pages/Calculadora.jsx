@@ -692,9 +692,6 @@ export default function Calculadora() {
     margin-bottom: 32px;
   }
   .card {
-    display: flex; 
-    flex-direction: column;
-    align-items: center;
     background: linear-gradient(135deg, #f1f8e9, #e8f5e9);
     padding: 24px;
     border-radius: 14px;
