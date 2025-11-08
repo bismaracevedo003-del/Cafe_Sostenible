@@ -39,6 +39,44 @@ export default function Calculadora() {
   const [showSuccess, setShowSuccess] = useState(false);
   const [showError, setShowError] = useState(false);
 
+  // ← NUEVO: Estado del wizard
+  const [paso, setPaso] = useState(0);
+
+  // ← NUEVO: Definición de pasos (grupos de campos)
+  const pasos = [
+    [
+      { label: "Área cultivada (ha)", name: "areaCultivada", type: "number", step: "0.1" },
+      { label: "Producción café verde (kg)", name: "produccionVerde", type: "number" },
+    ],
+    [
+      { label: "Fertilizante total (kg)", name: "fertilizanteTotal", type: "number" },
+      { label: "Tipo de fertilizante", name: "tipoFertilizante", type: "select", options: ["sintetico", "organico"] },
+    ],
+    [
+      { label: "Energía eléctrica (kWh)", name: "energiaElectrica", type: "number" },
+      { label: "Combustible (litros)", name: "combustibleLitros", type: "number", step: "0.1" },
+    ],
+    [
+      { label: "Número de árboles de sombra", name: "arbolesSombra", type: "number" },
+      { label: "Área promedio de copa (m²/árbol)", name: "areaCopaPromedio", type: "number", step: "0.1" },
+    ],
+    [
+      { label: "Distancia promedio (km)", name: "distanciaKm", type: "number", step: "0.1" },
+      { label: "Volumen total (cargas)", name: "volumenCargas", type: "number" },
+    ],
+    [
+      { label: "Tipo de procesamiento", name: "tipoProcesamiento", type: "select", options: ["lavado", "miel", "natural"] },
+    ],
+    [
+      { label: "Residuos totales (kg)", name: "residuosTotales", type: "number" },
+      { label: "Residuos compostados (kg)", name: "residuosCompostados", type: "number" },
+    ],
+    [
+      { label: "Bosque base 2020 (ha)", name: "bosqueBase", type: "number", step: "0.1" },
+      { label: "Bosque actual (ha)", name: "bosqueActual", type: "number", step: "0.1" },
+    ],
+  ];
+
   useEffect(() => {
     const checkAuth = async () => {
       try {
@@ -175,6 +213,7 @@ export default function Calculadora() {
       }));
       setResultado(null);
       setChartData([]);
+      setPaso(0); // ← Volver al primer paso
     } catch (err) {
       setShowError(true);
       setTimeout(() => setShowError(false), 3000);
@@ -231,98 +270,69 @@ export default function Calculadora() {
           <div className="calculadora-container">
             <h2 className="section-title">Calculadora de Huella de Carbono – EUDR</h2>
 
-            <form onSubmit={calcularHuella} className="calculadora-form">
-              <div className="form-grid">
-                <div className="form-group">
-                  <label>Nombre de la finca</label>
-                  <input
-                    type="text"
-                    name="nombreFinca"
-                    value={form.nombreFinca}
-                    onChange={handleInputChange}
-                    placeholder="Cargando finca..."
-                    readOnly
-                    style={{ backgroundColor: '#f8f9fa', cursor: 'not-allowed' }}
-                  />
-                </div>
-                <div className="form-group">
-                  <label>Área cultivada (ha)</label>
-                  <input type="number" name="areaCultivada" value={form.areaCultivada} onChange={handleInputChange} min="0" step="0.1" required />
-                </div>
-                <div className="form-group">
-                  <label>Producción café verde (kg)</label>
-                  <input type="number" name="produccionVerde" value={form.produccionVerde} onChange={handleInputChange} min="0" step="1" required />
-                </div>
-                <div className="form-group">
-                  <label>Fertilizante total (kg)</label>
-                  <input type="number" name="fertilizanteTotal" value={form.fertilizanteTotal} onChange={handleInputChange} min="0" step="1" />
-                </div>
-                <div className="form-group">
-                  <label>Tipo de fertilizante</label>
-                  <select name="tipoFertilizante" value={form.tipoFertilizante} onChange={handleInputChange}>
-                    <option value="sintetico">Sintético</option>
-                    <option value="organico">Orgánico</option>
-                  </select>
-                </div>
-                <div className="form-group">
-                  <label>Energía eléctrica (kWh)</label>
-                  <input type="number" name="energiaElectrica" value={form.energiaElectrica} onChange={handleInputChange} min="0" step="1" />
-                </div>
-                <div className="form-group">
-                  <label>Combustible (litros)</label>
-                  <input type="number" name="combustibleLitros" value={form.combustibleLitros} onChange={handleInputChange} min="0" step="0.1" />
-                </div>
-                <div className="form-group">
-                  <label>Tipo de combustible</label>
-                  <select name="tipoCombustible" value={form.tipoCombustible} onChange={handleInputChange}>
-                    <option value="diesel">Diésel</option>
-                    <option value="gas">Gasolina</option>
-                    <option value="leña">Leña</option>
-                  </select>
-                </div>
-                <div className="form-group">
-                  <label>Número de árboles de sombra</label>
-                  <input type="number" name="arbolesSombra" value={form.arbolesSombra} onChange={handleInputChange} min="0" step="1" />
-                </div>
-                <div className="form-group">
-                  <label>Área promedio de copa (m²/árbol)</label>
-                  <input type="number" name="areaCopaPromedio" value={form.areaCopaPromedio} onChange={handleInputChange} min="0" step="0.1" />
-                </div>
-                <div className="form-group">
-                  <label>Distancia promedio (km)</label>
-                  <input type="number" name="distanciaKm" value={form.distanciaKm} onChange={handleInputChange} min="0" step="0.1" />
-                </div>
-                <div className="form-group">
-                  <label>Volumen total (cargas)</label>
-                  <input type="number" name="volumenCargas" value={form.volumenCargas} onChange={handleInputChange} min="0" step="1" />
-                </div>
-                <div className="form-group">
-                  <label>Tipo de procesamiento</label>
-                  <select name="tipoProcesamiento" value={form.tipoProcesamiento} onChange={handleInputChange}>
-                    <option value="lavado">Lavado</option>
-                    <option value="miel">Miel</option>
-                    <option value="natural">Natural</option>
-                  </select>
-                </div>
-                <div className="form-group">
-                  <label>Residuos totales (kg)</label>
-                  <input type="number" name="residuosTotales" value={form.residuosTotales} onChange={handleInputChange} min="0" step="1" />
-                </div>
-                <div className="form-group">
-                  <label>Residuos compostados (kg)</label>
-                  <input type="number" name="residuosCompostados" value={form.residuosCompostados} onChange={handleInputChange} min="0" step="1" />
-                </div>
-                <div className="form-group">
-                  <label>Bosque base 2020 (ha)</label>
-                  <input type="number" name="bosqueBase" value={form.bosqueBase} onChange={handleInputChange} min="0" step="0.1" />
-                </div>
-                <div className="form-group">
-                  <label>Bosque actual (ha)</label>
-                  <input type="number" name="bosqueActual" value={form.bosqueActual} onChange={handleInputChange} min="0" step="0.1" />
-                </div>
+            {/* ← NUEVO: Formulario Wizard */}
+            <form onSubmit={calcularHuella} className="wizard-form">
+
+              {/* Campo nombreFinca siempre visible arriba */}
+              <div className="form-group" style={{ marginBottom: '20px' }}>
+                <label>Nombre de la finca</label>
+                <input
+                  type="text"
+                  name="nombreFinca"
+                  value={form.nombreFinca}
+                  onChange={handleInputChange}
+                  placeholder="Cargando finca..."
+                  readOnly
+                  style={{ backgroundColor: '#f8f9fa', cursor: 'not-allowed' }}
+                />
               </div>
 
-              <button type="submit" className="btn-calcular">Calcular Huella EUDR</button>
+              <div className="cards-wrapper" style={{ transform: `translateX(-${paso * 100}%)` }}>
+                {pasos.map((grupo, index) => (
+                  <div className="card-slide" key={index}>
+                    {grupo.map((campo, i) => (
+                      <div className="form-group" key={i}>
+                        <label>{campo.label}</label>
+
+                        {campo.type === "select" ? (
+                          <select name={campo.name} value={form[campo.name]} onChange={handleInputChange}>
+                            {campo.options.map(opt => (
+                              <option key={opt} value={opt}>
+                                {opt.charAt(0).toUpperCase() + opt.slice(1)}
+                              </option>
+                            ))}
+                          </select>
+                        ) : (
+                          <input
+                            type={campo.type}
+                            name={campo.name}
+                            value={form[campo.name]}
+                            onChange={handleInputChange}
+                            step={campo.step || "1"}
+                            min="0"
+                          />
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                ))}
+              </div>
+
+              <div className="nav-buttons">
+                {paso > 0 && (
+                  <button type="button" className="btn-nav" onClick={() => setPaso(paso - 1)}>
+                    ← Anterior
+                  </button>
+                )}
+                {paso < pasos.length - 1 && (
+                  <button type="button" className="btn-nav" onClick={() => setPaso(paso + 1)}>
+                    Siguiente →
+                  </button>
+                )}
+                {paso === pasos.length - 1 && (
+                  <button type="submit" className="btn-calcular">Calcular Huella EUDR</button>
+                )}
+              </div>
             </form>
 
             {resultado && (
@@ -339,8 +349,6 @@ export default function Calculadora() {
                   </div>
                 </div>
 
-                {/* ← GRÁFICO DE BARRAS HORIZONTALES */}
-                {/* ← GRÁFICO DE BARRAS PROPORCIONALES AL PORCENTAJE */}
                 <div className="chart-container">
                   <div className="bars-chart">
                     {chartData.map((d, i) => {
@@ -415,13 +423,72 @@ export default function Calculadora() {
       <style jsx>{`
         .calculadora-container { max-width: 1000px; margin: 0 auto; padding: 20px; }
         .section-title { text-align: center; color: #2d6a4f; margin-bottom: 30px; font-size: 24px; }
-        .calculadora-form { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin-bottom: 30px; }
-        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; margin-bottom: 20px; }
+        
+        /* ← WIZARD STYLES */
+        .wizard-form {
+          overflow: hidden;
+          position: relative;
+          width: 100%;
+          background: white;
+          padding: 25px;
+          border-radius: 12px;
+          box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+          margin-bottom: 30px;
+        }
+
+        .cards-wrapper {
+          display: flex;
+          transition: transform 0.45s ease;
+          width: 100%;
+        }
+
+        .card-slide {
+          min-width: 100%;
+          padding: 20px 10px;
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+          gap: 16px;
+        }
+
         .form-group label { display: block; margin-bottom: 6px; font-weight: 600; color: #2d6a4f; font-size: 14px; }
         .form-group input, .form-group select { width: 100%; padding: 10px; border: 1px solid #95d5b2; border-radius: 8px; font-size: 15px; }
         .form-group input:focus, .form-group select:focus { outline: none; border-color: #2d6a4f; box-shadow: 0 0 0 2px rgba(45,106,79,0.2); }
-        .btn-calcular { width: 100%; padding: 14px; background: #2d6a4f; color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; }
+
+        .nav-buttons {
+          margin-top: 20px;
+          display: flex;
+          justify-content: space-between;
+          padding: 0 10px;
+        }
+
+        .btn-nav {
+          padding: 12px 22px;
+          border-radius: 8px;
+          background: #40916c;
+          color: white;
+          border: none;
+          cursor: pointer;
+          font-weight: 600;
+          font-size: 15px;
+        }
+        .btn-nav:hover {
+          background: #2d6a4f;
+        }
+
+        .btn-calcular {
+          width: 100%;
+          padding: 14px;
+          background: #2d6a4f;
+          color: white;
+          border: none;
+          border-radius: 8px;
+          font-size: 16px;
+          font-weight: 600;
+          cursor: pointer;
+        }
         .btn-calcular:hover { background: #1f4d38; }
+
+        /* ← RESULTADOS Y GRÁFICO (sin cambios) */
         .resultado-section {
           margin-top: 2rem;
           padding: 1.5rem;
@@ -471,106 +538,126 @@ export default function Calculadora() {
         .card-value {
           font-size: 1.25rem;
           font-weight: 700;
-          color: #007b5e; /* Puedes cambiar el color principal aquí */
+          color: #007b5e;
         }
 
-        .eudr-indicators { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin: 25px 0; padding: 15px; background: #f8f9fa; border-radius: 10px; }
-        .indicator { font-size: 15px; display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #eee; }
+        .chart-container {
+          margin: 30px 0;
+          padding: 20px;
+          background: #f9f9f9;
+          border-radius: 12px;
+        }
+
+        .bars-chart {
+          display: flex;
+          flex-direction: column;
+          gap: 16px;
+          max-width: 600px;
+          margin: 0 auto;
+        }
+
+        .bar-item {
+          display: flex;
+          flex-direction: column;
+          gap: 6px;
+        }
+
+        .bar-label {
+          display: flex;
+          justify-content: space-between;
+          font-size: 14.5px;
+          font-weight: 600;
+          color: #444;
+        }
+
+        .bar-name {
+          color: #2d6a4f;
+        }
+
+        .bar-value {
+          color: #666;
+          font-weight: normal;
+        }
+
+        .bar-wrapper {
+          width: 100%;
+          height: 32px;
+          background: #e8ecef;
+          border-radius: 16px;
+          overflow: hidden;
+          position: relative;
+          box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .bar-fill {
+          height: 100%;
+          border-radius: 16px;
+          transition: width 1.2s ease-out;
+        }
+
+        .total-center {
+          text-align: center;
+          margin-top: 28px;
+          padding: 18px;
+          background: white;
+          border-radius: 14px;
+          box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+
+        .total-value {
+          font-size: 30px;
+          font-weight: 700;
+          color: #2d6a4f;
+        }
+
+        .total-center small {
+          font-size: 14px;
+          color: #555;
+          display: block;
+          margin-top: 6px;
+        }
+
+        .eudr-indicators { 
+          display: grid; 
+          grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); 
+          gap: 12px; 
+          margin: 25px 0; 
+          padding: 15px; 
+          background: #f8f9fa; 
+          border-radius: 10px; 
+        }
+        .indicator { 
+          font-size: 15px; 
+          display: flex; 
+          justify-content: space-between; 
+          padding: 8px 0; 
+          border-bottom: 1px solid #eee; 
+        }
         .indicator:last-child { border-bottom: none; }
-        .btn-guardar { margin-top: 20px; padding: 12px 30px; background: #40916c; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; }
+
+        .btn-guardar { 
+          margin-top: 20px; 
+          padding: 12px 30px; 
+          background: #40916c; 
+          color: white; 
+          border: none; 
+          border-radius: 8px; 
+          font-weight: 600; 
+          cursor: pointer; 
+        }
         .btn-guardar:hover:not(:disabled) { background: #2d6a4f; }
         .btn-guardar:disabled { background: #95d5b2; cursor: not-allowed; }
 
-        /* ← GRÁFICO DE BARRAS HORIZONTALES (100% FIABLE) */
-        /* ← GRÁFICO DE BARRAS PROPORCIONALES (100% AL PORCENTAJE) */
-.chart-container {
-  margin: 30px 0;
-  padding: 20px;
-  background: #f9f9f9;
-  border-radius: 12px;
-}
+        @media (max-width: 768px) {
+          .bars-chart { max-width: 100%; }
+          .card-slide { grid-template-columns: 1fr; }
+        }
 
-.bars-chart {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  max-width: 600px;
-  margin: 0 auto;
-}
-
-.bar-item {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.bar-label {
-  display: flex;
-  justify-content: space-between;
-  font-size: 14.5px;
-  font-weight: 600;
-  color: #444;
-}
-
-.bar-name {
-  color: #2d6a4f;
-}
-
-.bar-value {
-  color: #666;
-  font-weight: normal;
-}
-
-/* Fondo gris claro que siempre ocupa el 100% */
-.bar-wrapper {
-  width: 100%;
-  height: 32px;
-  background: #e8ecef;
-  border-radius: 16px;
-  overflow: hidden;
-  position: relative;
-  box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
-}
-
-/* Barra que crece SOLO al % real */
-.bar-fill {
-  height: 100%;
-  border-radius: 16px;
-  transition: width 1.2s ease-out;
-}
-
-.total-center {
-  text-align: center;
-  margin-top: 28px;
-  padding: 18px;
-  background: white;
-  border-radius: 14px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-}
-
-.total-value {
-  font-size: 30px;
-  font-weight: 700;
-  color: #2d6a4f;
-}
-
-.total-center small {
-  font-size: 14px;
-  color: #555;
-  display: block;
-  margin-top: 6px;
-}
-
-@media (max-width: 768px) {
-  .bars-chart { max-width: 100%; }
-}
-
-        .success-toast {
+        /* ← TOASTS */
+        .success-toast, .error-toast {
           position: fixed;
           bottom: 30px;
           right: 30px;
-          background: #2d6a4f;
-          color: white;
           padding: 14px 24px;
           border-radius: 12px;
           display: flex;
@@ -581,8 +668,10 @@ export default function Calculadora() {
           z-index: 1000;
           animation: slideIn 0.4s ease-out, fadeOut 0.5s 2.5s forwards;
         }
+        .success-toast { background: #2d6a4f; color: white; }
+        .error-toast { background: #c62828; color: white; }
 
-        .check-icon {
+        .check-icon, .error-icon {
           width: 24px;
           height: 24px;
           stroke: white;
@@ -591,61 +680,13 @@ export default function Calculadora() {
           stroke-linecap: round;
           stroke-linejoin: round;
         }
+        .check-icon polyline { stroke-dasharray: 22; stroke-dashoffset: 66; animation: drawCheck 0.6s ease-out 0.3s forwards; }
+        .error-icon line { stroke-dasharray: 18; stroke-dashoffset: 36; animation: drawX 0.6s ease-out 0.3s forwards; }
 
-        .check-icon polyline {
-          stroke-dasharray: 22;
-          stroke-dashoffset: 66;
-          animation: drawCheck 0.6s ease-out 0.3s forwards;
-        }
-
-        .error-toast {
-          position: fixed;
-          bottom: 30px;
-          right: 30px;
-          background: #c62828;
-          color: white;
-          padding: 14px 24px;
-          border-radius: 12px;
-          display: flex;
-          align-items: center;
-          gap: 12px;
-          font-weight: 600;
-          box-shadow: 0 8px 20px rgba(0,0,0,0.2);
-          z-index: 1000;
-          animation: slideIn 0.4s ease-out, fadeOut 0.5s 2.5s forwards;
-        }
-
-        .error-icon {
-          width: 24px;
-          height: 24px;
-          stroke: white;
-          stroke-width: 3;
-          fill: none;
-          stroke-linecap: round;
-        }
-
-        .error-icon line {
-          stroke-dasharray: 18;
-          stroke-dashoffset: 36;
-          animation: drawX 0.6s ease-out 0.3s forwards;
-        }
-
-        @keyframes slideIn {
-          from { transform: translateX(100%); opacity: 0; }
-          to { transform: translateX(0); opacity: 1; }
-        }
-
-        @keyframes fadeOut {
-          to { opacity: 0; transform: translateY(20px); }
-        }
-
-        @keyframes drawCheck {
-          to { stroke-dashoffset: 0; }
-        }
-
-        @keyframes drawX {
-          to { stroke-dashoffset: 0; }
-        }
+        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        @keyframes fadeOut { to { opacity: 0; transform: translateY(20px); } }
+        @keyframes drawCheck { to { stroke-dashoffset: 0; } }
+        @keyframes drawX { to { stroke-dashoffset: 0; } }
       `}</style>
     </>
   );
