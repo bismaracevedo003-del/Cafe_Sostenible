@@ -54,6 +54,7 @@ export default function Calculadora() {
     [
       { label: "Energía eléctrica (kWh)", name: "energiaElectrica", type: "number" },
       { label: "Combustible (litros)", name: "combustibleLitros", type: "number", step: "0.1" },
+      { label: "Tipo de combustible", name: "tipoCombustible", type: "select", options: ["diesel", "gas", "otro"] },
     ],
     [
       { label: "Número de árboles de sombra", name: "arbolesSombra", type: "number" },
@@ -204,25 +205,46 @@ export default function Calculadora() {
   if (!user) return null;
 
   const getSliderColor = (value, max) => {
-  const ratio = value / max;
-  if (ratio < 0.5) {
-    return `linear-gradient(to right, #2e7d32 0%, #2e7d32 ${ratio * 200}%, #e0e0e0 ${ratio * 200}%, #e0e0e0 100%)`;
-  } else if (ratio < 0.8) {
-    return `linear-gradient(to right, #2e7d32 0%, #f9a825 ${ratio * 125}%, #e0e0e0 ${ratio * 125}%, #e0e0e0 100%)`;
-  } else {
-    return `linear-gradient(to right, #2e7d32 0%, #c62828 ${ratio * 125}%, #e0e0e0 ${ratio * 125}%, #e0e0e0 100%)`;
-  }
-};
+    const ratio = value / max;
+    let color;
+    if (ratio < 0.5) {
+      color = '#2e7d32'; // green
+    } else if (ratio < 0.8) {
+      color = '#f9a825'; // yellow
+    } else {
+      color = '#c62828'; // red
+    }
+    const percent = ratio * 100;
+    return `linear-gradient(to right, ${color} 0%, ${color} ${percent}%, #e0e0e0 ${percent}%, #e0e0e0 100%)`;
+  };
 
-const getUnit = (name) => {
-  if (name.includes('ha')) return 'ha';
-  if (name.includes('kg')) return 'kg';
-  if (name.includes('kWh')) return 'kWh';
-  if (name.includes('litros')) return 'L';
-  if (name.includes('km')) return 'km';
-  if (name.includes('cargas')) return 'cargas';
-  return 'm²';
-};
+  const getUnit = (name) => {
+    switch (name) {
+      case "areaCultivada":
+      case "bosqueBase":
+      case "bosqueActual":
+        return "ha";
+      case "produccionVerde":
+      case "fertilizanteTotal":
+      case "residuosTotales":
+      case "residuosCompostados":
+        return "kg";
+      case "energiaElectrica":
+        return "kWh";
+      case "combustibleLitros":
+        return "L";
+      case "arbolesSombra":
+        return "árboles";
+      case "areaCopaPromedio":
+        return "m²";
+      case "distanciaKm":
+        return "km";
+      case "volumenCargas":
+        return "cargas";
+      default:
+        return "";
+    }
+  };
 
   return (
     <>
@@ -443,185 +465,592 @@ const getUnit = (name) => {
       )}
 
 <style jsx>{`
-  /* 🎨 Paleta base */
-  :root {
-    --verde-oscuro: #1b5e20;
-    --verde-medio: #2e7d32;
-    --verde-claro: #a5d6a7;
-    --verde-agua: #b9f6ca;
-    --gris-claro: #f1f1f1;
-    --sombra: rgba(0, 0, 0, 0.1);
-    --transicion: all 0.3s ease;
-    --radio: 10px;
-  }
 
-  /* 📦 Contenedor principal */
+  /* ← WIZARD CONTAINER */
   .wizard-container {
-    background: linear-gradient(180deg, #ffffff, #f7fdf7);
-    border-radius: var(--radio);
-    box-shadow: 0 4px 20px var(--sombra);
-    padding: 2.5rem;
-    max-width: 800px;
-    margin: 40px auto;
-    font-family: 'Poppins', sans-serif;
-    animation: fadeIn 0.6s ease;
-    backdrop-filter: blur(8px);
+    max-width: 680px;
+    margin: 30px auto;
+    padding: 28px;
+    background: linear-gradient(135deg, #e8f5e9 0%, #f1f8e9 100%);
+    border-radius: 20px;
+    box-shadow: 
+      0 12px 30px rgba(0,0,0,0.08),
+      0 0 0 1px rgba(46,125,50,0.08);
+    backdrop-filter: blur(10px);
+    transition: all 0.3s ease;
   }
 
-  /* 🔤 Titulares */
   .wizard-title {
-    color: var(--verde-oscuro);
     text-align: center;
-    font-size: 2rem;
-    margin-bottom: 1.5rem;
+    font-size: 30px;
     font-weight: 700;
+    color: #1b5e20;
+    margin-bottom: 8px;
+    letter-spacing: -0.5px;
   }
 
-  .wizard-step {
-    margin-bottom: 2rem;
-    animation: slideIn 0.4s ease;
-  }
-
-  /* 🧮 Inputs y Sliders */
-  input[type="range"] {
-    width: 100%;
-    -webkit-appearance: none;
-    height: 8px;
-    border-radius: 5px;
-    background: linear-gradient(90deg, var(--verde-medio), var(--verde-claro));
-    outline: none;
-    transition: var(--transicion);
-  }
-
-  input[type="range"]::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    appearance: none;
-    width: 22px;
-    height: 22px;
-    border-radius: 50%;
-    background: var(--verde-medio);
-    cursor: pointer;
-    transition: var(--transicion);
-    box-shadow: 0 0 4px rgba(0,0,0,0.3);
-  }
-
-  input[type="range"]::-webkit-slider-thumb:hover {
-    transform: scale(1.1);
-    background: var(--verde-oscuro);
-  }
-
-  .range-value {
-    text-align: right;
-    color: var(--verde-oscuro);
-    font-weight: 600;
-    margin-top: 0.4rem;
-    font-size: 0.9rem;
-  }
-
-  /* 🧾 Etiquetas */
-  label {
-    color: var(--verde-oscuro);
+  .wizard-subtitle {
+    text-align: center;
+    color: #2e7d32;
+    font-size: 16px;
     font-weight: 500;
-    display: block;
-    margin-bottom: 0.5rem;
+    margin-bottom: 20px;
+    opacity: 0.9;
   }
 
-  /* 🔘 Botones */
-  .wizard-buttons {
-    display: flex;
-    justify-content: space-between;
-    margin-top: 1.5rem;
-  }
-
-  button {
-    padding: 0.75rem 1.8rem;
-    border-radius: var(--radio);
-    border: none;
-    cursor: pointer;
-    background: var(--verde-medio);
-    color: white;
-    font-size: 1rem;
-    font-weight: 600;
-    box-shadow: 0 3px 6px var(--sombra);
-    transition: var(--transicion);
-  }
-
-  button:hover {
-    background: var(--verde-oscuro);
-    transform: translateY(-2px);
-  }
-
-  button:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
-
-  /* 📊 Progreso */
+  /* ← BARRA DE PROGRESO TIPO LINKEDIN */
   .progress-container {
-    height: 10px;
-    background: var(--gris-claro);
-    border-radius: 5px;
-    margin: 1.5rem 0;
+    position: relative;
+    height: 8px;
+    background: #c8e6c9;
+    border-radius: 4px;
+    margin-bottom: 32px;
     overflow: hidden;
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
   }
 
   .progress-bar {
     height: 100%;
-    background: linear-gradient(90deg, var(--verde-medio), var(--verde-agua));
-    transition: width 0.4s ease;
+    background: linear-gradient(90deg, #2e7d32, #1b5e20);
+    border-radius: 4px;
+    transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
   }
 
-  /* ✅ Resultado */
-  .result-box {
-    background: var(--verde-claro);
-    color: var(--verde-oscuro);
-    border-radius: var(--radio);
-    padding: 1.5rem;
-    text-align: center;
+  .progress-bar::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+    animation: shimmer 1.5s infinite;
+  }
+
+  .progress-label {
+    position: absolute;
+    top: -28px;
+    left: 0;
+    font-size: 14px;
     font-weight: 600;
-    margin-top: 1.5rem;
-    box-shadow: inset 0 0 10px rgba(0,0,0,0.05);
+    color: #1b5e20;
+    background: white;
+    padding: 4px 10px;
+    border-radius: 6px;
+    border: 1px solid #a5d6a7;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
   }
 
-  /* 🌍 Responsividad */
-  @media (max-width: 768px) {
-    .wizard-container {
-      padding: 1.5rem;
-    }
-
-    .wizard-title {
-      font-size: 1.6rem;
-    }
-
-    button {
-      flex: 1;
-      margin: 0 0.5rem;
-    }
+  @keyframes shimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
   }
 
-  @media (max-width: 480px) {
-    .wizard-container {
-      margin: 20px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.08);
-    }
-
-    input[type="range"] {
-      height: 6px;
-    }
+  /* ← FORMULARIO */
+  .wizard-form {
+    overflow: hidden;
+    border-radius: 16px;
+    background: white;
+    box-shadow: 
+      0 8px 25px rgba(0,0,0,0.08),
+      0 0 0 1px rgba(0,0,0,0.05);
+    position: relative;
   }
 
-  /* ✨ Animaciones suaves */
+  .form-card-wrapper {
+    display: flex;
+    transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .form-card {
+    min-width: 100%;
+    padding: 32px;
+    animation: fadeIn 0.5s ease-out;
+  }
+
   @keyframes fadeIn {
     from { opacity: 0; transform: translateY(10px); }
     to { opacity: 1; transform: translateY(0); }
   }
 
+  .form-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 26px;
+  }
+
+  .form-group label {
+    display: block;
+    margin-bottom: 10px;
+    font-weight: 600;
+    color: #1b5e20;
+    font-size: 15px;
+    letter-spacing: -0.2px;
+  }
+
+  /* ← INPUT NUMÉRICO */
+  .number-input {
+    width: 100%;
+    padding: 15px 16px;
+    border: 2px solid #a5d6a7;
+    border-radius: 10px;
+    font-size: 16px;
+    font-weight: 500;
+    background: #fafafa;
+    margin-bottom: 10px;
+    transition: all 0.3s ease;
+  }
+
+  .number-input:focus {
+    outline: none;
+    border-color: #2e7d32;
+    background: white;
+    box-shadow: 
+      0 0 0 4px rgba(46,125,50,0.12),
+      0 4px 12px rgba(0,0,0,0.08);
+    transform: translateY(-1px);
+  }
+
+  /* ← SELECT */
+  .form-group select {
+    width: 100%;
+    padding: 15px 16px;
+    border: 2px solid #a5d6a7;
+    border-radius: 10px;
+    font-size: 16px;
+    background: #fafafa;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  .form-group select:focus {
+    outline: none;
+    border-color: #2e7d32;
+    background: white;
+    box-shadow: 
+      0 0 0 4px rgba(46,125,50,0.12),
+      0 4px 12px rgba(0,0,0,0.08);
+  }
+
+  /* ← SLIDER CON COLOR DINÁMICO (VERDE → AMARILLO → ROJO) */
+  .slider-container {
+    position: relative;
+    margin-top: 10px;
+  }
+
+  .range-slider {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 10px;
+    border-radius: 6px;
+    outline: none;
+    overflow: hidden;
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+  }
+
+  .range-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 24px;
+    height: 24px;
+    background: #fff;
+    border: 3px solid #2e7d32;
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.2);
+    transition: all 0.2s ease;
+    margin-top: -7px;
+  }
+
+  .range-slider::-webkit-slider-thumb:hover {
+    transform: scale(1.2);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  }
+
+  .range-slider::-moz-range-thumb {
+    width: 24px;
+    height: 24px;
+    background: #fff;
+    border: 3px solid #2e7d32;
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.2);
+    border: none;
+  }
+
+  .slider-value {
+    position: absolute;
+    right: 0;
+    top: -34px;
+    font-size: 13px;
+    font-weight: 700;
+    color: #1b5e20;
+    background: white;
+    padding: 4px 10px;
+    border-radius: 6px;
+    border: 1px solid #a5d6a7;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+    min-width: 50px;
+    text-align: center;
+  }
+
+  /* ← NAVEGACIÓN: BOTONES ESTRECHOS Y CIRCULARES */
+  .nav-buttons {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 24px 32px 32px;
+    background: white;
+    border-top: 1px solid #e0e0e0;
+  }
+
+  .btn-nav {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    background: linear-gradient(135deg, #2e7d32, #1b5e20);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(46,125,50,0.25);
+  }
+
+  .btn-nav:hover {
+    transform: translateY(-2px) scale(1.05);
+    box-shadow: 0 8px 20px rgba(46,125,50,0.3);
+  }
+
+  .btn-nav.prev {
+    background: linear-gradient(135deg, #a5d6a7, #81c784);
+  }
+
+  .arrow-icon {
+    width: 20px;
+    height: 20px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 3;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .btn-calcular {
+    flex: 1;
+    margin-left: 16px;
+    padding: 16px;
+    background: linear-gradient(135deg, #2e7d32, #1b5e20);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 17px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 6px 16px rgba(46,125,50,0.3);
+  }
+
+  .btn-calcular:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 25px rgba(46,125,50,0.35);
+  }
+
+  /* ← RESULTADOS PREMIUM */
+  .resultado-section {
+    margin-top: 40px;
+    padding: 32px;
+    background: white;
+    border-radius: 16px;
+    box-shadow: 
+      0 12px 30px rgba(0,0,0,0.08),
+      0 0 0 1px rgba(0,0,0,0.05);
+    animation: fadeInUp 0.6s ease-out;
+  }
+
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .resultado-section h3 {
+    text-align: center;
+    color: #1b5e20;
+    font-size: 24px;
+    font-weight: 700;
+    margin-bottom: 28px;
+    letter-spacing: -0.5px;
+  }
+
+  .resultado-cards {
+    display: flex;
+    justify-content: center;
+    gap: 24px;
+    flex-wrap: wrap;
+    margin-bottom: 32px;
+  }
+
+  .card {
+    background: linear-gradient(135deg, #f1f8e9, #e8f5e9);
+    padding: 24px;
+    border-radius: 14px;
+    width: 210px;
+    text-align: center;
+    border: 1px solid #c8e6c9;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+  }
+
+  .card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 12px 25px rgba(0,0,0,0.12);
+  }
+
+  .card-title {
+    font-size: 14px;
+    color: #2e7d32;
+    margin-bottom: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .card-value {
+    font-size: 26px;
+    font-weight: 700;
+    color: #1b5e20;
+    letter-spacing: -0.5px;
+  }
+
+  /* ← GRÁFICO DE BARRAS ANIMADO */
+  .chart-container {
+    margin: 38px 0;
+    padding: 28px;
+    background: linear-gradient(135deg, #f9f9f9, #f5f5f5);
+    border-radius: 14px;
+    border: 1px solid #e0e0e0;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  }
+
+  .bars-chart {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+
+  .bar-item {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .bar-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 15px;
+    font-weight: 600;
+    color: #333;
+  }
+
+  .bar-name {
+    color: #1b5e20;
+    font-weight: 700;
+  }
+
+  .bar-value {
+    color: #666;
+    font-weight: 500;
+  }
+
+  .bar-wrapper {
+    width: 100%;
+    height: 36px;
+    background: #e8ecef;
+    border-radius: 18px;
+    overflow: hidden;
+    position: relative;
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+  }
+
+  .bar-fill {
+    height: 100%;
+    border-radius: 18px;
+    background: linear-gradient(90deg, #2e7d32, #1b5e20);
+    transition: width 1.4s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .bar-fill::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    animation: shimmer 2s infinite;
+  }
+
+  .total-center {
+    text-align: center;
+    margin-top: 32px;
+    padding: 24px;
+    background: linear-gradient(135deg, #f1f8e9, #e8f5e9);
+    border-radius: 16px;
+    box-shadow: 0 6px 16px rgba(0,0,0,0.08);
+    border: 1px solid #c8e6c9;
+  }
+
+  .total-value {
+    font-size: 36px;
+    font-weight: 800;
+    color: #1b5e20;
+    letter-spacing: -1px;
+  }
+
+  .total-center small {
+    font-size: 15px;
+    color: #2e7d32;
+    display: block;
+    margin-top: 8px;
+    font-weight: 600;
+  }
+
+  /* ← INDICADORES EUDR */
+  .eudr-indicators {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+    gap: 14px;
+    margin: 32px 0;
+    padding: 22px;
+    background: linear-gradient(135deg, #f8f9fa, #f1f8e9);
+    border-radius: 14px;
+    border: 1px dashed #a5d6a7;
+  }
+
+  .indicator {
+    font-size: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid #c8e6c9;
+  }
+
+  .indicator:last-child {
+    border-bottom: none;
+  }
+
+  .indicator span {
+    color: #2e7d32;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .indicator strong {
+    color: #1b5e20;
+    font-weight: 700;
+  }
+
+  .indicator.deforestacion span {
+    color: #c62828;
+  }
+
+  .indicator.deforestacion strong {
+    color: #b71c1c;
+  }
+
+  /* ← BOTÓN GUARDAR */
+  .btn-guardar {
+    margin-top: 24px;
+    width: 100%;
+    padding: 18px;
+    background: linear-gradient(135deg, #2e7d32, #1b5e20);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 17px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 6px 16px rgba(46,125,50,0.3);
+  }
+
+  .btn-guardar:hover:not(:disabled) {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 25px rgba(46,125,50,0.35);
+  }
+
+  .btn-guardar:disabled {
+    background: #a5d6a7;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+  }
+
+  /* ← TOASTS ANIMADOS */
+  .success-toast, .error-toast {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    padding: 16px 28px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-weight: 700;
+    box-shadow: 0 12px 30px rgba(0,0,0,0.2);
+    z-index: 1000;
+    animation: slideIn 0.5s cubic-bezier(0.4, 0, 0.2, 1), fadeOut 0.5s 2.5s forwards;
+    backdrop-filter: blur(10px);
+  }
+
+  .success-toast { background: linear-gradient(135deg, #2e7d32, #1b5e20); color: white; }
+  .error-toast { background: linear-gradient(135deg, #c62828, #b71c1c); color: white; }
+
+  .check-icon, .error-icon {
+    width: 26px;
+    height: 26px;
+    stroke: white;
+    stroke-width: 3;
+    fill: none;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
   @keyframes slideIn {
-    from { opacity: 0; transform: translateX(-15px); }
-    to { opacity: 1; transform: translateX(0); }
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+  }
+
+  @keyframes fadeOut {
+    to { opacity: 0; transform: translateY(20px); }
+  }
+
+  /* ← RESPONSIVE */
+  @media (max-width: 768px) {
+    .wizard-container { margin: 20px; padding: 20px; }
+    .wizard-title { font-size: 26px; }
+    .form-card { padding: 24px; }
+    .nav-buttons { flex-direction: column; gap: 14px; padding: 20px; }
+    .btn-calcular { margin-left: 0; width: 100%; }
+    .btn-nav { width: 44px; height: 44px; }
+    .resultado-cards { flex-direction: column; align-items: center; }
+    .card { width: 100%; max-width: 300px; }
+    .eudr-indicators { grid-template-columns: 1fr; }
+  }
+
+  @media (max-width: 480px) {
+    .wizard-container { margin: 15px; padding: 16px; }
+    .wizard-title { font-size: 24px; }
+    .form-card { padding: 20px; }
+    .progress-label { font-size: 13px; padding: 3px 8px; }
   }
 `}</style>
-
     </>
   );
 }
