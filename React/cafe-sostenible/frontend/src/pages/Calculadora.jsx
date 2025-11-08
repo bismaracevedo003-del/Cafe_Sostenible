@@ -3,7 +3,14 @@ import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import '../index.css';
 const API_BASE = import.meta.env.VITE_API_URL;
-const COLORS = ['#2d6a4f', '#40916c', '#52b788', '#74c69d', '#95d5b2'];
+const CATEGORY_COLORS = {
+  'Fertilizantes': '#2d6a4f',
+  'Energía': '#40916c',
+  'Transporte': '#52b788',
+  'Procesamiento': '#74c69d',
+  'Residuos': '#95d5b2',
+  'Deforestación': '#b7e4c7'
+};
 export default function Calculadora() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -335,7 +342,7 @@ export default function Calculadora() {
                             <span className="bar-value">{d.value.toFixed(1)} kg ({percent.toFixed(0)}%)</span>
                           </div>
                           <div className="bar-wrapper">
-                            <div className="bar-fill" style={{ width: `${percent}%`, backgroundColor: COLORS[i % COLORS.length] }} />
+                            <div className="bar-fill" style={{ width: `${percent}%`, backgroundColor: CATEGORY_COLORS[d.name] }} />
                           </div>
                         </div>
                       );
