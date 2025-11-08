@@ -2,17 +2,13 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import '../index.css';
-
 const API_BASE = import.meta.env.VITE_API_URL;
-
 const COLORS = ['#2d6a4f', '#40916c', '#52b788', '#74c69d', '#95d5b2'];
-
 export default function Calculadora() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const navigate = useNavigate();
-
   const [form, setForm] = useState({
     nombreFinca: '',
     areaCultivada: '',
@@ -32,16 +28,13 @@ export default function Calculadora() {
     bosqueBase: '',
     bosqueActual: '',
   });
-
   const [resultado, setResultado] = useState(null);
   const [chartData, setChartData] = useState([]);
   const [showSuccess, setShowSuccess] = useState(false);
   const [showError, setShowError] = useState(false);
-
   // ← WIZARD
   const [paso, setPaso] = useState(0);
   const totalPasos = 8;
-
   const pasos = [
     [
       { label: "Área cultivada (ha)", name: "areaCultivada", type: "number", step: "0.1" },
@@ -54,7 +47,6 @@ export default function Calculadora() {
     [
       { label: "Energía eléctrica (kWh)", name: "energiaElectrica", type: "number" },
       { label: "Combustible (litros)", name: "combustibleLitros", type: "number", step: "0.1" },
-      { label: "Tipo de combustible", name: "tipoCombustible", type: "select", options: ["diesel", "gas", "otro"] },
     ],
     [
       { label: "Número de árboles de sombra", name: "arbolesSombra", type: "number" },
@@ -76,7 +68,6 @@ export default function Calculadora() {
       { label: "Bosque actual (ha)", name: "bosqueActual", type: "number", step: "0.1" },
     ],
   ];
-
   useEffect(() => {
     const checkAuth = async () => {
       try {
@@ -96,12 +87,10 @@ export default function Calculadora() {
     };
     checkAuth();
   }, [navigate]);
-
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setForm(prev => ({ ...prev, [name]: value }));
   };
-
   const calcularHuella = (e) => {
     e.preventDefault();
     const f = form;
@@ -111,7 +100,6 @@ export default function Calculadora() {
       alert('Área cultivada y producción deben ser mayores a 0');
       return;
     }
-
     // ← CÁLCULO SIN CAMBIOS
     const fertPorHa = (parseFloat(f.fertilizanteTotal) || 0) / ha;
     const fertEmision = fertPorHa * (f.tipoFertilizante === 'sintetico' ? 4.5 : 1.2);
@@ -129,10 +117,8 @@ export default function Calculadora() {
     const residuosEmision = ((parseFloat(f.residuosTotales) || 0) - (parseFloat(f.residuosCompostados) || 0)) * 0.5;
     const deforestacionPorc = (parseFloat(f.bosqueBase) || 0) > 0 ? Math.max(0, ((parseFloat(f.bosqueBase) || 0) - (parseFloat(f.bosqueActual) || 0)) / ha) * 100 : 0;
     const deforestacionEmision = deforestacionPorc > 0 ? deforestacionPorc * 1500 : 0;
-
     const total = (fertEmision * ha) + (energiaTotal * 0.45) + transpEmision + procEmision + residuosEmision + deforestacionEmision;
     const porKg = prod > 0 ? total / prod : 0;
-
     const data = [
       { name: 'Fertilizantes', value: fertEmision * ha },
       { name: 'Energía', value: energiaTotal * 0.45 },
@@ -141,7 +127,6 @@ export default function Calculadora() {
       { name: 'Residuos', value: residuosEmision },
       { name: 'Deforestación', value: deforestacionEmision },
     ].filter(d => d.value > 0);
-
     setChartData(data);
     setResultado({
       total: total.toFixed(2),
@@ -156,7 +141,6 @@ export default function Calculadora() {
       deforestacionPorc: deforestacionPorc.toFixed(1),
     });
   };
-
   const guardarEnHistorial = async () => {
     if (!resultado) return;
     setSaving(true);
@@ -187,12 +171,10 @@ export default function Calculadora() {
       setSaving(false);
     }
   };
-
   const handleLogout = async () => {
     await fetch(`${API_BASE}/logout`, { method: 'POST', credentials: 'include' });
     navigate('/login');
   };
-
   if (loading) {
     return (
       <div className="coffee-loader">
@@ -201,51 +183,7 @@ export default function Calculadora() {
       </div>
     );
   }
-
   if (!user) return null;
-
-  const getSliderColor = (value, max) => {
-    const ratio = value / max;
-    let color;
-    if (ratio < 0.5) {
-      color = '#2e7d32'; // green
-    } else if (ratio < 0.8) {
-      color = '#f9a825'; // yellow
-    } else {
-      color = '#c62828'; // red
-    }
-    const percent = ratio * 100;
-    return `linear-gradient(to right, ${color} 0%, ${color} ${percent}%, #e0e0e0 ${percent}%, #e0e0e0 100%)`;
-  };
-
-  const getUnit = (name) => {
-    switch (name) {
-      case "areaCultivada":
-      case "bosqueBase":
-      case "bosqueActual":
-        return "ha";
-      case "produccionVerde":
-      case "fertilizanteTotal":
-      case "residuosTotales":
-      case "residuosCompostados":
-        return "kg";
-      case "energiaElectrica":
-        return "kWh";
-      case "combustibleLitros":
-        return "L";
-      case "arbolesSombra":
-        return "árboles";
-      case "areaCopaPromedio":
-        return "m²";
-      case "distanciaKm":
-        return "km";
-      case "volumenCargas":
-        return "cargas";
-      default:
-        return "";
-    }
-  };
-
   return (
     <>
       <header className="header">
@@ -258,7 +196,6 @@ export default function Calculadora() {
         </div>
         <a href="#" className="news-link">Noticias</a>
       </header>
-
       <div className="main-container">
         <aside className="sidebar">
           <nav className="nav-menu">
@@ -269,23 +206,15 @@ export default function Calculadora() {
             <button onClick={handleLogout} className="logout-btn">Cerrar sesión</button>
           </nav>
         </aside>
-
         <main className="content">
           <div className="wizard-container">
             <h1 className="wizard-title">Calcula tu huella de carbono</h1>
             <p className="wizard-subtitle">Responde paso a paso para conocer el impacto ambiental de tu finca</p>
-
-            {/* ← NUEVO: BARRA DE PROGRESO TIPO LINKEDIN */}
-            <div className="progress-container">
-              <div 
-                className="progress-bar" 
-                style={{ width: `${((paso + 1) / totalPasos) * 100}%` }}
-              />
-              <div className="progress-label">
-                Paso {paso + 1} de {totalPasos}
-              </div>
+            {/* ← INDICADOR DE PROGRESO EN BARRA */}
+            <div className="progress-indicator">
+              <div className="progress-bar" style={{ width: `${((paso + 1) / totalPasos) * 100}%` }}></div>
+              <span className="progress-text">{paso + 1} / {totalPasos} ({Math.round(((paso + 1) / totalPasos) * 100)}%)</span>
             </div>
-
             {/* ← NUEVO: Formulario con sliders */}
             <form onSubmit={calcularHuella} className="wizard-form">
               <div className="form-card-wrapper" style={{ transform: `translateX(-${paso * 100}%)` }}>
@@ -310,11 +239,9 @@ export default function Calculadora() {
                                     campo.name === "residuosCompostados" ? 50000 :
                                     campo.name === "bosqueBase" ? 1000 :
                                     campo.name === "bosqueActual" ? 1000 : 1000;
-
                         return (
                           <div className="form-group" key={i}>
                             <label>{campo.label}</label>
-
                             {campo.type === "select" ? (
                               <select name={campo.name} value={form[campo.name]} onChange={handleInputChange}>
                                 {campo.options.map(opt => (
@@ -336,9 +263,7 @@ export default function Calculadora() {
                                   placeholder="0"
                                   className="number-input"
                                 />
-
                                 {/* ← SLIDER ANIMADO */}
-                                {/* ← SLIDER CON COLOR DINÁMICO */}
                                 <div className="slider-container">
                                   <input
                                     type="range"
@@ -350,12 +275,10 @@ export default function Calculadora() {
                                     max={max}
                                     className="range-slider"
                                     style={{
-                                      background: getSliderColor(value || 0, max)
+                                      background: `linear-gradient(to right, #2e7d32 0%, #2e7d32 ${((value || 0) / max) * 100}%, #e0e0e0 ${((value || 0) / max) * 100}%, #e0e0e0 100%)`
                                     }}
                                   />
-                                  <span className="slider-value">
-                                    {value || 0} {getUnit(campo.name)}
-                                  </span>
+                                  <span className="slider-value">{value || 0} {campo.name.includes('ha') ? 'ha' : campo.name.includes('kg') ? 'kg' : campo.name.includes('kWh') ? 'kWh' : campo.name.includes('litros') ? 'L' : campo.name.includes('km') ? 'km' : campo.name.includes('cargas') ? 'cargas' : 'm²'}</span>
                                 </div>
                               </>
                             )}
@@ -366,16 +289,17 @@ export default function Calculadora() {
                   </div>
                 ))}
               </div>
-
               {/* ← NAVEGACIÓN */}
               <div className="nav-buttons">
                 {paso > 0 && (
                   <button type="button" className="btn-nav prev" onClick={() => setPaso(paso - 1)}>
                     <svg viewBox="0 0 24 24" className="arrow-icon"><path d="M15 18l-6-6 6-6" /></svg>
+                    Anterior
                   </button>
                 )}
                 {paso < totalPasos - 1 && (
                   <button type="button" className="btn-nav next" onClick={() => setPaso(paso + 1)}>
+                    Siguiente
                     <svg viewBox="0 0 24 24" className="arrow-icon"><path d="M9 18l6-6-6-6" /></svg>
                   </button>
                 )}
@@ -386,7 +310,6 @@ export default function Calculadora() {
                 )}
               </div>
             </form>
-
             {/* ← RESULTADOS (igual que antes) */}
             {resultado && (
               <div className="resultado-section">
@@ -401,7 +324,6 @@ export default function Calculadora() {
                     <p className="card-value">{resultado.porKg} kg CO₂e/kg</p>
                   </div>
                 </div>
-
                 <div className="chart-container">
                   <div className="bars-chart">
                     {chartData.map((d, i) => {
@@ -424,7 +346,6 @@ export default function Calculadora() {
                     <small>kg CO₂e/kg</small>
                   </div>
                 </div>
-
                 <div className="eudr-indicators">
                   <div className="indicator"><span>Fertilizante:</span> <strong>{resultado.fertPorHa} kg/ha</strong></div>
                   <div className="indicator"><span>Rendimiento:</span> <strong>{resultado.rendimiento} kg/ha</strong></div>
@@ -437,7 +358,6 @@ export default function Calculadora() {
                     <span>Deforestación:</span> <strong>{resultado.deforestacionPorc}%</strong>
                   </div>
                 </div>
-
                 <button onClick={guardarEnHistorial} disabled={saving} className="btn-guardar">
                   {saving ? 'Guardando...' : 'Guardar en Historial'}
                 </button>
@@ -446,7 +366,6 @@ export default function Calculadora() {
           </div>
         </main>
       </div>
-
       {/* ← TOASTS */}
       {showSuccess && (
         <div className="success-toast">
@@ -463,9 +382,7 @@ export default function Calculadora() {
           <span>Error al guardar</span>
         </div>
       )}
-
 <style jsx>{`
-
   /* ← WIZARD CONTAINER */
   .wizard-container {
     max-width: 680px;
@@ -473,13 +390,12 @@ export default function Calculadora() {
     padding: 28px;
     background: linear-gradient(135deg, #e8f5e9 0%, #f1f8e9 100%);
     border-radius: 20px;
-    box-shadow: 
+    box-shadow:
       0 12px 30px rgba(0,0,0,0.08),
       0 0 0 1px rgba(46,125,50,0.08);
     backdrop-filter: blur(10px);
     transition: all 0.3s ease;
   }
-
   .wizard-title {
     text-align: center;
     font-size: 30px;
@@ -488,97 +404,80 @@ export default function Calculadora() {
     margin-bottom: 8px;
     letter-spacing: -0.5px;
   }
-
   .wizard-subtitle {
     text-align: center;
     color: #2e7d32;
     font-size: 16px;
     font-weight: 500;
-    margin-bottom: 20px;
+    margin-bottom: 32px;
     opacity: 0.9;
   }
-
-  /* ← BARRA DE PROGRESO TIPO LINKEDIN */
-  .progress-container {
+  /* ← PROGRESO EN BARRA */
+  .progress-indicator {
     position: relative;
-    height: 8px;
-    background: #c8e6c9;
-    border-radius: 4px;
-    margin-bottom: 32px;
+    height: 10px;
+    background: #e0e0e0;
+    border-radius: 5px;
     overflow: hidden;
-    box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+    margin-bottom: 32px;
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
   }
-
   .progress-bar {
     height: 100%;
     background: linear-gradient(90deg, #2e7d32, #1b5e20);
-    border-radius: 4px;
-    transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: width 0.6s ease-out;
     position: relative;
     overflow: hidden;
   }
-
   .progress-bar::after {
     content: '';
     position: absolute;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
-    animation: shimmer 1.5s infinite;
-  }
-
-  .progress-label {
-    position: absolute;
-    top: -28px;
+    top: 0;
     left: 0;
-    font-size: 14px;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    animation: shimmer 2s infinite;
+  }
+  .progress-text {
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 13px;
     font-weight: 600;
-    color: #1b5e20;
-    background: white;
-    padding: 4px 10px;
-    border-radius: 6px;
-    border: 1px solid #a5d6a7;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+    color: #2e7d32;
+    margin-top: 8px;
+    white-space: nowrap;
   }
-
-  @keyframes shimmer {
-    0% { transform: translateX(-100%); }
-    100% { transform: translateX(100%); }
-  }
-
   /* ← FORMULARIO */
   .wizard-form {
     overflow: hidden;
     border-radius: 16px;
     background: white;
-    box-shadow: 
+    box-shadow:
       0 8px 25px rgba(0,0,0,0.08),
       0 0 0 1px rgba(0,0,0,0.05);
     position: relative;
   }
-
   .form-card-wrapper {
     display: flex;
     transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
   }
-
   .form-card {
     min-width: 100%;
     padding: 32px;
     animation: fadeIn 0.5s ease-out;
   }
-
   @keyframes fadeIn {
     from { opacity: 0; transform: translateY(10px); }
     to { opacity: 1; transform: translateY(0); }
   }
-
   .form-grid {
     display: grid;
     grid-template-columns: 1fr;
     gap: 26px;
   }
-
   .form-group label {
     display: block;
     margin-bottom: 10px;
@@ -587,7 +486,6 @@ export default function Calculadora() {
     font-size: 15px;
     letter-spacing: -0.2px;
   }
-
   /* ← INPUT NUMÉRICO */
   .number-input {
     width: 100%;
@@ -596,21 +494,19 @@ export default function Calculadora() {
     border-radius: 10px;
     font-size: 16px;
     font-weight: 500;
+    transition: all 0.3s ease;
     background: #fafafa;
     margin-bottom: 10px;
-    transition: all 0.3s ease;
   }
-
   .number-input:focus {
     outline: none;
     border-color: #2e7d32;
     background: white;
-    box-shadow: 
+    box-shadow:
       0 0 0 4px rgba(46,125,50,0.12),
       0 4px 12px rgba(0,0,0,0.08);
     transform: translateY(-1px);
   }
-
   /* ← SELECT */
   .form-group select {
     width: 100%;
@@ -623,62 +519,66 @@ export default function Calculadora() {
     cursor: pointer;
     transition: all 0.3s ease;
   }
-
   .form-group select:focus {
     outline: none;
     border-color: #2e7d32;
     background: white;
-    box-shadow: 
+    box-shadow:
       0 0 0 4px rgba(46,125,50,0.12),
       0 4px 12px rgba(0,0,0,0.08);
   }
-
-  /* ← SLIDER CON COLOR DINÁMICO (VERDE → AMARILLO → ROJO) */
+  /* ← SLIDER ULTRA BONITO */
   .slider-container {
     position: relative;
     margin-top: 10px;
   }
-
   .range-slider {
     -webkit-appearance: none;
     width: 100%;
     height: 10px;
     border-radius: 6px;
+    background: #e0e0e0;
     outline: none;
     overflow: hidden;
     box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
     transition: all 0.3s ease;
   }
-
+  .range-slider::-webkit-slider-runnable-track {
+    height: 10px;
+    border-radius: 6px;
+  }
   .range-slider::-webkit-slider-thumb {
     -webkit-appearance: none;
     width: 24px;
     height: 24px;
-    background: #fff;
-    border: 3px solid #2e7d32;
+    background: linear-gradient(135deg, #2e7d32, #1b5e20);
     border-radius: 50%;
     cursor: pointer;
-    box-shadow: 0 3px 8px rgba(0,0,0,0.2);
+    box-shadow:
+      0 3px 8px rgba(46,125,50,0.3),
+      0 0 0 6px rgba(46,125,50,0.15),
+      0 0 20px rgba(46,125,50,0.2);
     transition: all 0.2s ease;
     margin-top: -7px;
+    position: relative;
   }
-
   .range-slider::-webkit-slider-thumb:hover {
     transform: scale(1.2);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    box-shadow:
+      0 4px 12px rgba(46,125,50,0.4),
+      0 0 0 8px rgba(46,125,50,0.2);
   }
-
   .range-slider::-moz-range-thumb {
     width: 24px;
     height: 24px;
-    background: #fff;
-    border: 3px solid #2e7d32;
+    background: linear-gradient(135deg, #2e7d32, #1b5e20);
     border-radius: 50%;
     cursor: pointer;
-    box-shadow: 0 3px 8px rgba(0,0,0,0.2);
     border: none;
+    box-shadow:
+      0 3px 8px rgba(46,125,50,0.3),
+      0 0 0 6px rgba(46,125,50,0.15);
   }
-
   .slider-value {
     position: absolute;
     right: 0;
@@ -694,88 +594,81 @@ export default function Calculadora() {
     min-width: 50px;
     text-align: center;
   }
-
-  /* ← NAVEGACIÓN: BOTONES ESTRECHOS Y CIRCULARES */
+  /* ← NAVEGACIÓN */
   .nav-buttons {
     display: flex;
     justify-content: space-between;
-    align-items: center;
     padding: 24px 32px 32px;
     background: white;
     border-top: 1px solid #e0e0e0;
   }
-
   .btn-nav {
     display: flex;
     align-items: center;
-    justify-content: center;
-    width: 48px;
-    height: 48px;
+    gap: 10px;
+    padding: 14px 26px;
     background: linear-gradient(135deg, #2e7d32, #1b5e20);
     color: white;
     border: none;
-    border-radius: 50%;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 16px;
     cursor: pointer;
     transition: all 0.3s ease;
     box-shadow: 0 4px 12px rgba(46,125,50,0.25);
   }
-
   .btn-nav:hover {
-    transform: translateY(-2px) scale(1.05);
+    transform: translateY(-2px);
     box-shadow: 0 8px 20px rgba(46,125,50,0.3);
   }
-
   .btn-nav.prev {
     background: linear-gradient(135deg, #a5d6a7, #81c784);
+    color: #1b5e20;
   }
-
+  .btn-nav.prev:hover {
+    box-shadow: 0 8px 20px rgba(129,199,132,0.3);
+  }
   .arrow-icon {
-    width: 20px;
-    height: 20px;
+    width: 22px;
+    height: 22px;
     fill: none;
     stroke: currentColor;
     stroke-width: 3;
     stroke-linecap: round;
     stroke-linejoin: round;
   }
-
   .btn-calcular {
-    flex: 1;
-    margin-left: 16px;
-    padding: 16px;
+    width: 100%;
+    padding: 18px;
     background: linear-gradient(135deg, #2e7d32, #1b5e20);
     color: white;
     border: none;
     border-radius: 12px;
-    font-size: 17px;
+    font-size: 18px;
     font-weight: 700;
     cursor: pointer;
     transition: all 0.3s ease;
     box-shadow: 0 6px 16px rgba(46,125,50,0.3);
   }
-
   .btn-calcular:hover {
     transform: translateY(-3px);
     box-shadow: 0 12px 25px rgba(46,125,50,0.35);
   }
-
   /* ← RESULTADOS PREMIUM */
   .resultado-section {
     margin-top: 40px;
     padding: 32px;
     background: white;
     border-radius: 16px;
-    box-shadow: 
+    box-shadow:
       0 12px 30px rgba(0,0,0,0.08),
       0 0 0 1px rgba(0,0,0,0.05);
     animation: fadeInUp 0.6s ease-out;
   }
-
   @keyframes fadeInUp {
     from { opacity: 0; transform: translateY(20px); }
     to { opacity: 1; transform: translateY(0); }
   }
-
   .resultado-section h3 {
     text-align: center;
     color: #1b5e20;
@@ -784,7 +677,6 @@ export default function Calculadora() {
     margin-bottom: 28px;
     letter-spacing: -0.5px;
   }
-
   .resultado-cards {
     display: flex;
     justify-content: center;
@@ -792,7 +684,6 @@ export default function Calculadora() {
     flex-wrap: wrap;
     margin-bottom: 32px;
   }
-
   .card {
     background: linear-gradient(135deg, #f1f8e9, #e8f5e9);
     padding: 24px;
@@ -803,12 +694,10 @@ export default function Calculadora() {
     transition: all 0.3s ease;
     box-shadow: 0 4px 12px rgba(0,0,0,0.06);
   }
-
   .card:hover {
     transform: translateY(-6px);
     box-shadow: 0 12px 25px rgba(0,0,0,0.12);
   }
-
   .card-title {
     font-size: 14px;
     color: #2e7d32;
@@ -817,15 +706,13 @@ export default function Calculadora() {
     text-transform: uppercase;
     letter-spacing: 0.5px;
   }
-
   .card-value {
     font-size: 26px;
     font-weight: 700;
     color: #1b5e20;
     letter-spacing: -0.5px;
   }
-
-  /* ← GRÁFICO DE BARRAS ANIMADO */
+  /* ← GRÁFICO ULTRA BONITO */
   .chart-container {
     margin: 38px 0;
     padding: 28px;
@@ -834,19 +721,16 @@ export default function Calculadora() {
     border: 1px solid #e0e0e0;
     box-shadow: 0 4px 12px rgba(0,0,0,0.05);
   }
-
   .bars-chart {
     display: flex;
     flex-direction: column;
     gap: 18px;
   }
-
   .bar-item {
     display: flex;
     flex-direction: column;
     gap: 8px;
   }
-
   .bar-label {
     display: flex;
     justify-content: space-between;
@@ -854,17 +738,14 @@ export default function Calculadora() {
     font-weight: 600;
     color: #333;
   }
-
   .bar-name {
     color: #1b5e20;
     font-weight: 700;
   }
-
   .bar-value {
     color: #666;
     font-weight: 500;
   }
-
   .bar-wrapper {
     width: 100%;
     height: 36px;
@@ -874,7 +755,6 @@ export default function Calculadora() {
     position: relative;
     box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
   }
-
   .bar-fill {
     height: 100%;
     border-radius: 18px;
@@ -883,16 +763,20 @@ export default function Calculadora() {
     position: relative;
     overflow: hidden;
   }
-
   .bar-fill::after {
     content: '';
     position: absolute;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
     background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
     animation: shimmer 2s infinite;
   }
-
+  @keyframes shimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+  }
   .total-center {
     text-align: center;
     margin-top: 32px;
@@ -902,14 +786,12 @@ export default function Calculadora() {
     box-shadow: 0 6px 16px rgba(0,0,0,0.08);
     border: 1px solid #c8e6c9;
   }
-
   .total-value {
     font-size: 36px;
     font-weight: 800;
     color: #1b5e20;
     letter-spacing: -1px;
   }
-
   .total-center small {
     font-size: 15px;
     color: #2e7d32;
@@ -917,8 +799,7 @@ export default function Calculadora() {
     margin-top: 8px;
     font-weight: 600;
   }
-
-  /* ← INDICADORES EUDR */
+  /* ← INDICADORES CON ÍCONOS */
   .eudr-indicators {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
@@ -929,7 +810,6 @@ export default function Calculadora() {
     border-radius: 14px;
     border: 1px dashed #a5d6a7;
   }
-
   .indicator {
     font-size: 15px;
     display: flex;
@@ -938,11 +818,9 @@ export default function Calculadora() {
     padding: 10px 0;
     border-bottom: 1px solid #c8e6c9;
   }
-
   .indicator:last-child {
     border-bottom: none;
   }
-
   .indicator span {
     color: #2e7d32;
     font-weight: 600;
@@ -950,20 +828,16 @@ export default function Calculadora() {
     align-items: center;
     gap: 6px;
   }
-
   .indicator strong {
     color: #1b5e20;
     font-weight: 700;
   }
-
   .indicator.deforestacion span {
     color: #c62828;
   }
-
   .indicator.deforestacion strong {
     color: #b71c1c;
   }
-
   /* ← BOTÓN GUARDAR */
   .btn-guardar {
     margin-top: 24px;
@@ -979,20 +853,17 @@ export default function Calculadora() {
     transition: all 0.3s ease;
     box-shadow: 0 6px 16px rgba(46,125,50,0.3);
   }
-
   .btn-guardar:hover:not(:disabled) {
     transform: translateY(-3px);
     box-shadow: 0 12px 25px rgba(46,125,50,0.35);
   }
-
   .btn-guardar:disabled {
     background: #a5d6a7;
     cursor: not-allowed;
     transform: none;
     box-shadow: none;
   }
-
-  /* ← TOASTS ANIMADOS */
+  /* ← TOASTS */
   .success-toast, .error-toast {
     position: fixed;
     bottom: 30px;
@@ -1008,10 +879,8 @@ export default function Calculadora() {
     animation: slideIn 0.5s cubic-bezier(0.4, 0, 0.2, 1), fadeOut 0.5s 2.5s forwards;
     backdrop-filter: blur(10px);
   }
-
   .success-toast { background: linear-gradient(135deg, #2e7d32, #1b5e20); color: white; }
   .error-toast { background: linear-gradient(135deg, #c62828, #b71c1c); color: white; }
-
   .check-icon, .error-icon {
     width: 26px;
     height: 26px;
@@ -1021,34 +890,23 @@ export default function Calculadora() {
     stroke-linecap: round;
     stroke-linejoin: round;
   }
-
-  @keyframes slideIn {
-    from { transform: translateX(100%); opacity: 0; }
-    to { transform: translateX(0); opacity: 1; }
-  }
-
-  @keyframes fadeOut {
-    to { opacity: 0; transform: translateY(20px); }
-  }
-
   /* ← RESPONSIVE */
   @media (max-width: 768px) {
     .wizard-container { margin: 20px; padding: 20px; }
     .wizard-title { font-size: 26px; }
     .form-card { padding: 24px; }
     .nav-buttons { flex-direction: column; gap: 14px; padding: 20px; }
-    .btn-calcular { margin-left: 0; width: 100%; }
-    .btn-nav { width: 44px; height: 44px; }
+    .btn-nav, .btn-calcular, .btn-guardar { width: 100%; }
     .resultado-cards { flex-direction: column; align-items: center; }
     .card { width: 100%; max-width: 300px; }
     .eudr-indicators { grid-template-columns: 1fr; }
   }
-
   @media (max-width: 480px) {
     .wizard-container { margin: 15px; padding: 16px; }
     .wizard-title { font-size: 24px; }
     .form-card { padding: 20px; }
-    .progress-label { font-size: 13px; padding: 3px 8px; }
+    .progress-indicator { height: 8px; }
+    .progress-text { font-size: 12px; }
   }
 `}</style>
     </>
