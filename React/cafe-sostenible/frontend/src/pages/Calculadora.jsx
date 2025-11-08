@@ -4,7 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import '../index.css';
 
 const API_BASE = import.meta.env.VITE_API_URL;
-const [step, setStep] = useState(0);
+
 const COLORS = ['#2d6a4f', '#40916c', '#52b788', '#74c69d', '#95d5b2'];
 
 export default function Calculadora() {
@@ -12,6 +12,8 @@ export default function Calculadora() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const navigate = useNavigate();
+  const [step, setStep] = useState(0);
+  const COLORS = ['#2d6a4f', '#40916c', '#52b788', '#74c69d', '#95d5b2'];
 
   const [form, setForm] = useState({
     nombreFinca: '',
