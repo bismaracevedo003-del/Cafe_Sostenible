@@ -246,6 +246,7 @@ export default function Calculadora() {
                                     campo.name === "residuosCompostados" ? 50000 :
                                     campo.name === "bosqueBase" ? 1000 :
                                     campo.name === "bosqueActual" ? 1000 : 1000;
+                        const progress = ((value || 0) / max) * 100;
                         return (
                           <div className="form-group" key={i}>
                             <label>{campo.label}</label>
@@ -282,7 +283,7 @@ export default function Calculadora() {
                                     max={max}
                                     className="range-slider"
                                     style={{
-                                      background: `linear-gradient(to right, #2e7d32 0%, #2e7d32 ${((value || 0) / max) * 100}%, #e0e0e0 ${((value || 0) / max) * 100}%, #e0e0e0 100%)`
+                                      background: `linear-gradient(to right, #2e7d32 0%, #ffeb3b 50%, #d32f2f 100%) 0% 0% / ${progress}% 100% no-repeat #e0e0e0`
                                     }}
                                   />
                                   <span className="slider-value">{value || 0} {campo.name.includes('ha') ? 'ha' : campo.name.includes('kg') ? 'kg' : campo.name.includes('kWh') ? 'kWh' : campo.name.includes('litros') ? 'L' : campo.name.includes('km') ? 'km' : campo.name.includes('cargas') ? 'cargas' : 'm²'}</span>
