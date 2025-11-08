@@ -160,7 +160,7 @@ export default function Calculadora() {
       });
       if (!res.ok) throw new Error('Error al guardar');
       setShowSuccess(true);
-      setTimeout(() => setShowSuccess(false), 3000);
+      setTimeout(() => setShowSuccess(false), 3500);
       setForm(prev => ({
         ...prev,
         nombreFinca: prev.nombreFinca,
@@ -173,7 +173,7 @@ export default function Calculadora() {
       setPaso(0);
     } catch (err) {
       setShowError(true);
-      setTimeout(() => setShowError(false), 3000);
+      setTimeout(() => setShowError(false), 3500);
     } finally {
       setSaving(false);
     }
@@ -883,7 +883,7 @@ export default function Calculadora() {
     font-weight: 700;
     box-shadow: 0 12px 30px rgba(0,0,0,0.2);
     z-index: 1000;
-    animation: slideIn 0.5s cubic-bezier(0.4, 0, 0.2, 1), fadeOut 0.5s 2.5s forwards;
+    animation: slideIn 0.5s cubic-bezier(0.4, 0, 0.2, 1), fadeOut 0.5s 3s forwards;
     backdrop-filter: blur(10px);
   }
   .success-toast { background: linear-gradient(135deg, #2e7d32, #1b5e20); color: white; }
@@ -897,13 +897,28 @@ export default function Calculadora() {
     stroke-linecap: round;
     stroke-linejoin: round;
   }
+  .check-icon polyline {
+    stroke-dasharray: 24;
+    stroke-dashoffset: 24;
+    animation: draw 0.5s ease-in-out forwards 0.2s;
+  }
+  .error-icon line {
+    stroke-dasharray: 18;
+    stroke-dashoffset: 18;
+    animation: draw 0.5s ease-in-out forwards 0.2s;
+  }
+  @keyframes draw {
+    to { stroke-dashoffset: 0; }
+  }
   @keyframes slideIn {
-    from { transform: translateX(100%); opacity: 0; }
-    to { transform: translateX(0); opacity: 1; }
+    0% { transform: translateX(100%); opacity: 0; }
+    60% { transform: translateX(0); opacity: 1; }
+    80% { transform: translateX(-20px); opacity: 1; }
+    100% { transform: translateX(0); opacity: 1; }
   }
   @keyframes fadeOut {
-    from { opacity: 1; }
-    to { opacity: 0; }
+    0% { opacity: 1; transform: translateX(0); }
+    100% { opacity: 0; transform: translateX(100%); }
   }
   /* ← RESPONSIVE */
   @media (max-width: 768px) {
