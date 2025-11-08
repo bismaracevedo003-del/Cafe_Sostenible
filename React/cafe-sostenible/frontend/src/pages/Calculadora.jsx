@@ -611,21 +611,26 @@ export default function Calculadora() {
     background: white;
     border-top: 1px solid #e0e0e0;
   }
-  .btn-nav {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 14px 12px;
-    background: linear-gradient(135deg, #2e7d32, #1b5e20);
-    color: white;
-    border: none;
-    border-radius: 10px;
-    font-weight: 600;
-    font-size: 16px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 12px rgba(46,125,50,0.25);
-  }
+.btn-nav {
+  flex: 1; /* ambos crecen igual */
+  max-width: 200px; /* límite de ancho opcional */
+  text-align: center;
+  justify-content: center;
+
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 18px;
+  background: linear-gradient(135deg, #2e7d32, #1b5e20);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(46,125,50,0.25);
+}
   .btn-nav:hover {
     transform: translateY(-2px);
     box-shadow: 0 8px 20px rgba(46,125,50,0.3);
