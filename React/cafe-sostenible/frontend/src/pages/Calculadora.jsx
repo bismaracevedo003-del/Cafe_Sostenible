@@ -323,11 +323,11 @@ export default function Calculadora() {
                 <h3>Resultados EUDR – {form.nombreFinca}</h3>
                 <div className="resultado-cards">
                   <div className="card">
-                    <p className="card-title">Huella Total</p>
+                    <p className="card-title">Huella Total</p><br />
                     <p className="card-value">{resultado.total} kg CO₂e</p>
                   </div>
                   <div className="card">
-                    <p className="card-title">Por kg de café</p>
+                    <p className="card-title">Por kg de café</p><br />
                     <p className="card-value">{resultado.porKg} kg CO₂e/kg</p>
                   </div>
                 </div>
