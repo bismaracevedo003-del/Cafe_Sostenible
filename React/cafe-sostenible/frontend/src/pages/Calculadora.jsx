@@ -323,11 +323,11 @@ export default function Calculadora() {
                 <h3>Resultados EUDR – {form.nombreFinca}</h3>
                 <div className="resultado-cards">
                   <div className="card">
-                    <p className="card-title">Huella Total</p>
+                    <p className="card-title">Huella Total</p><br />
                     <p className="card-value">{resultado.total} kg CO₂e</p>
                   </div>
                   <div className="card">
-                    <p className="card-title">Por kg de café</p>
+                    <p className="card-title">Por kg de café</p><br />
                     <p className="card-value">{resultado.porKg} kg CO₂e/kg</p>
                   </div>
                 </div>
@@ -613,7 +613,7 @@ export default function Calculadora() {
     display: flex;
     align-items: center;
     gap: 10px;
-    padding: 14px 20px;
+    padding: 14px 18px;
     background: linear-gradient(135deg, #2e7d32, #1b5e20);
     color: white;
     border: none;
@@ -686,17 +686,19 @@ export default function Calculadora() {
   }
   .resultado-cards {
     display: flex;
-    flex-direction: column;
-    align-items: center;
+    justify-content: center;
     gap: 24px;
+    flex-wrap: wrap;
     margin-bottom: 32px;
   }
   .card {
+    display: flex; 
+    flex-direction: column;
+    align-items: center;
     background: linear-gradient(135deg, #f1f8e9, #e8f5e9);
     padding: 24px;
     border-radius: 14px;
-    width: 100%;
-    max-width: 400px;
+    width: 210px;
     text-align: center;
     border: 1px solid #c8e6c9;
     transition: all 0.3s ease;
@@ -967,6 +969,7 @@ export default function Calculadora() {
     .form-card { padding: 24px; }
     .nav-buttons { flex-direction: column; gap: 14px; padding: 20px; }
     .btn-nav, .btn-calcular, .btn-guardar { width: 100%; }
+    .resultado-cards { flex-direction: column; align-items: center; }
     .card { width: 100%; max-width: 300px; }
     .eudr-indicators { grid-template-columns: 1fr; }
   }
