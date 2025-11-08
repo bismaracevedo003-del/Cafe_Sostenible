@@ -604,7 +604,9 @@ export default function Calculadora() {
   /* ← NAVEGACIÓN */
   .nav-buttons {
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
     padding: 24px 32px 32px;
     background: white;
     border-top: 1px solid #e0e0e0;
@@ -965,7 +967,7 @@ export default function Calculadora() {
     .wizard-container { margin: 20px; padding: 20px; }
     .wizard-title { font-size: 26px; }
     .form-card { padding: 24px; }
-    .nav-buttons { flex-direction: column; gap: 14px; padding: 20px; }
+    .nav-buttons { flex-direction: column; gap: 20px; padding: 20px; }
     .btn-nav, .btn-calcular, .btn-guardar { width: 100%; }
     .resultado-cards { flex-direction: column; align-items: center; }
     .card { width: 100%; max-width: 300px; }
