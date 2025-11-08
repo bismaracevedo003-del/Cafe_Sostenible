@@ -365,8 +365,8 @@ export default function Calculadora() {
                     <span>Deforestación:</span> <strong>{resultado.deforestacionPorc}%</strong>
                   </div>
                 </div>
-                <button onClick={guardarEnHistorial} disabled={saving} className="btn-guardar">
-                  {saving ? 'Guardando...' : 'Guardar en Historial'}
+                <button onClick={guardarEnHistorial} disabled={saving} className={`btn-guardar ${saving ? 'saving' : ''}`}>
+                  {saving ? 'Guardando' : 'Guardar en Historial'}
                 </button>
               </div>
             )}
@@ -859,6 +859,21 @@ export default function Calculadora() {
     cursor: pointer;
     transition: all 0.3s ease;
     box-shadow: 0 6px 16px rgba(46,125,50,0.3);
+    position: relative;
+    overflow: hidden;
+  }
+  .btn-guardar::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 200%;
+    height: 100%;
+    background: linear-gradient(120deg, transparent, rgba(255,255,255,0.3), transparent);
+    transition: left 0.7s ease;
+  }
+  .btn-guardar:hover:not(:disabled)::before {
+    left: 100%;
   }
   .btn-guardar:hover:not(:disabled) {
     transform: translateY(-3px);
@@ -869,6 +884,30 @@ export default function Calculadora() {
     cursor: not-allowed;
     transform: none;
     box-shadow: none;
+  }
+  .btn-guardar.saving {
+    animation: pulse 1.5s infinite;
+  }
+  .btn-guardar.saving::after {
+    content: '...';
+    animation: loading-dots 1s infinite steps(3);
+    margin-left: 2px;
+  }
+  @keyframes pulse {
+    0% {
+      box-shadow: 0 0 0 0 rgba(165,214,167, 0.7);
+    }
+    70% {
+      box-shadow: 0 0 0 15px rgba(165,214,167, 0);
+    }
+    100% {
+      box-shadow: 0 0 0 0 rgba(165,214,167, 0);
+    }
+  }
+  @keyframes loading-dots {
+    0% { content: '.'; }
+    33% { content: '..'; }
+    66% { content: '...'; }
   }
   /* ← TOASTS */
   .success-toast, .error-toast {
