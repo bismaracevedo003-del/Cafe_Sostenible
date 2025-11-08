@@ -342,7 +342,7 @@ export default function Calculadora() {
                             <span className="bar-value">{d.value.toFixed(1)} kg ({percent.toFixed(0)}%)</span>
                           </div>
                           <div className="bar-wrapper">
-                            <div className="bar-fill" style={{ width: `${percent}%`, backgroundColor: CATEGORY_COLORS[d.name] }} />
+                            <div className="bar-fill" style={{ width: `${percent}%`, background: CATEGORY_COLORS[d.name] }} />
                           </div>
                         </div>
                       );
