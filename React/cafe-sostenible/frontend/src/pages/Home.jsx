@@ -6,6 +6,7 @@ import Stats from '../components/Stats';
 import CTAFinal from '../components/CTAFinal';
 import Footer from '../components/Footer';
 import '../index.css';
+import { useNavigate, Link } from 'react-router-dom';
 
 export default function Home() {
   return (

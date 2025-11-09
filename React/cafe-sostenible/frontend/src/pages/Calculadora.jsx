@@ -2,7 +2,9 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import '../index.css';
+
 const API_BASE = import.meta.env.VITE_API_URL;
+
 const CATEGORY_COLORS = {
   'Fertilizantes': '#2d6a4f',
   'Energía': '#40916c',

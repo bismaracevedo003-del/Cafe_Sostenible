@@ -1,6 +1,7 @@
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import '../index.css';
+import { useNavigate, Link } from 'react-router-dom';
 
 export default function Noticias() {
   const noticias = [
