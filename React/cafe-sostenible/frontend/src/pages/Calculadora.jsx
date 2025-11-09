@@ -630,7 +630,7 @@ export default function Calculadora() {
     -webkit-appearance: none;
     width: 24px;
     height: 24px;
-    background: linear-gradient(135deg, #2e7d32, #000000ff);
+    background: linear-gradient(135deg, #000000ff, #000000ff);
     border-radius: 50%;
     cursor: pointer;
     box-shadow:
