@@ -42,38 +42,70 @@ export default function Calculadora() {
   // ← WIZARD
   const [paso, setPaso] = useState(0);
   const totalPasos = 8;
-  const pasos = [
-    [
-      { label: "Área cultivada (ha)", name: "areaCultivada", type: "number", step: "0.1" },
-      { label: "Producción café verde (kg)", name: "produccionVerde", type: "number" },
-    ],
-    [
-      { label: "Fertilizante total (kg)", name: "fertilizanteTotal", type: "number" },
-      { label: "Tipo de fertilizante", name: "tipoFertilizante", type: "select", options: ["sintetico", "organico"] },
-    ],
-    [
-      { label: "Energía eléctrica (kWh)", name: "energiaElectrica", type: "number" },
-      { label: "Combustible (litros)", name: "combustibleLitros", type: "number", step: "0.1" },
-    ],
-    [
-      { label: "Número de árboles de sombra", name: "arbolesSombra", type: "number" },
-      { label: "Área promedio de copa (m²/árbol)", name: "areaCopaPromedio", type: "number", step: "0.1" },
-    ],
-    [
-      { label: "Distancia promedio (km)", name: "distanciaKm", type: "number", step: "0.1" },
-      { label: "Volumen total (cargas)", name: "volumenCargas", type: "number" },
-    ],
-    [
-      { label: "Tipo de procesamiento", name: "tipoProcesamiento", type: "select", options: ["lavado", "miel", "natural"] },
-    ],
-    [
-      { label: "Residuos totales (kg)", name: "residuosTotales", type: "number" },
-      { label: "Residuos compostados (kg)", name: "residuosCompostados", type: "number" },
-    ],
-    [
-      { label: "Bosque base 2020 (ha)", name: "bosqueBase", type: "number", step: "0.1" },
-      { label: "Bosque actual (ha)", name: "bosqueActual", type: "number", step: "0.1" },
-    ],
+  const sections = [
+    {
+      title: "Datos Generales",
+      bg: "https://media.istockphoto.com/id/2164296839/photo/aerial-view-of-rural-landscape-of-aguia-branca-es-brazil.jpg?s=612x612&w=0&k=20&c=o8HTZzPOh_PEBhOmMq266R_09I7PJT4cVf54ob5erlM=",
+      fields: [
+        { label: "Área cultivada (ha)", name: "areaCultivada", type: "number", step: "0.1" },
+        { label: "Producción café verde (kg)", name: "produccionVerde", type: "number" },
+      ]
+    },
+    {
+      title: "Fertilizantes",
+      bg: "https://cdn.agclassroom.org/media/uploads/LP232/fertilizer_and_environment.jpg",
+      fields: [
+        { label: "Fertilizante total (kg)", name: "fertilizanteTotal", type: "number" },
+        { label: "Tipo de fertilizante", name: "tipoFertilizante", type: "select", options: ["sintetico", "organico"] },
+      ]
+    },
+    {
+      title: "Energía",
+      bg: "https://figures.semanticscholar.org/d370521a0ab8fd3b94dd1fee102e55c3f542a07a/9-Figure2-1.png",
+      fields: [
+        { label: "Energía eléctrica (kWh)", name: "energiaElectrica", type: "number" },
+        { label: "Combustible (litros)", name: "combustibleLitros", type: "number", step: "0.1" },
+      ]
+    },
+    {
+      title: "Árboles de Sombra",
+      bg: "https://crowdroaster.com/images/upload/2023/07/2xwhv6a2dpcfq5odu3sfa4wftmaryf9v.jpg",
+      fields: [
+        { label: "Número de árboles de sombra", name: "arbolesSombra", type: "number" },
+        { label: "Área promedio de copa (m²/árbol)", name: "areaCopaPromedio", type: "number", step: "0.1" },
+      ]
+    },
+    {
+      title: "Transporte",
+      bg: "https://knowhow.distrelec.com/wp-content/uploads/2021/10/iStock-1139306496-1-1024x683.jpg",
+      fields: [
+        { label: "Distancia promedio (km)", name: "distanciaKm", type: "number", step: "0.1" },
+        { label: "Volumen total (cargas)", name: "volumenCargas", type: "number" },
+      ]
+    },
+    {
+      title: "Procesamiento",
+      bg: "https://www.shutterstock.com/image-photo/coffee-roasted-aroma-bean-fly-600nw-2486287983.jpg",
+      fields: [
+        { label: "Tipo de procesamiento", name: "tipoProcesamiento", type: "select", options: ["lavado", "miel", "natural"] },
+      ]
+    },
+    {
+      title: "Residuos",
+      bg: "https://www.homebiogas.com/wp-content/uploads/2023/09/shutterstock_2057386766.jpg",
+      fields: [
+        { label: "Residuos totales (kg)", name: "residuosTotales", type: "number" },
+        { label: "Residuos compostados (kg)", name: "residuosCompostados", type: "number" },
+      ]
+    },
+    {
+      title: "Deforestación",
+      bg: "https://static.dw.com/image/68096865_902.jpg",
+      fields: [
+        { label: "Bosque base 2020 (ha)", name: "bosqueBase", type: "number", step: "0.1" },
+        { label: "Bosque actual (ha)", name: "bosqueActual", type: "number", step: "0.1" },
+      ]
+    },
   ];
   useEffect(() => {
     const checkAuth = async () => {
@@ -225,10 +257,19 @@ export default function Calculadora() {
             {/* ← NUEVO: Formulario con sliders */}
             <form onSubmit={calcularHuella} className="wizard-form">
               <div className="form-card-wrapper" style={{ transform: `translateX(-${paso * 100}%)` }}>
-                {pasos.map((grupo, index) => (
-                  <div className="form-card" key={index}>
+                {sections.map((grupo, index) => (
+                  <div 
+                    className="form-card" 
+                    key={index} 
+                    style={{ 
+                      backgroundImage: `url(${grupo.bg})`, 
+                      backgroundSize: 'cover', 
+                      backgroundPosition: 'center' 
+                    }}
+                  >
+                    <h2 className="section-title">{grupo.title}</h2>
                     <div className="form-grid">
-                      {grupo.map((campo, i) => {
+                      {grupo.fields.map((campo, i) => {
                         const value = form[campo.name] || '';
                         const isNumber = campo.type === "number";
                         const step = campo.step || "1";
@@ -283,12 +324,12 @@ export default function Calculadora() {
                                     max={max}
                                     className="range-slider"
                                     style={{
-                                            background: `linear-gradient(to right,
-                                              hsl(${120 - ((value / max) * 120)}, 75%, 45%) 0%,
-                                              hsl(${120 - ((value / max) * 120)}, 75%, 45%) ${(value / max) * 100}%,
-                                              #e0e0e0 ${(value / max) * 100}%,
-                                              #e0e0e0 100%)`
-                                          }}
+                                      background: `linear-gradient(to right,
+                                        hsl(${120 - ((value / max) * 120)}, 75%, 45%) 0%,
+                                        hsl(${120 - ((value / max) * 120)}, 75%, 45%) ${(value / max) * 100}%,
+                                        #e0e0e0 ${(value / max) * 100}%,
+                                        #e0e0e0 100%)`
+                                    }}
                                   />
                                   <span className="slider-value">{value || 0} {campo.name.includes('ha') ? 'ha' : campo.name.includes('kg') ? 'kg' : campo.name.includes('kWh') ? 'kWh' : campo.name.includes('litros') ? 'L' : campo.name.includes('km') ? 'km' : campo.name.includes('cargas') ? 'cargas' : 'm²'}</span>
                                 </div>
@@ -480,10 +521,34 @@ export default function Calculadora() {
     min-width: 100%;
     padding: 32px;
     animation: fadeIn 0.5s ease-out;
+    position: relative;
+    background-color: rgba(255, 255, 255, 0.85); /* Opacidad para legibilidad sobre fondo */
+    border-radius: 16px;
+  }
+  .form-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: inherit; /* Hereda el backgroundImage del style inline */
+    background-size: cover;
+    background-position: center;
+    filter: blur(2px); /* Suavizado opcional */
+    z-index: -1;
   }
   @keyframes fadeIn {
     from { opacity: 0; transform: translateY(10px); }
     to { opacity: 1; transform: translateY(0); }
+  }
+  .section-title {
+    text-align: center;
+    font-size: 22px;
+    font-weight: 700;
+    color: #1b5e20;
+    margin-bottom: 24px;
+    letter-spacing: -0.3px;
   }
   .form-grid {
     display: grid;
@@ -563,7 +628,7 @@ export default function Calculadora() {
     -webkit-appearance: none;
     width: 24px;
     height: 24px;
-    background: linear-gradient(135deg, #2e7d32, #0007c4ff);
+    background: linear-gradient(135deg, #2e7d32, #1b5e20);
     border-radius: 50%;
     cursor: pointer;
     box-shadow:
@@ -616,26 +681,25 @@ export default function Calculadora() {
     background: white;
     border-top: 1px solid #e0e0e0;
   }
-.btn-nav {
-  flex: 1; /* ambos crecen igual */
-  max-width: 200px; /* límite de ancho opcional */
-  text-align: center;
-  justify-content: center;
-
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 14px 18px;
-  background: linear-gradient(135deg, #2e7d32, #1b5e20);
-  color: white;
-  border: none;
-  border-radius: 10px;
-  font-weight: 600;
-  font-size: 16px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 12px rgba(46,125,50,0.25);
-}
+  .btn-nav {
+    flex: 1; /* ambos crecen igual */
+    max-width: 200px; /* límite de ancho opcional */
+    text-align: center;
+    justify-content: center;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 18px;
+    background: linear-gradient(135deg, #2e7d32, #1b5e20);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(46,125,50,0.25);
+  }
   .btn-nav:hover {
     transform: translateY(-2px);
     box-shadow: 0 8px 20px rgba(46,125,50,0.3);
@@ -647,7 +711,7 @@ export default function Calculadora() {
   .btn-nav.prev:hover {
     box-shadow: 0 8px 20px rgba(129,199,132,0.3);
   }
-    
+   
   .arrow-icon {
     width: 22px;
     height: 22px;
