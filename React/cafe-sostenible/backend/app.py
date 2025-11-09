@@ -253,37 +253,47 @@ def obtener_historial():
 def api_noticias():
     try:
         url = "https://soppexcca.org.ni/noticias"
-        
         headers = {
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36"
         }
 
-        response = requests.get(url, headers=headers, timeout=10)
+        response = requests.get(url, headers=headers, timeout=15)
         response.raise_for_status()
 
         soup = BeautifulSoup(response.text, 'html.parser')
 
         noticias = []
-        cards = soup.select(".entry-wrapper")
+        articles = soup.find_all('article', class_='post')
 
-        for card in cards:
-            title = card.select_one(".entry-title a")
-            date = card.select_one("time")
-            snippet = card.select_one(".entry-summary p")
+        for article in articles:
+            # Título y URL
+            title_tag = article.select_one('.entry-title a')
+            title = title_tag.get_text(strip=True) if title_tag else "Sin título"
+            url = title_tag['href'] if title_tag else ""
+
+            # Fecha
+            date_tag = article.select_one('time.entry-date')
+            date = date_tag.get_text(strip=True) if date_tag else "Sin fecha"
+
+            # Snippet (primer <p> dentro de .entry-content)
+            snippet_tag = article.select_one('.entry-content p')
+            snippet = snippet_tag.get_text(strip=True) if snippet_tag else ""
 
             noticias.append({
-                "title": title.get_text(strip=True) if title else "Sin título",
-                "date": date.get_text(strip=True) if date else "Sin fecha",
-                "snippet": snippet.get_text(strip=True) if snippet else "",
-                "url": title["href"] if title else ""
+                "title": title,
+                "date": date,
+                "snippet": snippet,
+                "url": url
             })
 
         return jsonify(noticias)
 
+    except requests.RequestException as e:
+        print("Error de red al obtener noticias:", e)
+        return jsonify({"error": "No se pudo conectar al sitio"}), 502
     except Exception as e:
         print("Error scraping noticias:", e)
-        return jsonify({"error": str(e)}), 500
-
+        return jsonify({"error": "Error al procesar los datos"}), 500
 
 @app.route('/')
 def home():
