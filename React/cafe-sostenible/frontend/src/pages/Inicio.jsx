@@ -92,7 +92,7 @@ console.log('API_BASE:', import.meta.env.VITE_API_URL);
             <p className="subtitle">Café Sostenible Caficultura</p>
           </div>
         </div>
-        <a href="#" className="news-link">Noticias</a>
+        <Link to="/noticias" className="news-link">Noticias</Link>
       </header>
 
       {/* MAIN CONTAINER */}

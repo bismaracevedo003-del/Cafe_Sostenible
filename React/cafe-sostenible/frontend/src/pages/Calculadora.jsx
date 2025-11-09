@@ -233,7 +233,7 @@ export default function Calculadora() {
             <p className="subtitle">Cumplimiento EUDR</p>
           </div>
         </div>
-        <a href="#" className="news-link">Noticias</a>
+        <Link to="/noticias" className="news-link">Noticias</Link>
       </header>
       <div className="main-container">
         <aside className="sidebar">

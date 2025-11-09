@@ -8,7 +8,7 @@ export default function Header() {
           <p className="subtitle">Café Sostenible Caficultura</p>
         </div>
       </div>
-      <a href="#" className="news-link">Noticias</a>
+      <Link to="/noticias" className="news-link">Noticias</Link>
     </header>
   );
 }

@@ -6,6 +6,7 @@ import Login from './pages/Login';
 import Inicio from './pages/Inicio';
 import Perfil from './pages/Perfil';
 import Calculadora from './pages/Calculadora';
+import Noticias from './pages/Noticias';
 import './index.css';
 
 

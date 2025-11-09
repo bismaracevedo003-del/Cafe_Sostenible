@@ -112,7 +112,7 @@ export default function Perfil() {
             <p className="subtitle">Café Sostenible Caficultura</p>
           </div>
         </div>
-        <a href="#" className="news-link">Noticias</a>
+        <Link to="/noticias" className="news-link">Noticias</Link>
       </header>
 
       {/* MAIN CONTAINER */}
