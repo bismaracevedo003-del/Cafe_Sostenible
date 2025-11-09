@@ -34,7 +34,7 @@ export default function Noticias() {
           <div className="steam"></div>
           <div className="steam"></div>
         </div>
-        <p className="coffee-text">Preparando tu café...</p>
+        <p className="coffee-text">Cargando tus noticias...</p>
       </div>
     );
   }
