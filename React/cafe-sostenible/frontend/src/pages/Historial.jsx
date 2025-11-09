@@ -267,6 +267,149 @@ const chartData = useMemo(() => {
 
       {/* ESTILOS */}
       <style jsx>{`
+              .historial-content {
+          padding: 2rem;
+          max-width: 1200px;
+          margin: 0 auto;
+        }
+
+        .page-title {
+          font-size: 2rem;
+          color: #2e7d32;
+          margin-bottom: 2rem;
+          text-align: center;
+          font-weight: 700;
+        }
+
+        .empty-state {
+          text-align: center;
+          padding: 3rem 1rem;
+          color: #666;
+        }
+
+        .empty-icon {
+          width: 60px;
+          height: 60px;
+          opacity: 0.5;
+          margin-bottom: 1rem;
+        }
+
+        .btn-primary,
+        .btn-secondary {
+          display: inline-block;
+          padding: 0.6rem 1.2rem;
+          border-radius: 8px;
+          font-weight: 600;
+          text-decoration: none;
+          font-size: 0.95rem;
+          transition: all 0.3s ease;
+          margin-top: 1rem;
+        }
+
+        .btn-primary {
+          background: #2e7d32;
+          color: white;
+        }
+
+        .btn-primary:hover {
+          background: #1b5e20;
+          transform: translateY(-2px);
+        }
+
+        .historial-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+          gap: 1.5rem;
+        }
+
+        .historial-card {
+          background: white;
+          border-radius: 12px;
+          padding: 1.5rem;
+          box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+          transition: all 0.3s ease;
+          border: 1px solid #e0e0e0;
+        }
+
+        .historial-card:hover {
+          transform: translateY(-4px);
+          box-shadow: 0 12px 24px rgba(0,0,0,0.15);
+        }
+
+        .historial-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: flex-start;
+          margin-bottom: 1rem;
+          flex-wrap: wrap;
+          gap: 0.5rem;
+        }
+
+        .finca-name {
+          font-size: 1.2rem;
+          font-weight: 600;
+          color: #2e7d32;
+          margin: 0;
+        }
+
+        .calc-date {
+          font-size: 0.85rem;
+          color: #888;
+          white-space: nowrap;
+        }
+
+        .historial-stats {
+          display: grid;
+          grid-template-columns: 1fr;
+          gap: 0.8rem;
+          margin-bottom: 1rem;
+        }
+
+        .stat {
+          display: flex;
+          justify-content: space-between;
+          padding: 0.5rem 0;
+          border-bottom: 1px dashed #eee;
+        }
+
+        .stat-label {
+          color: #555;
+          font-size: 0.9rem;
+        }
+
+        .stat-value {
+          font-weight: 600;
+          color: #2e7d32;
+          font-size: 0.95rem;
+        }
+
+        .historial-actions {
+          text-align: right;
+        }
+
+        .btn-secondary {
+          background: #f8f9fa;
+          color: #2e7d32;
+          border: 1px solid #2e7d32;
+        }
+
+        .btn-secondary:hover {
+          background: #2e7d32;
+          color: white;
+        }
+
+        @media (max-width: 768px) {
+          .historial-content {
+            padding: 1rem;
+          }
+          .historial-header {
+            flex-direction: column;
+            align-items: flex-start;
+          }
+          .calc-date {
+            font-size: 0.8rem;
+          }
+        }
         .chart-container {
           background: white;
           padding: 1.5rem;
