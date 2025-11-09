@@ -38,23 +38,23 @@ export default function Historial() {
   }, [navigate]);
 
   // --- CARGAR HISTORIAL ---
-  useEffect(() => {
-    if (!user) return;
-    const fetchHistorial = async () => {
-      try {
-        setLoading(true);
-        const res = await fetch(`${API_BASE}/historial`, { credentials: 'include' });
-        if (!res.ok) throw new Error('No se pudo cargar el historial');
-        const data = await res.json();
-        setHistorial(data);
-      } catch (err) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchHistorial();
-  }, [user]);
+useEffect(() => {
+  if (!user) return;
+  const fetchHistorial = async () => {
+    try {
+      setLoading(true);
+      const res = await fetch(`${API_BASE}/historial`, { credentials: 'include' });
+      if (!res.ok) throw new Error('No se pudo cargar el historial');
+      const data = await res.json();
+      setHistorial(data.items || []);  // Extract the array or fallback to empty array
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+  fetchHistorial();
+}, [user]);
 
   // --- LOGOUT ---
   const handleLogout = async () => {
