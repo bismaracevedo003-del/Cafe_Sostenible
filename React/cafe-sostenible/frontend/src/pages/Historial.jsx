@@ -37,24 +37,28 @@ export default function Historial() {
     checkAuth();
   }, [navigate]);
 
-  // --- CARGAR HISTORIAL ---
-  useEffect(() => {
-    if (!user) return;
-    const fetchHistorial = async () => {
-      try {
-        setLoading(true);
-        const res = await fetch(`${API_BASE}/historial`, { credentials: 'include' });
-        if (!res.ok) throw new Error('No se pudo cargar el historial');
-        const data = await res.json();
-        setHistorial(data);
-      } catch (err) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchHistorial();
-  }, [user]);
+// --- CARGAR HISTORIAL ---
+useEffect(() => {
+  if (!user) return;
+  const fetchHistorial = async () => {
+    try {
+      setLoading(true);
+      const res = await fetch(`${API_BASE}/historial`, { credentials: 'include' });
+      if (!res.ok) throw new Error('No se pudo cargar el historial');
+      
+      const data = await res.json();
+
+      // AQUÍ ESTÁ LA CLAVE
+      const items = Array.isArray(data) ? data : (data.items || []);
+      setHistorial(items); // ← siempre un array
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+  fetchHistorial();
+}, [user]);
 
   // --- LOGOUT ---
   const handleLogout = async () => {
@@ -64,29 +68,31 @@ export default function Historial() {
   };
 
   // --- DATOS PARA GRÁFICO ---
-  const chartData = useMemo(() => {
-    const grouped = {};
-    historial.forEach(c => {
-      const date = new Date(c.fecha);
-      const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
-      if (!grouped[monthKey]) {
-        grouped[monthKey] = { total: 0, count: 0, rendimiento: 0, porKg: 0 };
-      }
-      grouped[monthKey].total += c.huella_total;
-      grouped[monthKey].count += 1;
-      grouped[monthKey].rendimiento += c.rendimiento || 0;
-      grouped[monthKey].porKg += c.huella_por_kg;
-    });
+const chartData = useMemo(() => {
+  if (!Array.isArray(historial) || historial.length === 0) return [];
 
-    return Object.entries(grouped)
-      .map(([month, data]) => ({
-        mes: new Date(month + '-01').toLocaleDateString('es-NI', { year: 'numeric', month: 'short' }),
-        huellaTotal: data.total.toFixed(1),
-        huellaPorKg: (data.porKg / data.count).toFixed(2),
-        rendimiento: data.count > 0 ? (data.rendimiento / data.count).toFixed(1) : 0,
-      }))
-      .sort((a, b) => new Date(a.mes) - new Date(b.mes));
-  }, [historial]);
+  const grouped = {};
+  historial.forEach(c => {
+    const date = new Date(c.fecha);
+    const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+    if (!grouped[monthKey]) {
+      grouped[monthKey] = { total: 0, count: 0, rendimiento: 0, porKg: 0 };
+    }
+    grouped[monthKey].total += c.huella_total || 0;
+    grouped[monthKey].count += 1;
+    grouped[monthKey].rendimiento += c.rendimiento || 0;
+    grouped[monthKey].porKg += c.huella_por_kg || 0;
+  });
+
+  return Object.entries(grouped)
+    .map(([month, data]) => ({
+      mes: new Date(month + '-01').toLocaleDateString('es-NI', { year: 'numeric', month: 'short' }),
+      huellaTotal: data.total.toFixed(1),
+      huellaPorKg: data.count > 0 ? (data.porKg / data.count).toFixed(2) : '0',
+      rendimiento: data.count > 0 ? (data.rendimiento / data.count).toFixed(1) : '0',
+    }))
+    .sort((a, b) => new Date(a.mes) - new Date(b.mes));
+}, [historial]);
 
   // --- FILTROS Y PAGINACIÓN ---
   const filtered = useMemo(() => {
