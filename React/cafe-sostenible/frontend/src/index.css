@@ -944,3 +944,17 @@ input[type="file"] {
 .news-card-link:hover {
   background: #1b5e20;
 }
+
+.loading {
+  text-align: center;
+  padding: 40px;
+  font-size: 18px;
+  color: #2e7d32;
+}
+
+.error {
+  text-align: center;
+  padding: 40px;
+  font-size: 18px;
+  color: #c62828;
+}

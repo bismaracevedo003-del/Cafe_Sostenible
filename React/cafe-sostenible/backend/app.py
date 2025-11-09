@@ -6,6 +6,9 @@ import os
 import hashlib
 from dotenv import load_dotenv
 import base64
+import requests
+from bs4 import BeautifulSoup
+
 
 # --- CARGAR .env ---
 load_dotenv()
@@ -245,6 +248,38 @@ def obtener_historial():
     calculos = CalculoEUDR.query.filter_by(user_id=session['user_id']) \
         .order_by(CalculoEUDR.fecha.desc()).all()
     return jsonify([c.to_dict() for c in calculos])
+
+@app.route('/api/noticias', methods=['GET'])
+def api_noticias():
+    try:
+        url = "https://soppexcca.org.ni/noticias"
+        response = requests.get(url, timeout=10)
+        response.raise_for_status()
+
+        soup = BeautifulSoup(response.text, 'html.parser')
+
+        noticias = []
+
+        # Ajustado a la estructura real del sitio
+        cards = soup.select(".entry-wrapper")  # contenedor de noticias
+
+        for card in cards:
+            title = card.select_one(".entry-title a")
+            date = card.select_one("time")
+            snippet = card.select_one(".entry-summary p")
+
+            noticias.append({
+                "title": title.get_text(strip=True) if title else "Sin título",
+                "date": date.get_text(strip=True) if date else "Sin fecha",
+                "snippet": snippet.get_text(strip=True) if snippet else "",
+                "url": title["href"] if title else ""
+            })
+
+        return jsonify(noticias)
+
+    except Exception as e:
+        print("Error scraping noticias:", e)
+        return jsonify({"error": "No se pudieron obtener las noticias"}), 500
 
 @app.route('/')
 def home():
