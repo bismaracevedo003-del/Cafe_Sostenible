@@ -42,6 +42,7 @@ export default function App() {
         <Route path="/perfil" element={<Perfil />} />
         <Route path="/home" element={<Home />} />
         <Route path="/calculadora" element={<Calculadora />} />
+        <Route path="/noticias" element={<Noticias />} />
       </Routes>
     </Router>
   );
