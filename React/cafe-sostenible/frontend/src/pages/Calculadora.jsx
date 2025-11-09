@@ -47,7 +47,7 @@ export default function Calculadora() {
   const sections = [
     {
       title: "Datos Generales",
-      bg: "https://media.istockphoto.com/id/2164296839/photo/aerial-view-of-rural-landscape-of-aguia-branca-es-brazil.jpg?s=612x612&w=0&k=20&c=o8HTZzPOh_PEBhOmMq266R_09I7PJT4cVf54ob5erlM=",
+      bg: "/img/5896494961149457158_120.jpg",
       fields: [
         { label: "Área cultivada (ha)", name: "areaCultivada", type: "number", step: "0.1" },
         { label: "Producción café verde (kg)", name: "produccionVerde", type: "number" },
