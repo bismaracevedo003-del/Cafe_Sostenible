@@ -253,15 +253,18 @@ def obtener_historial():
 def api_noticias():
     try:
         url = "https://soppexcca.org.ni/noticias"
-        response = requests.get(url, timeout=10)
+        
+        headers = {
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
+        }
+
+        response = requests.get(url, headers=headers, timeout=10)
         response.raise_for_status()
 
         soup = BeautifulSoup(response.text, 'html.parser')
 
         noticias = []
-
-        # Ajustado a la estructura real del sitio
-        cards = soup.select(".entry-wrapper")  # contenedor de noticias
+        cards = soup.select(".entry-wrapper")
 
         for card in cards:
             title = card.select_one(".entry-title a")
@@ -279,7 +282,8 @@ def api_noticias():
 
     except Exception as e:
         print("Error scraping noticias:", e)
-        return jsonify({"error": "No se pudieron obtener las noticias"}), 500
+        return jsonify({"error": str(e)}), 500
+
 
 @app.route('/')
 def home():
