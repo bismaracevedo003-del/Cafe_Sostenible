@@ -8,6 +8,7 @@ import Perfil from './pages/Perfil';
 import Calculadora from './pages/Calculadora';
 import Noticias from './pages/Noticias';
 import Noticias1 from './pages/Noticias1';
+import Historial from './pages/Historial';
 import './index.css';
 
 
@@ -45,6 +46,7 @@ export default function App() {
         <Route path="/calculadora" element={<Calculadora />} />
         <Route path="/noticias" element={<Noticias />} />
         <Route path="/noticias1" element={<Noticias1 />} />
+        <Route path="/historial" element={<Historial />} />
       </Routes>
     </Router>
   );
