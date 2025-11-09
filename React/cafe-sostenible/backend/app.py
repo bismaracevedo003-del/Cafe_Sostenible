@@ -245,9 +245,24 @@ def guardar_historial():
 @app.route('/api/historial', methods=['GET'])
 @login_required
 def obtener_historial():
-    calculos = CalculoEUDR.query.filter_by(user_id=session['user_id']) \
-        .order_by(CalculoEUDR.fecha.desc()).all()
-    return jsonify([c.to_dict() for c in calculos])
+    page = request.args.get('page', 1, type=int)
+    per_page = request.args.get('per_page', 10, type=int)
+    search = request.args.get('search', '').strip()
+
+    query = CalculoEUDR.query.filter_by(user_id=session['user_id'])
+    
+    if search:
+        query = query.filter(CalculoEUDR.nombre_finca.ilike(f'%{search}%'))
+
+    paginated = query.order_by(CalculoEUDR.fecha.desc()) \
+                    .paginate(page=page, per_page=per_page, error_out=False)
+
+    return jsonify({
+        'items': [c.to_dict() for c in paginated.items],
+        'total': paginated.total,
+        'pages': paginated.pages,
+        'page': page
+    })
 
 @app.route('/api/noticias', methods=['GET'])
 def api_noticias():
