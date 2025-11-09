@@ -261,38 +261,56 @@ def api_noticias():
         response.raise_for_status()
 
         soup = BeautifulSoup(response.text, 'html.parser')
-
         noticias = []
         articles = soup.find_all('article', class_='post')
 
+        if not articles:
+            print("No se encontraron artículos.")
+            return jsonify([]), 200
+
         for article in articles:
-            # Título y URL
+            # Título y enlace
             title_tag = article.select_one('.entry-title a')
             title = title_tag.get_text(strip=True) if title_tag else "Sin título"
-            url = title_tag['href'] if title_tag else ""
+            link = title_tag['href'] if title_tag else ""
 
             # Fecha
             date_tag = article.select_one('time.entry-date')
             date = date_tag.get_text(strip=True) if date_tag else "Sin fecha"
 
-            # Snippet (primer <p> dentro de .entry-content)
+            # Snippet
             snippet_tag = article.select_one('.entry-content p')
             snippet = snippet_tag.get_text(strip=True) if snippet_tag else ""
+
+            # Imagen destacada
+            img_tag = article.select_one('.post-thumbnail img')
+            image = ""
+            if img_tag and img_tag.get('src'):
+                image = img_tag['src']
+                # Opcional: usar srcset para mejor calidad
+                if img_tag.get('srcset'):
+                    # Tomar la última (más grande)
+                    srcset = img_tag['srcset'].split(',')[-1].strip().split(' ')[0]
+                    image = srcset
+            else:
+                image = ""
 
             noticias.append({
                 "title": title,
                 "date": date,
                 "snippet": snippet,
-                "url": url
+                "url": link,
+                "image": image  # Aquí va la URL de la imagen
             })
 
-        return jsonify(noticias)
+        return jsonify(noticias), 200
 
     except requests.RequestException as e:
-        print("Error de red al obtener noticias:", e)
+        print("Error de red:", e)
         return jsonify({"error": "No se pudo conectar al sitio"}), 502
+
     except Exception as e:
-        print("Error scraping noticias:", e)
+        print("Error inesperado:", e)
         return jsonify({"error": "Error al procesar los datos"}), 500
 
 @app.route('/')

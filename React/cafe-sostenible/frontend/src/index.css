@@ -880,81 +880,102 @@ input[type="file"] {
   letter-spacing: 1px;
 }
 
-.news-main {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 40px 20px;
-}
-
-.news-title {
-  text-align: center;
-  font-size: 32px;
-  color: #1b5e20;
-  margin-bottom: 40px;
-}
-
-.news-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 24px;
-}
-
 .news-card {
   background: white;
-  padding: 24px;
   border-radius: 12px;
   box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-  transition: transform 0.3s ease;
+  overflow: hidden;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  display: flex;
+  flex-direction: column;
 }
 
 .news-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+  transform: translateY(-6px);
+  box-shadow: 0 12px 24px rgba(0,0,0,0.15);
+}
+
+.news-card-img-link {
+  display: block;
+  width: 100%;
+  height: 180px;
+  overflow: hidden;
+}
+
+.news-card-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.4s ease;
+}
+
+.news-card-img-link:hover .news-card-img {
+  transform: scale(1.05);
+}
+
+.news-card-img-placeholder {
+  width: 100%;
+  height: 180px;
+  background: #e0e0e0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #999;
+  font-style: italic;
+  font-size: 14px;
+}
+
+.news-card-content {
+  padding: 16px;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
 }
 
 .news-card-title {
-  font-size: 20px;
+  font-size: 18px;
+  margin: 0 0 8px 0;
+  line-height: 1.4;
+}
+
+.news-card-title a {
   color: #2e7d32;
-  margin-bottom: 8px;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.news-card-title a:hover {
+  color: #1b5e20;
+  text-decoration: underline;
 }
 
 .news-card-date {
   font-size: 14px;
   color: #666;
-  margin-bottom: 12px;
+  margin-bottom: 8px;
 }
 
 .news-card-snippet {
-  font-size: 16px;
-  color: #333;
-  margin-bottom: 16px;
+  font-size: 15px;
+  color: #444;
+  margin: 0 0 12px 0;
+  flex-grow: 1;
+  line-height: 1.5;
 }
 
 .news-card-link {
   display: inline-block;
-  padding: 10px 20px;
+  padding: 8px 16px;
   background: #2e7d32;
   color: white;
   text-decoration: none;
   border-radius: 6px;
+  font-size: 14px;
   font-weight: 600;
+  align-self: flex-start;
   transition: background 0.3s ease;
 }
 
 .news-card-link:hover {
   background: #1b5e20;
-}
-
-.loading {
-  text-align: center;
-  padding: 40px;
-  font-size: 18px;
-  color: #2e7d32;
-}
-
-.error {
-  text-align: center;
-  padding: 40px;
-  font-size: 18px;
-  color: #c62828;
 }
