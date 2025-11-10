@@ -25,6 +25,13 @@ CORS(app,
      allow_headers=['Content-Type', 'Authorization']        # Headers comunes
 )
 
+@app.after_request
+def after_request(response):
+    response.headers.add('Access-Control-Allow-Origin', request.headers.get('Origin', ''))
+    response.headers.add('Access-Control-Allow-Credentials', 'true')
+    response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
+    response.headers.add('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS')
+    return response
 
 app.secret_key = os.getenv("FLASK_SECRET_KEY", "dev-secret-key")
 app.config['SESSION_COOKIE_HTTPONLY'] = True
@@ -239,6 +246,10 @@ def guardar_historial():
     except Exception as e:
         db.session.rollback()
         return jsonify({"status": "error", "message": str(e)}), 400
+
+@app.route('/api/historial', methods=['OPTIONS'])
+def historial_options():
+    return '', 200
 
 # === OBTENER HISTORIAL ===
 @app.route('/api/historial', methods=['GET'])
