@@ -22,9 +22,7 @@ allowed_origins = [
     "https://localhost:5173"
 ]
 
-CORS(app,
-     origins=allowed_origins,
-     supports_credentials=True)
+CORS(app, origins=allowed_origins, supports_credentials=True)
 
 app.secret_key = os.getenv("FLASK_SECRET_KEY", "dev-secret-key")
 

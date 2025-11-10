@@ -77,8 +77,9 @@ useEffect(() => {
     try {
       setLoading(true);
 
+      // Crear parámetros de query
       const params = new URLSearchParams({
-        page: '1',           // Siempre página 1 al filtrar
+        page: '1',              // Siempre página 1 al filtrar
         per_page: perPage.toString(),
       });
 
@@ -88,14 +89,17 @@ useEffect(() => {
         params.set('page', '1'); // Reinicia a página 1
       }
 
-      const url = `${API_BASE}/v1/historial?${params}`;
+      // Convertir params a string
+      const url = `${API_BASE}/v1/historial?${params.toString()}`;
       console.log('Cargando historial:', url);
 
+      // Fetch con cookies (sesión)
       const res = await fetch(url, {
         method: 'GET',
         credentials: 'include',
       });
 
+      // Manejo de errores HTTP
       if (!res.ok) {
         const text = await res.text();
         throw new Error(`Error ${res.status}: ${text}`);
@@ -104,6 +108,7 @@ useEffect(() => {
       const result = await res.json();
       if (!result.success) throw new Error('Error en API');
 
+      // Actualizar estado
       const data = result.data;
       setHistorial(data.items || []);
       setTotal(data.pagination.total || 0);
@@ -119,7 +124,7 @@ useEffect(() => {
   };
 
   fetchHistorial();
-}, [user, search, perPage]); // Quita 'page' de dependencias// search está en dependencias
+}, [user, search, perPage]);
 
   // --- LOGOUT ---
   const handleLogout = async () => {
