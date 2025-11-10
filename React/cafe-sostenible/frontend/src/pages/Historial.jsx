@@ -104,55 +104,132 @@ export default function Historial() {
   };
 
   // --- DATOS PARA EL GRÁFICO ---
+  // --- DATOS PARA EL GRÁFICO (MEJORADO) ---
+  const sortedHistorial = [...historial].sort((a, b) => b.huella_total - a.huella_total);
+
   const chartData = {
-    labels: historial.map((c) => c.nombre_finca || `Cálculo ${c.id}`),
+    labels: sortedHistorial.map((c) => c.nombre_finca || `Cálculo ${c.id}`),
     datasets: [
       {
         label: 'Huella Total (kg CO₂eq)',
-        data: historial.map((c) => c.huella_total),
-        backgroundColor: 'rgba(46, 125, 50, 0.7)',
-        borderColor: '#2e7d32',
-        borderWidth: 1,
-        borderRadius: 6,
+        data: sortedHistorial.map((c) => c.huella_total),
+        backgroundColor: sortedHistorial.map((_, i) => {
+          const colors = [
+            'rgba(46, 125, 50, 0.8)',   // Verde oscuro
+            'rgba(76, 175, 80, 0.8)',   // Verde medio
+            'rgba(129, 199, 132, 0.8)', // Verde claro
+            'rgba(165, 214, 167, 0.8)', // Verde muy claro
+            'rgba(200, 230, 201, 0.8)', // Verde pastel
+          ];
+          return colors[i % colors.length];
+        }),
+        borderColor: sortedHistorial.map((_, i) => {
+          const borders = ['#2e7d32', '#4caf50', '#81c784', '#a5d6a7', '#c8e6c9'];
+          return borders[i % borders.length];
+        }),
+        borderWidth: 2,
+        borderRadius: 8,
+        borderSkipped: false,
+        hoverBackgroundColor: 'rgba(46, 125, 50, 0.9)',
+        hoverBorderColor: '#1b5e20',
+        hoverBorderWidth: 3,
       },
     ],
   };
 
   const chartOptions = {
+    indexAxis: 'x',
     responsive: true,
     maintainAspectRatio: false,
+    animation: {
+      duration: 1200,
+      easing: 'easeOutQuart',
+    },
     plugins: {
       legend: {
+        display: true,
         position: 'top',
-        labels: { font: { size: 14 } },
+        align: 'center',
+        labels: {
+          font: { size: 14, family: "'Inter', sans-serif", weight: '600' },
+          color: '#333',
+          padding: 20,
+          usePointStyle: true,
+          pointStyle: 'rectRounded',
+        },
       },
       title: {
         display: true,
         text: 'Huella de Carbono Total por Finca',
-        font: { size: 18, weight: 'bold' },
+        font: { size: 20, weight: 'bold', family: "'Inter', sans-serif" },
         color: '#2e7d32',
+        padding: { top: 10, bottom: 20 },
+      },
+      subtitle: {
+        display: true,
+        text: 'Ordenado de mayor a menor impacto',
+        font: { size: 13, style: 'italic' },
+        color: '#666',
+        padding: { bottom: 20 },
       },
       tooltip: {
+        enabled: true,
+        mode: 'index',
+        intersect: false,
+        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+        titleColor: '#fff',
+        bodyColor: '#fff',
+        cornerRadius: 8,
+        displayColors: true,
+        padding: 12,
+        titleFont: { size: 14, weight: 'bold' },
+        bodyFont: { size: 13 },
         callbacks: {
-          label: (context) => `${context.formattedValue} kg CO₂eq`,
+          title: (tooltipItems) => {
+            const idx = tooltipItems[0].dataIndex;
+            return sortedHistorial[idx].nombre_finca || `Cálculo ${sortedHistorial[idx].id}`;
+          },
+          label: (context) => {
+            const idx = context.dataIndex;
+            const calc = sortedHistorial[idx];
+            return [
+              `Huella total: ${calc.huella_total.toFixed(2)} kg CO₂eq`,
+              `Por kg: ${calc.huella_por_kg.toFixed(2)} kg CO₂eq/kg`,
+              `Fecha: ${formatDate(calc.fecha)}`,
+            ];
+          },
         },
       },
     },
     scales: {
       y: {
         beginAtZero: true,
+        grid: { color: 'rgba(0, 0, 0, 0.05)', borderDash: [5, 5] },
+        ticks: { font: { size: 12 }, color: '#555' },
         title: {
           display: true,
           text: 'kg CO₂eq',
-          font: { size: 14 },
+          font: { size: 14, weight: '600' },
+          color: '#2e7d32',
         },
       },
       x: {
+        grid: { display: false },
         ticks: {
+          font: { size: 12, weight: '500' },
+          color: '#444',
           maxRotation: 45,
           minRotation: 45,
+          autoSkip: false,
         },
       },
+    },
+    interaction: {
+      mode: 'nearest',
+      intersect: true,
+    },
+    onHover: (event, elements) => {
+      event.native.target.style.cursor = elements[0] ? 'pointer' : 'default';
     },
   };
 
@@ -237,8 +314,10 @@ export default function Historial() {
           ) : (
             <>
               {/* --- GRÁFICO ANTES DE LOS RESULTADOS --- */}
-              <div className="chart-container">
-                <Bar data={chartData} options={chartOptions} height={300} />
+              <div className="chart-wrapper">
+                <div className="chart-container">
+                  <Bar data={chartData} options={chartOptions} height={320} />
+                </div>
               </div>
 
               <div className="historial-grid">
@@ -414,31 +493,43 @@ export default function Historial() {
           color: white;
         }
 
-        /* --- ESTILOS DEL GRÁFICO (NUEVOS) --- */
+                /* --- MEJORAS VISUALES DEL GRÁFICO --- */
+        .chart-wrapper {
+          margin: 2rem 0;
+          padding: 0 0.5rem;
+        }
+
         .chart-container {
           background: white;
-          padding: 1.5rem;
-          border-radius: 12px;
-          box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-          margin-bottom: 2rem;
+          padding: 1.8rem;
+          border-radius: 16px;
+          box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
           border: 1px solid #e0e0e0;
           max-width: 100%;
-          overflow-x: auto;
+          overflow: hidden;
+          position: relative;
+        }
+
+        .chart-container::before {
+          content: '';
+          position: absolute;
+          top: 0; left: 0; right: 0;
+          height: 4px;
+          background: linear-gradient(90deg, #2e7d32, #81c784);
+          border-radius: 16px 16px 0 0;
         }
 
         @media (max-width: 768px) {
-          .historial-content {
-            padding: 1rem;
-          }
-          .historial-header {
-            flex-direction: column;
-            align-items: flex-start;
-          }
-          .calc-date {
-            font-size: 0.8rem;
+          .chart-wrapper {
+            margin: 1.5rem 0;
+            padding: 0;
           }
           .chart-container {
-            padding: 1rem;
+            padding: 1.2rem;
+            border-radius: 12px;
+          }
+          .chart-container::before {
+            height: 3px;
           }
         }
       `}</style>
