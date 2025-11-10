@@ -456,7 +456,6 @@ export default function Historial() {
           font-size: 0.9rem;
           cursor: pointer;
           transition: all 0.2s;
-          min-width: 38px;
           text-align: center;
         }
 
