@@ -5,18 +5,20 @@ const API_BASE = import.meta.env.VITE_API_URL;
 
 export default function CTAFinal() {
   const [totalUsuarios, setTotalUsuarios] = useState(null);
+  const [displayCount, setDisplayCount] = useState(0); // ← para animación
   const [loading, setLoading] = useState(true);
 
+  // 1. Cargar número real desde API
   useEffect(() => {
     const fetchTotal = async () => {
       try {
-        const res = await fetch(`${API_BASE}/api/total-usuarios`);
+        const res = await fetch(`${API_BASE}/total-usuarios`);
         if (!res.ok) throw new Error('Error de red');
         const data = await res.json();
         setTotalUsuarios(data.total);
       } catch (err) {
         console.error('Error al cargar usuarios:', err);
-        setTotalUsuarios(200); // fallback si falla
+        setTotalUsuarios(200); // fallback
       } finally {
         setLoading(false);
       }
@@ -24,6 +26,35 @@ export default function CTAFinal() {
 
     fetchTotal();
   }, []);
+
+  // 2. Animación del contador cuando cambia totalUsuarios
+  useEffect(() => {
+    if (totalUsuarios === null || loading) return;
+
+    let start = 0;
+    const end = totalUsuarios;
+    const duration = 1200; // 1.2 segundos
+    const startTime = performance.now();
+
+    const animate = (currentTime) => {
+      const elapsed = currentTime - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      
+      // Easing suave (ease-out)
+      const eased = 1 - Math.pow(1 - progress, 3);
+      const current = Math.floor(eased * (end - start) + start);
+
+      setDisplayCount(current);
+
+      if (progress < 1) {
+        requestAnimationFrame(animate);
+      } else {
+        setDisplayCount(end);
+      }
+    };
+
+    requestAnimationFrame(animate);
+  }, [totalUsuarios, loading]);
 
   return (
     <section className="cta-final">
@@ -33,88 +64,13 @@ export default function CTAFinal() {
           "Cargando..."
         ) : (
           <>
-            Más de <strong>{totalUsuarios}</strong> caficultores ya miden su huella.
+            Más de <strong>{displayCount}</strong> caficultores ya miden su huella.
           </>
         )}
       </p>
-      <a href="/calculadora" className="btn-primary">
+      <a href="/home" className="btn-primary">
         Comenzar Ahora
       </a>
-
-      {/* ESTILOS INTEGRADOS */}
-      <style jsx>{`
-        .cta-final {
-          background: linear-gradient(135deg, #2d6a4f, #1b4332);
-          color: white;
-          padding: 3rem 2rem;
-          text-align: center;
-          border-radius: 20px;
-          margin: 2.5rem auto;
-          max-width: 800px;
-          box-shadow: 0 12px 35px rgba(0, 0, 0, 0.22);
-          font-family: 'Inter', sans-serif;
-        }
-
-        .cta-final h2 {
-          font-size: 2.1rem;
-          margin: 0 0 1rem;
-          font-weight: 700;
-          letter-spacing: -0.5px;
-        }
-
-        .cta-final p {
-          font-size: 1.22rem;
-          margin: 0 0 1.8rem;
-          opacity: 0.95;
-          line-height: 1.5;
-        }
-
-        .cta-final p strong {
-          color: #95d5b2;
-          font-size: 1.5rem;
-          font-weight: 800;
-        }
-
-        .btn-primary {
-          display: inline-block;
-          background: #95d5b2;
-          color: #1b4332;
-          padding: 0.95rem 2.2rem;
-          border-radius: 50px;
-          font-weight: 700;
-          font-size: 1.1rem;
-          text-decoration: none;
-          transition: all 0.35s ease;
-          box-shadow: 0 5px 18px rgba(0, 0, 0, 0.25);
-          border: 2px solid transparent;
-        }
-
-        .btn-primary:hover {
-          background: white;
-          color: #1b4332;
-          transform: translateY(-4px);
-          box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
-          border: 2px solid #95d5b2;
-        }
-
-        /* Responsive */
-        @media (max-width: 768px) {
-          .cta-final {
-            padding: 2.5rem 1.5rem;
-            margin: 2rem 1rem;
-          }
-          .cta-final h2 {
-            font-size: 1.8rem;
-          }
-          .cta-final p {
-            font-size: 1.1rem;
-          }
-          .btn-primary {
-            padding: 0.8rem 1.8rem;
-            font-size: 1rem;
-          }
-        }
-      `}</style>
     </section>
   );
 }
