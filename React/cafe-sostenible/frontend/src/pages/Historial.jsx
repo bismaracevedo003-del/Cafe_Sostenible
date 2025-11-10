@@ -69,46 +69,49 @@ export default function Historial() {
   }, [navigate]);
 
   // --- CARGAR HISTORIAL CON PAGINACIÓN ---
+// --- CARGAR HISTORIAL CON BÚSQUEDA POR FECHA ---
 useEffect(() => {
   if (!user) return;
 
   const fetchHistorial = async () => {
     try {
       setLoading(true);
+
       const params = new URLSearchParams({
-        page: page.toString(),
+        page: '1',           // Siempre página 1 al filtrar
         per_page: perPage.toString(),
       });
 
+      // Solo enviar search si hay una fecha seleccionada
       if (search && search.trim() !== '') {
-        params.append('search', search);
+        params.set('search', search);
+        params.set('page', '1'); // Reinicia a página 1
       }
 
       const url = `${API_BASE}/v1/historial?${params}`;
-      console.log('Fetching:', url); // Depuración
+      console.log('Cargando historial:', url);
 
       const res = await fetch(url, {
         method: 'GET',
-        credentials: 'include', // Crucial para cookies
+        credentials: 'include',
       });
 
       if (!res.ok) {
-        const errorText = await res.text();
-        throw new Error(`Error ${res.status}: ${errorText}`);
+        const text = await res.text();
+        throw new Error(`Error ${res.status}: ${text}`);
       }
 
       const result = await res.json();
-
-      if (!result.success) {
-        throw new Error(result.message || 'Error desconocido');
-      }
+      if (!result.success) throw new Error('Error en API');
 
       const data = result.data;
       setHistorial(data.items || []);
       setTotal(data.pagination.total || 0);
       setPages(data.pagination.pages || 0);
+      setPage(1); // Forzar página 1 visualmente
+
     } catch (err) {
-      console.error('Error en fetch:', err);
+      console.error(err);
       setError(err.message);
     } finally {
       setLoading(false);
@@ -116,7 +119,7 @@ useEffect(() => {
   };
 
   fetchHistorial();
-}, [user, page, perPage, search]); // search está en dependencias
+}, [user, search, perPage]); // Quita 'page' de dependencias// search está en dependencias
 
   // --- LOGOUT ---
   const handleLogout = async () => {
@@ -283,10 +286,12 @@ useEffect(() => {
               type="date"
               value={search}
               onChange={(e) => {
-                setSearch(e.target.value);
-                setPage(1); // Reinicia a la primera página al filtrar
+                const nuevaFecha = e.target.value;
+                setSearch(nuevaFecha);
+                setPage(1); // Reinicia página
               }}
               className="search-input"
+              placeholder="Filtrar por fecha"
             />
             <select
               value={perPage}

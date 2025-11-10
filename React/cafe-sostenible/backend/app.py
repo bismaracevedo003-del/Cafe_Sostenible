@@ -286,28 +286,24 @@ def api_v1_historial():
     from sqlalchemy import func
     from datetime import datetime
 
-    # Parámetros
     page = request.args.get('page', 1, type=int)
     per_page = request.args.get('per_page', 6, type=int)
     search = request.args.get('search', '').strip()
 
-    # Consulta base
     query = CalculoEUDR.query.filter_by(user_id=session['user_id'])
 
-    # Filtro por fecha (YYYY-MM-DD)
+    # Filtro por fecha EXACTA
     if search:
         try:
-            search_date = datetime.strptime(search, '%Y-%m-%d').date()
-            query = query.filter(func.date(CalculoEUDR.fecha) == search_date)
+            fecha = datetime.strptime(search, '%Y-%m-%d').date()
+            query = query.filter(func.date(CalculoEUDR.fecha) == fecha)
         except ValueError:
-            pass  # Ignorar fecha inválida
+            pass  # Fecha inválida → ignorar
 
-    # Paginación
     paginated = query.order_by(CalculoEUDR.fecha.desc()).paginate(
         page=page, per_page=per_page, error_out=False
     )
 
-    # Respuesta limpia
     return jsonify({
         "success": True,
         "data": {
