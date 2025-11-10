@@ -3,6 +3,20 @@ import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import '../index.css';
 
+// --- NUEVAS IMPORTACIONES PARA EL GRÁFICO ---
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend,
+} from 'chart.js';
+import { Bar } from 'react-chartjs-2';
+
+ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
+
 const API_BASE = import.meta.env.VITE_API_URL;
 
 export default function Historial() {
@@ -45,23 +59,23 @@ export default function Historial() {
   }, [navigate]);
 
   // --- CARGAR HISTORIAL ---
-useEffect(() => {
-  if (!user) return;
-  const fetchHistorial = async () => {
-    try {
-      setLoading(true);
-      const res = await fetch(`${API_BASE}/historial`, { credentials: 'include' });
-      if (!res.ok) throw new Error('No se pudo cargar el historial');
-      const data = await res.json();
-      setHistorial(data.items || []);  // Extract the array or fallback to empty array
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
-  };
-  fetchHistorial();
-}, [user]);
+  useEffect(() => {
+    if (!user) return;
+    const fetchHistorial = async () => {
+      try {
+        setLoading(true);
+        const res = await fetch(`${API_BASE}/historial`, { credentials: 'include' });
+        if (!res.ok) throw new Error('No se pudo cargar el historial');
+        const data = await res.json();
+        setHistorial(data.items || []);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchHistorial();
+  }, [user]);
 
   // --- LOGOUT ---
   const handleLogout = async () => {
@@ -87,6 +101,59 @@ useEffect(() => {
       hour: '2-digit',
       minute: '2-digit',
     });
+  };
+
+  // --- DATOS PARA EL GRÁFICO ---
+  const chartData = {
+    labels: historial.map((c) => c.nombre_finca || `Cálculo ${c.id}`),
+    datasets: [
+      {
+        label: 'Huella Total (kg CO₂eq)',
+        data: historial.map((c) => c.huella_total),
+        backgroundColor: 'rgba(46, 125, 50, 0.7)',
+        borderColor: '#2e7d32',
+        borderWidth: 1,
+        borderRadius: 6,
+      },
+    ],
+  };
+
+  const chartOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        position: 'top',
+        labels: { font: { size: 14 } },
+      },
+      title: {
+        display: true,
+        text: 'Huella de Carbono Total por Finca',
+        font: { size: 18, weight: 'bold' },
+        color: '#2e7d32',
+      },
+      tooltip: {
+        callbacks: {
+          label: (context) => `${context.formattedValue} kg CO₂eq`,
+        },
+      },
+    },
+    scales: {
+      y: {
+        beginAtZero: true,
+        title: {
+          display: true,
+          text: 'kg CO₂eq',
+          font: { size: 14 },
+        },
+      },
+      x: {
+        ticks: {
+          maxRotation: 45,
+          minRotation: 45,
+        },
+      },
+    },
   };
 
   // --- LOADER ---
@@ -168,40 +235,47 @@ useEffect(() => {
               </Link>
             </div>
           ) : (
-            <div className="historial-grid">
-              {historial.map((calculo) => (
-                <article key={calculo.id} className="historial-card">
-                  <div className="historial-header">
-                    <h3 className="finca-name">{calculo.nombre_finca}</h3>
-                    <span className="calc-date">{formatDate(calculo.fecha)}</span>
-                  </div>
+            <>
+              {/* --- GRÁFICO ANTES DE LOS RESULTADOS --- */}
+              <div className="chart-container">
+                <Bar data={chartData} options={chartOptions} height={300} />
+              </div>
 
-                  <div className="historial-stats">
-                    <div className="stat">
-                      <span className="stat-label">Huella total</span>
-                      <span className="stat-value">{calculo.huella_total.toFixed(2)} kg CO₂eq</span>
+              <div className="historial-grid">
+                {historial.map((calculo) => (
+                  <article key={calculo.id} className="historial-card">
+                    <div className="historial-header">
+                      <h3 className="finca-name">{calculo.nombre_finca}</h3>
+                      <span className="calc-date">{formatDate(calculo.fecha)}</span>
                     </div>
-                    <div className="stat">
-                      <span className="stat-label">Por kg</span>
-                      <span className="stat-value">{calculo.huella_por_kg.toFixed(2)} kg CO₂eq/kg</span>
-                    </div>
-                    <div className="stat">
-                      <span className="stat-label">Rendimiento</span>
-                      <span className="stat-value">{calculo.rendimiento?.toFixed(1) || '—'} qq/ha</span>
-                    </div>
-                  </div>
 
-                  <div className="historial-actions">
-                    <Link
-                      to={`/historial/${calculo.id}`}
-                      className="btn-secondary"
-                    >
-                      Ver detalle
-                    </Link>
-                  </div>
-                </article>
-              ))}
-            </div>
+                    <div className="historial-stats">
+                      <div className="stat">
+                        <span className="stat-label">Huella total</span>
+                        <span className="stat-value">{calculo.huella_total.toFixed(2)} kg CO₂eq</span>
+                      </div>
+                      <div className="stat">
+                        <span className="stat-label">Por kg</span>
+                        <span className="stat-value">{calculo.huella_por_kg.toFixed(2)} kg CO₂eq/kg</span>
+                      </div>
+                      <div className="stat">
+                        <span className="stat-label">Rendimiento</span>
+                        <span className="stat-value">{calculo.rendimiento?.toFixed(1) || '—'} qq/ha</span>
+                      </div>
+                    </div>
+
+                    <div className="historial-actions">
+                      <Link
+                        to={`/historial/${calculo.id}`}
+                        className="btn-secondary"
+                      >
+                        Ver detalle
+                      </Link>
+                    </div>
+                  </article>
+                ))}
+              </div>
+            </>
           )}
         </main>
       </div>
@@ -261,6 +335,7 @@ useEffect(() => {
           display: grid;
           grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
           gap: 1.5rem;
+          margin-top: 2rem;
         }
 
         .historial-card {
@@ -339,6 +414,18 @@ useEffect(() => {
           color: white;
         }
 
+        /* --- ESTILOS DEL GRÁFICO (NUEVOS) --- */
+        .chart-container {
+          background: white;
+          padding: 1.5rem;
+          border-radius: 12px;
+          box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+          margin-bottom: 2rem;
+          border: 1px solid #e0e0e0;
+          max-width: 100%;
+          overflow-x: auto;
+        }
+
         @media (max-width: 768px) {
           .historial-content {
             padding: 1rem;
@@ -349,6 +436,9 @@ useEffect(() => {
           }
           .calc-date {
             font-size: 0.8rem;
+          }
+          .chart-container {
+            padding: 1rem;
           }
         }
       `}</style>
