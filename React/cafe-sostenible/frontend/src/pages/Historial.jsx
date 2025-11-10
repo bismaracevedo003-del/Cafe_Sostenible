@@ -332,9 +332,9 @@ export default function Historial() {
                   <button
                     onClick={() => setPage(page - 1)}
                     disabled={page === 1}
-                    className="pagination-btn"
+                    className="pagination-btn text-btn"
                   >
-                    {'<'}
+                    Anterior
                   </button>
 
                   {Array.from({ length: Math.min(5, pages) }, (_, i) => {
@@ -368,9 +368,9 @@ export default function Historial() {
                   <button
                     onClick={() => setPage(page + 1)}
                     disabled={page === pages}
-                    className="pagination-btn"
+                    className="pagination-btn text-btn"
                   >
-                    {'>'}
+                    Siguiente
                   </button>
                 </div>
               )}
@@ -448,13 +448,9 @@ export default function Historial() {
         }
 
         .pagination-btn {
-          width: 32px;
-          height: 32px;
-          padding: 0; 
           border: 1px solid #2e7d32;
           background: white;
           color: #2e7d32;
-          border-radius: 50%;
           font-size: 0.9rem;
           cursor: pointer;
           transition: all 0.2s;
@@ -463,6 +459,21 @@ export default function Historial() {
           align-items: center;
           justify-content: center;
         }
+
+        .pagination-btn:not(.text-btn) {
+          width: 32px;
+          height: 32px;
+          padding: 0;
+          border-radius: 50%;
+        }
+
+        .pagination-btn.text-btn {
+          padding: 0.3rem 0.6rem; /* antes 0.5rem 1rem */
+          border-radius: 6px;
+          min-width: 30px; /* antes 80px */
+          font-size: 0.85rem; /* antes 1rem o 0.9rem */
+        }
+
 
         .pagination-btn:hover:not(:disabled) {
           background: #2e7d32;
