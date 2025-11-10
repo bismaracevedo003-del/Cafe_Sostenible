@@ -468,10 +468,12 @@ export default function Historial() {
         }
 
         .pagination-btn.text-btn {
-          padding: 0.5rem 1rem;
+          padding: 0.3rem 0.6rem; /* antes 0.5rem 1rem */
           border-radius: 6px;
-          min-width: 80px;
+          min-width: 60px; /* antes 80px */
+          font-size: 0.85rem; /* antes 1rem o 0.9rem */
         }
+
 
         .pagination-btn:hover:not(:disabled) {
           background: #2e7d32;
