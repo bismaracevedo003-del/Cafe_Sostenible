@@ -1,6 +1,8 @@
 # backend/app.py
 from flask import Flask, request, jsonify, session
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import cast, Date
+from datetime import datetime
 from flask_cors import CORS
 import os
 import hashlib
@@ -280,9 +282,6 @@ def obtener_historial():
 @app.route('/api/v1/historial', methods=['GET'])
 @login_required
 def api_v1_historial():
-    from sqlalchemy import func
-    from datetime import datetime
-
     page = request.args.get('page', 1, type=int)
     per_page = request.args.get('per_page', 6, type=int)
     search = request.args.get('search', '').strip()
@@ -293,7 +292,7 @@ def api_v1_historial():
     if search:
         try:
             fecha = datetime.strptime(search, '%Y-%m-%d').date()
-            query = query.filter(func.date(CalculoEUDR.fecha) == fecha)
+            query = query.filter(cast(CalculoEUDR.fecha, Date) == fecha)
         except ValueError:
             pass  # Fecha inválida → ignorar
 
