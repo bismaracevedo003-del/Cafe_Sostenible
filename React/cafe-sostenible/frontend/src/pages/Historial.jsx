@@ -122,7 +122,7 @@ export default function Historial() {
   };
 
   // --- GRÁFICO: solo datos de la página actual ---
-  const sortedByDate = [...historial].sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
+  const sortedByDate = [...historial].sort((a, b) => new Date(a.fecha) - new Date(b.fecha));
 
   const chartData = {
     labels: sortedByDate.map((c) => {
@@ -337,7 +337,9 @@ export default function Historial() {
                   </button>
 
                   {Array.from({ length: Math.min(5, pages) }, (_, i) => {
-                    const pageNum = i === 0 && page > 3 ? page - 2 : i + 1;
+                    const startPage = page > 3 ? page - 2 : 1;
+                    const adjustedStart = Math.max(1, Math.min(startPage, pages - 4));
+                    const pageNum = adjustedStart + i;
                     if (pageNum > pages) return null;
                     return (
                       <button
