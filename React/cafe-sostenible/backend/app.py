@@ -9,7 +9,6 @@ import base64
 import requests
 from bs4 import BeautifulSoup
 
-
 # --- CARGAR .env ---
 load_dotenv()
 
