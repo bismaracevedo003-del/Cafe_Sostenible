@@ -448,11 +448,13 @@ export default function Historial() {
         }
 
         .pagination-btn {
-          padding: 0.4rem 0.8rem;
+          width: 32px;      /* todos del mismo ancho */
+          height: 32px;
+          padding: 0; 
           border: 1px solid #2e7d32;
           background: white;
           color: #2e7d32;
-          border-radius: 6px;
+          border-radius: 50%;
           font-size: 0.9rem;
           cursor: pointer;
           transition: all 0.2s;
