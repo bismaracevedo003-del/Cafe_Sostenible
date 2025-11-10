@@ -69,34 +69,40 @@ export default function Historial() {
   }, [navigate]);
 
   // --- CARGAR HISTORIAL CON PAGINACIÓN ---
-  useEffect(() => {
-    if (!user) return;
+useEffect(() => {
+  if (!user) return;
 
-    const fetchHistorial = async () => {
-      try {
-        setLoading(true);
-        const params = new URLSearchParams({
-          page,
-          per_page: perPage,
-          search,
-        });
-        const res = await fetch(`${API_BASE}/historial?${params}`, {
-          credentials: 'include',
-        });
-        if (!res.ok) throw new Error('No se pudo cargar el historial');
-        const data = await res.json();
-        setHistorial(data.items || []);
-        setTotal(data.total || 0);
-        setPages(data.pages || 0);
-      } catch (err) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
+  const fetchHistorial = async () => {
+    try {
+      setLoading(true);
+      const params = new URLSearchParams({
+        page,
+        per_page: perPage,
+      });
+
+      // Solo agregar search si tiene valor (no vacío)
+      if (search) {
+        params.append('search', search);
       }
-    };
 
-    fetchHistorial();
-  }, [user, page, perPage, search]);
+      const res = await fetch(`${API_BASE}/historial?${params}`, {
+        credentials: 'include',
+      });
+
+      if (!res.ok) throw new Error('No se pudo cargar el historial');
+      const data = await res.json();
+      setHistorial(data.items || []);
+      setTotal(data.total || 0);
+      setPages(data.pages || 0);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchHistorial();
+}, [user, page, perPage, search]); // ← search sigue en dependencias
 
   // --- LOGOUT ---
   const handleLogout = async () => {

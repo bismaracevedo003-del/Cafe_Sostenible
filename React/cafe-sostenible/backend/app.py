@@ -246,18 +246,22 @@ def guardar_historial():
 def obtener_historial():
     from sqlalchemy import func
     from datetime import date
+
     page = request.args.get('page', 1, type=int)
     per_page = request.args.get('per_page', 10, type=int)
     search = request.args.get('search', '').strip()
 
     query = CalculoEUDR.query.filter_by(user_id=session['user_id'])
-    
+
+    # Solo aplicar filtro de fecha si search es una fecha válida
     if search:
         try:
             search_date = date.fromisoformat(search)
+            # Usar func.date() para extraer solo la fecha (sin hora)
             query = query.filter(func.date(CalculoEUDR.fecha) == search_date)
         except ValueError:
-            pass
+            # Si no es fecha válida, ignorar el filtro (opcional: devolver error)
+            pass  # o return jsonify({"error": "Fecha inválida"}), 400
 
     paginated = query.order_by(CalculoEUDR.fecha.desc()) \
                     .paginate(page=page, per_page=per_page, error_out=False)
