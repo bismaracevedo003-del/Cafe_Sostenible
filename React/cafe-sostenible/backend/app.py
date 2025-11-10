@@ -25,14 +25,6 @@ CORS(app,
      allow_headers=['Content-Type', 'Authorization']        # Headers comunes
 )
 
-@app.after_request
-def after_request(response):
-    response.headers.add('Access-Control-Allow-Origin', request.headers.get('Origin', ''))
-    response.headers.add('Access-Control-Allow-Credentials', 'true')
-    response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
-    response.headers.add('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS')
-    return response
-
 app.secret_key = os.getenv("FLASK_SECRET_KEY", "dev-secret-key")
 app.config['SESSION_COOKIE_HTTPONLY'] = True
 app.config['SESSION_COOKIE_SAMESITE'] = 'None'
@@ -247,16 +239,12 @@ def guardar_historial():
         db.session.rollback()
         return jsonify({"status": "error", "message": str(e)}), 400
 
-@app.route('/api/historial', methods=['OPTIONS'])
-def historial_options():
-    return '', 200
-
 # === OBTENER HISTORIAL ===
 @app.route('/api/historial', methods=['GET'])
 @login_required
 def obtener_historial():
     from sqlalchemy import func
-    from datetime import date
+    from datetime import datetime
 
     page = request.args.get('page', 1, type=int)
     per_page = request.args.get('per_page', 10, type=int)
@@ -264,15 +252,16 @@ def obtener_historial():
 
     query = CalculoEUDR.query.filter_by(user_id=session['user_id'])
 
-    # Solo aplicar filtro de fecha si search es una fecha válida
+    # Filtro por fecha: si viene una fecha ISO (YYYY-MM-DD), filtrar por ese día
     if search:
         try:
-            search_date = date.fromisoformat(search)
-            # Usar func.date() para extraer solo la fecha (sin hora)
+            # Validar formato YYYY-MM-DD
+            search_date = datetime.strptime(search, '%Y-%m-%d').date()
+            # Filtrar por la fecha completa (sin hora)
             query = query.filter(func.date(CalculoEUDR.fecha) == search_date)
         except ValueError:
-            # Si no es fecha válida, ignorar el filtro (opcional: devolver error)
-            pass  # o return jsonify({"error": "Fecha inválida"}), 400
+            # Si no es una fecha válida, no aplicar filtro
+            pass
 
     paginated = query.order_by(CalculoEUDR.fecha.desc()) \
                     .paginate(page=page, per_page=per_page, error_out=False)

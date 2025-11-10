@@ -80,8 +80,8 @@ useEffect(() => {
         per_page: perPage,
       });
 
-      // Solo agregar search si tiene valor (no vacío)
-      if (search) {
+      // Solo agregar search si tiene valor y es una fecha válida
+      if (search && search.trim() !== '') {
         params.append('search', search);
       }
 
@@ -91,6 +91,7 @@ useEffect(() => {
 
       if (!res.ok) throw new Error('No se pudo cargar el historial');
       const data = await res.json();
+
       setHistorial(data.items || []);
       setTotal(data.total || 0);
       setPages(data.pages || 0);
@@ -102,7 +103,7 @@ useEffect(() => {
   };
 
   fetchHistorial();
-}, [user, page, perPage, search]); // ← search sigue en dependencias
+}, [user, page, perPage, search]); // search está en dependencias
 
   // --- LOGOUT ---
   const handleLogout = async () => {
@@ -270,7 +271,7 @@ useEffect(() => {
               value={search}
               onChange={(e) => {
                 setSearch(e.target.value);
-                setPage(1);
+                setPage(1); // Reinicia a la primera página al filtrar
               }}
               className="search-input"
             />
