@@ -33,6 +33,9 @@ export default function Historial() {
   const [total, setTotal] = useState(0);
   const [pages, setPages] = useState(0);
 
+  // --- EXPANSIÓN DE DETALLES ---
+  const [expanded, setExpanded] = useState({});
+
   // --- AUTENTICACIÓN ---
   useEffect(() => {
     const justLoggedIn = localStorage.getItem('justLoggedIn') === 'true';
@@ -119,6 +122,11 @@ export default function Historial() {
       hour: '2-digit',
       minute: '2-digit',
     });
+  };
+
+  // --- MANEJAR EXPANSIÓN ---
+  const toggleExpand = (id) => {
+    setExpanded((prev) => ({ ...prev, [id]: !prev[id] }));
   };
 
   // --- GRÁFICO: solo datos de la página actual ---
@@ -296,7 +304,7 @@ export default function Historial() {
               {/* RESULTADOS */}
               <div className="historial-grid">
                 {historial.map((calculo) => (
-                  <article key={calculo.id} className="historial-card">
+                  <article key={calculo.id} className={`historial-card ${expanded[calculo.id] ? 'expanded' : ''}`}>
                     <div className="historial-header">
                       <h3 className="finca-name">{calculo.nombre_finca}</h3>
                       <span className="calc-date">{formatDate(calculo.fecha)}</span>
@@ -317,10 +325,108 @@ export default function Historial() {
                       </div>
                     </div>
 
+                    {expanded[calculo.id] && (
+                      <div className="historial-details">
+                        <h4 className="details-title">Detalles Adicionales</h4>
+                        <div className="stat">
+                          <span className="stat-label">Área cultivada</span>
+                          <span className="stat-value">{calculo.area_cultivada?.toFixed(2) || '—'} ha</span>
+                        </div>
+                        <div className="stat">
+                          <span className="stat-label">Producción verde</span>
+                          <span className="stat-value">{calculo.produccion_verde?.toFixed(2) || '—'} kg</span>
+                        </div>
+                        <div className="stat">
+                          <span className="stat-label">Fertilizante total</span>
+                          <span className="stat-value">{calculo.fertilizante_total?.toFixed(2) || '—'} kg</span>
+                        </div>
+                        <div className="stat">
+                          <span className="stat-label">Tipo de fertilizante</span>
+                          <span className="stat-value">{calculo.tipo_fertilizante || '—'}</span>
+                        </div>
+                        <div className="stat">
+                          <span className="stat-label">Energía eléctrica</span>
+                          <span className="stat-value">{calculo.energia_electrica?.toFixed(2) || '—'} kWh</span>
+                        </div>
+                        <div className="stat">
+                          <span className="stat-label">Combustible (litros)</span>
+                          <span className="stat-value">{calculo.combustible_litros?.toFixed(2) || '—'} L</span>
+                        </div>
+                        <div className="stat">
+                          <span className="stat-label">Tipo de combustible</span>
+                          <span className="stat-value">{calculo.tipo_combustible || '—'}</span>
+                        </div>
+                        <div className="stat">
+                          <span className="stat-label">Árboles de sombra</span>
+                          <span className="stat-value">{calculo.arboles_sombra || '—'}</span>
+                        </div>
+                        <div className="stat">
+                          <span className="stat-label">Área copa promedio</span>
+                          <span className="stat-value">{calculo.area_copa_promedio?.toFixed(2) || '—'} m²</span>
+                        </div>
+                        <div className="stat">
+                          <span className="stat-label">Distancia (km)</span>
+                          <span className="stat-value">{calculo.distancia_km?.toFixed(2) || '—'} km</span>
+                        </div>
+                        <div className="stat">
+                          <span className="stat-label">Volumen de cargas</span>
+                          <span className="stat-value">{calculo.volumen_cargas?.toFixed(2) || '—'}</span>
+                        </div>
+                        <div className="stat">
+                          <span className="stat-label">Tipo de procesamiento</span>
+                          <span className="stat-value">{calculo.tipo_procesamiento || '—'}</span>
+                        </div>
+                        <div className="stat">
+                          <span className="stat-label">Residuos totales</span>
+                          <span className="stat-value">{calculo.residuos_totales?.toFixed(2) || '—'} kg</span>
+                        </div>
+                        <div className="stat">
+                          <span className="stat-label">Residuos compostados</span>
+                          <span className="stat-value">{calculo.residuos_compostados?.toFixed(2) || '—'} kg</span>
+                        </div>
+                        <div className="stat">
+                          <span className="stat-label">Bosque base</span>
+                          <span className="stat-value">{calculo.bosque_base?.toFixed(2) || '—'} ha</span>
+                        </div>
+                        <div className="stat">
+                          <span className="stat-label">Bosque actual</span>
+                          <span className="stat-value">{calculo.bosque_actual?.toFixed(2) || '—'} ha</span>
+                        </div>
+                        <div className="stat">
+                          <span className="stat-label">Fertilizante por ha</span>
+                          <span className="stat-value">{calculo.fert_por_ha?.toFixed(2) || '—'} kg/ha</span>
+                        </div>
+                        <div className="stat">
+                          <span className="stat-label">Energía total</span>
+                          <span className="stat-value">{calculo.energia_total?.toFixed(2) || '—'}</span>
+                        </div>
+                        <div className="stat">
+                          <span className="stat-label">Árboles por ha</span>
+                          <span className="stat-value">{calculo.arboles_por_ha?.toFixed(2) || '—'}</span>
+                        </div>
+                        <div className="stat">
+                          <span className="stat-label">Cobertura (%)</span>
+                          <span className="stat-value">{calculo.cobertura_porc?.toFixed(2) || '—'} %</span>
+                        </div>
+                        <div className="stat">
+                          <span className="stat-label">Distancia promedio</span>
+                          <span className="stat-value">{calculo.distancia_prom?.toFixed(2) || '—'}</span>
+                        </div>
+                        <div className="stat">
+                          <span className="stat-label">Fracción compost</span>
+                          <span className="stat-value">{calculo.fraccion_compost?.toFixed(2) || '—'}</span>
+                        </div>
+                        <div className="stat">
+                          <span className="stat-label">Deforestación (%)</span>
+                          <span className="stat-value">{calculo.deforestacion_porc?.toFixed(2) || '—'} %</span>
+                        </div>
+                      </div>
+                    )}
+
                     <div className="historial-actions">
-                      <Link to={`/historial/${calculo.id}`} className="btn-secondary">
-                        Ver detalle
-                      </Link>
+                      <button onClick={() => toggleExpand(calculo.id)} className="btn-secondary">
+                        {expanded[calculo.id] ? 'Ocultar detalles' : 'Ver más'}
+                      </button>
                     </div>
                   </article>
                 ))}
@@ -404,7 +510,7 @@ export default function Historial() {
         .stat-label { color: #555; font-size: 0.9rem; }
         .stat-value { font-weight: 600; color: #2e7d32; font-size: 0.95rem; }
         .historial-actions { text-align: right; }
-        .btn-secondary { background: #f8f9fa; color: #2e7d32; border: 1px solid #2e7d32; }
+        .btn-secondary { background: #f8f9fa; color: #2e7d32; border: 1px solid #2e7d32; cursor: pointer; }
         .btn-secondary:hover { background: #2e7d32; color: white; }
 
         /* --- GRÁFICO --- */
@@ -444,7 +550,7 @@ export default function Historial() {
           align-items: center;
           gap: 0.5rem;
           margin: 2rem 0;
-          flex-wrap: wrap;
+          flex-wrap: nowrap;
         }
 
         .pagination-btn {
@@ -468,11 +574,11 @@ export default function Historial() {
         }
 
         .pagination-btn.text-btn {
-          padding: 0.3rem 0.6rem; /* antes 0.5rem 1rem */
+          width: 80px;
+          padding: 0.6rem 0;
           border-radius: 6px;
-          font-size: 0.85rem; /* antes 1rem o 0.9rem */
+          font-size: 0.85rem;
         }
-
 
         .pagination-btn:hover:not(:disabled) {
           background: #2e7d32;
@@ -500,6 +606,33 @@ export default function Historial() {
           color: #666;
           font-size: 0.9rem;
           margin-top: 1rem;
+        }
+
+        /* --- ESTILOS PARA EXPANSIÓN --- */
+        .historial-details {
+          margin-top: 1rem;
+          padding-top: 1rem;
+          border-top: 1px solid #e0e0e0;
+          display: grid;
+          grid-template-columns: 1fr;
+          gap: 0.8rem;
+          animation: fadeIn 0.3s ease-in-out;
+        }
+
+        .details-title {
+          font-size: 1rem;
+          font-weight: 600;
+          color: #2e7d32;
+          margin-bottom: 0.5rem;
+        }
+
+        .historial-card.expanded {
+          padding-bottom: 1rem;
+        }
+
+        @keyframes fadeIn {
+          from { opacity: 0; transform: translateY(-10px); }
+          to { opacity: 1; transform: translateY(0); }
         }
 
         @media (max-width: 768px) {
