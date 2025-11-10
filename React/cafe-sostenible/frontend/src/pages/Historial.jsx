@@ -103,35 +103,28 @@ export default function Historial() {
     });
   };
 
-  // --- DATOS PARA EL GRÁFICO ---
-  // --- DATOS PARA EL GRÁFICO (MEJORADO) ---
-  const sortedHistorial = [...historial].sort((a, b) => b.huella_total - a.huella_total);
+  // --- DATOS PARA EL GRÁFICO (POR FECHA - MÁS RECIENTE PRIMERO) ---
+  const sortedByDate = [...historial].sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
 
   const chartData = {
-    labels: sortedHistorial.map((c) => c.nombre_finca || `Cálculo ${c.id}`),
+    labels: sortedByDate.map((c) => {
+      const date = new Date(c.fecha);
+      return date.toLocaleDateString('es-NI', { day: 'numeric', month: 'short' });
+    }),
     datasets: [
       {
         label: 'Huella Total (kg CO₂eq)',
-        data: sortedHistorial.map((c) => c.huella_total),
-        backgroundColor: sortedHistorial.map((_, i) => {
-          const colors = [
-            'rgba(46, 125, 50, 0.8)',   // Verde oscuro
-            'rgba(76, 175, 80, 0.8)',   // Verde medio
-            'rgba(129, 199, 132, 0.8)', // Verde claro
-            'rgba(165, 214, 167, 0.8)', // Verde muy claro
-            'rgba(200, 230, 201, 0.8)', // Verde pastel
-          ];
-          return colors[i % colors.length];
+        data: sortedByDate.map((c) => c.huella_total),
+        backgroundColor: sortedByDate.map((_, i) => {
+          const opacity = 0.85 - (i * 0.05); // más reciente = más oscuro
+          return `rgba(46, 125, 50, ${opacity})`;
         }),
-        borderColor: sortedHistorial.map((_, i) => {
-          const borders = ['#2e7d32', '#4caf50', '#81c784', '#a5d6a7', '#c8e6c9'];
-          return borders[i % borders.length];
-        }),
+        borderColor: '#2e7d32',
         borderWidth: 2,
         borderRadius: 8,
         borderSkipped: false,
-        hoverBackgroundColor: 'rgba(46, 125, 50, 0.9)',
-        hoverBorderColor: '#1b5e20',
+        hoverBackgroundColor: '#1b5e20',
+        hoverBorderColor: '#2e7d32',
         hoverBorderWidth: 3,
       },
     ],
@@ -160,14 +153,14 @@ export default function Historial() {
       },
       title: {
         display: true,
-        text: 'Huella de Carbono Total por Finca',
+        text: 'Huella de Carbono por Fecha',
         font: { size: 20, weight: 'bold', family: "'Inter', sans-serif" },
         color: '#2e7d32',
-        padding: { top: 10, bottom: 20 },
+        padding: { top: 10, bottom: 5 },
       },
       subtitle: {
         display: true,
-        text: 'Ordenado de mayor a menor impacto',
+        text: 'Más reciente primero',
         font: { size: 13, style: 'italic' },
         color: '#666',
         padding: { bottom: 20 },
@@ -176,7 +169,7 @@ export default function Historial() {
         enabled: true,
         mode: 'index',
         intersect: false,
-        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+        backgroundColor: 'rgba(0, 0, 0, 0.85)',
         titleColor: '#fff',
         bodyColor: '#fff',
         cornerRadius: 8,
@@ -187,15 +180,16 @@ export default function Historial() {
         callbacks: {
           title: (tooltipItems) => {
             const idx = tooltipItems[0].dataIndex;
-            return sortedHistorial[idx].nombre_finca || `Cálculo ${sortedHistorial[idx].id}`;
+            const calc = sortedByDate[idx];
+            return `${calc.nombre_finca || 'Sin nombre'} - ${formatDate(calc.fecha)}`;
           },
           label: (context) => {
             const idx = context.dataIndex;
-            const calc = sortedHistorial[idx];
+            const calc = sortedByDate[idx];
             return [
               `Huella total: ${calc.huella_total.toFixed(2)} kg CO₂eq`,
               `Por kg: ${calc.huella_por_kg.toFixed(2)} kg CO₂eq/kg`,
-              `Fecha: ${formatDate(calc.fecha)}`,
+              `Rendimiento: ${calc.rendimiento ? calc.rendimiento.toFixed(1) + ' qq/ha' : '—'}`,
             ];
           },
         },
@@ -218,9 +212,17 @@ export default function Historial() {
         ticks: {
           font: { size: 12, weight: '500' },
           color: '#444',
-          maxRotation: 45,
-          minRotation: 45,
-          autoSkip: false,
+          maxRotation: 0,
+          minRotation: 0,
+          autoSkip: true,
+          maxTicksLimit: 10,
+        },
+        title: {
+          display: true,
+          text: 'Fecha del cálculo',
+          font: { size: 13, weight: '500' },
+          color: '#555',
+          padding: { top: 10 },
         },
       },
     },
@@ -313,7 +315,8 @@ export default function Historial() {
             </div>
           ) : (
             <>
-              {/* --- GRÁFICO ANTES DE LOS RESULTADOS --- */}
+              
+              {/* --- GRÁFICO POR FECHA --- */}
               <div className="chart-wrapper">
                 <div className="chart-container">
                   <Bar data={chartData} options={chartOptions} height={320} />
@@ -493,7 +496,7 @@ export default function Historial() {
           color: white;
         }
 
-                /* --- MEJORAS VISUALES DEL GRÁFICO --- */
+        /* --- ESTILOS DEL GRÁFICO (MEJORADO) --- */
         .chart-wrapper {
           margin: 2rem 0;
           padding: 0 0.5rem;
