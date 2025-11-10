@@ -14,15 +14,17 @@ load_dotenv()
 
 # --- INICIALIZACIÓN ---
 app = Flask(__name__)
+# EN PRODUCCIÓN (Render): permite tu frontend y localhost
 CORS(app, 
      supports_credentials=True,
      origins=[
-         "https://cafe-sostenible-1.onrender.com",  # Tu frontend en producción
-         "http://localhost:5173",                    # Desarrollo local (Vite)
-         "https://localhost:5173"                    # Si usas HTTPS local
+         "https://cafe-sostenible-1.onrender.com",  # Tu frontend
+         "http://localhost:5173",                    # Desarrollo
+         "https://localhost:5173"
      ],
-     methods=['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],  # Explícito: permite OPTIONS
-     allow_headers=['Content-Type', 'Authorization']        # Headers comunes
+     methods=['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+     allow_headers=['Content-Type', 'Authorization', 'Cookie'],  # Añade Cookie
+     expose_headers=['Set-Cookie']
 )
 
 app.secret_key = os.getenv("FLASK_SECRET_KEY", "dev-secret-key")
