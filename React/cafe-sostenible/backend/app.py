@@ -17,11 +17,23 @@ app = Flask(__name__)
 # EN PRODUCCIÓN (Render): permite tu frontend y localhost
 allowed_origins = [
     "https://cafe-sostenible-1.onrender.com",  # Frontend en producción
+    "https://cafe-sostenible.onrender.com",    # Backend en producción
     "http://localhost:5173",                   # Desarrollo
     "https://localhost:5173"
 ]
 
-CORS(app, 
+app.secret_key = os.getenv("FLASK_SECRET_KEY", "dev-secret-key")
+
+# Cookies cross-domain
+app.config.update(
+    SESSION_COOKIE_HTTPONLY=True,
+    SESSION_COOKIE_SAMESITE="None",   # Permite cookies entre dominios
+    SESSION_COOKIE_SECURE=True,       # Requerido cuando Samesite=None
+    PERMANENT_SESSION_LIFETIME=3600,
+)
+
+#CORS con credenciales
+CORS(app,
      resources={r"/api/*": {
          "origins": allowed_origins,
          "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
@@ -30,12 +42,6 @@ CORS(app,
          "supports_credentials": True
      }}
 )
-
-app.secret_key = os.getenv("FLASK_SECRET_KEY", "dev-secret-key")
-app.config['SESSION_COOKIE_HTTPONLY'] = True
-app.config['SESSION_COOKIE_SAMESITE'] = 'None'
-app.config['SESSION_COOKIE_SECURE'] = True  # True en producción
-app.config['PERMANENT_SESSION_LIFETIME'] = 3600
 
 # --- BASE DE DATOS ---
 DB_USER = os.getenv("DB_USER")
