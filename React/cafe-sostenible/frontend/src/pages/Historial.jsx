@@ -76,26 +76,39 @@ useEffect(() => {
     try {
       setLoading(true);
       const params = new URLSearchParams({
-        page,
-        per_page: perPage,
+        page: page.toString(),
+        per_page: perPage.toString(),
       });
 
-      // Solo agregar search si tiene valor y es una fecha válida
       if (search && search.trim() !== '') {
         params.append('search', search);
       }
 
-      const res = await fetch(`${API_BASE}/historial?${params}`, {
-        credentials: 'include',
+      const url = `${API_BASE}/v1/historial?${params}`;
+      console.log('Fetching:', url); // Depuración
+
+      const res = await fetch(url, {
+        method: 'GET',
+        credentials: 'include', // Crucial para cookies
       });
 
-      if (!res.ok) throw new Error('No se pudo cargar el historial');
-      const data = await res.json();
+      if (!res.ok) {
+        const errorText = await res.text();
+        throw new Error(`Error ${res.status}: ${errorText}`);
+      }
 
+      const result = await res.json();
+
+      if (!result.success) {
+        throw new Error(result.message || 'Error desconocido');
+      }
+
+      const data = result.data;
       setHistorial(data.items || []);
-      setTotal(data.total || 0);
-      setPages(data.pages || 0);
+      setTotal(data.pagination.total || 0);
+      setPages(data.pagination.pages || 0);
     } catch (err) {
+      console.error('Error en fetch:', err);
       setError(err.message);
     } finally {
       setLoading(false);

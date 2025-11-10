@@ -15,16 +15,20 @@ load_dotenv()
 # --- INICIALIZACIÓN ---
 app = Flask(__name__)
 # EN PRODUCCIÓN (Render): permite tu frontend y localhost
+allowed_origins = [
+    "https://cafe-sostenible-1.onrender.com",  # Frontend en producción
+    "http://localhost:5173",                   # Desarrollo
+    "https://localhost:5173"
+]
+
 CORS(app, 
-     supports_credentials=True,
-     origins=[
-         "https://cafe-sostenible-1.onrender.com",  # Tu frontend
-         "http://localhost:5173",                    # Desarrollo
-         "https://localhost:5173"
-     ],
-     methods=['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-     allow_headers=['Content-Type', 'Authorization', 'Cookie'],  # Añade Cookie
-     expose_headers=['Set-Cookie']
+     resources={r"/api/*": {
+         "origins": allowed_origins,
+         "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+         "allow_headers": ["Content-Type", "Authorization", "Cookie"],
+         "expose_headers": ["Content-Type"],
+         "supports_credentials": True
+     }}
 )
 
 app.secret_key = os.getenv("FLASK_SECRET_KEY", "dev-secret-key")
@@ -273,6 +277,50 @@ def obtener_historial():
         'total': paginated.total,
         'pages': paginated.pages,
         'page': page
+    })
+
+# === NUEVA API: /api/v1/historial ===
+@app.route('/api/v1/historial', methods=['GET'])
+@login_required
+def api_v1_historial():
+    from sqlalchemy import func
+    from datetime import datetime
+
+    # Parámetros
+    page = request.args.get('page', 1, type=int)
+    per_page = request.args.get('per_page', 6, type=int)
+    search = request.args.get('search', '').strip()
+
+    # Consulta base
+    query = CalculoEUDR.query.filter_by(user_id=session['user_id'])
+
+    # Filtro por fecha (YYYY-MM-DD)
+    if search:
+        try:
+            search_date = datetime.strptime(search, '%Y-%m-%d').date()
+            query = query.filter(func.date(CalculoEUDR.fecha) == search_date)
+        except ValueError:
+            pass  # Ignorar fecha inválida
+
+    # Paginación
+    paginated = query.order_by(CalculoEUDR.fecha.desc()).paginate(
+        page=page, per_page=per_page, error_out=False
+    )
+
+    # Respuesta limpia
+    return jsonify({
+        "success": True,
+        "data": {
+            "items": [c.to_dict() for c in paginated.items],
+            "pagination": {
+                "page": page,
+                "per_page": per_page,
+                "total": paginated.total,
+                "pages": paginated.pages,
+                "has_next": paginated.has_next,
+                "has_prev": paginated.has_prev
+            }
+        }
     })
 
 @app.route('/api/noticias', methods=['GET'])
