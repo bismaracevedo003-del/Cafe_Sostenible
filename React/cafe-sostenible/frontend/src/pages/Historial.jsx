@@ -28,7 +28,7 @@ export default function Historial() {
 
   // --- PAGINACIÓN & BÚSQUEDA ---
   const [page, setPage] = useState(1);
-  const [perPage, setPerPage] = useState(10);
+  const [perPage, setPerPage] = useState(6);
   const [search, setSearch] = useState('');
   const [total, setTotal] = useState(0);
   const [pages, setPages] = useState(0);
@@ -269,6 +269,7 @@ export default function Historial() {
               }}
               className="per-page-select"
             >
+              <option value={6}>6 por página</option>
               <option value={10}>10 por página</option>
               <option value={20}>20 por página</option>
               <option value={50}>50 por página</option>
@@ -455,6 +456,8 @@ export default function Historial() {
           font-size: 0.9rem;
           cursor: pointer;
           transition: all 0.2s;
+          min-width: 40px;
+          text-align: center;
         }
 
         .pagination-btn:hover:not(:disabled) {
