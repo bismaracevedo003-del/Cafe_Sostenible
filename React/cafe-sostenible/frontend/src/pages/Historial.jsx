@@ -260,8 +260,7 @@ export default function Historial() {
           {/* CONTROLES: BÚSQUEDA + PER PAGE */}
           <div className="controls-bar">
             <input
-              type="text"
-              placeholder="Buscar por finca..."
+              type="date"
               value={search}
               onChange={(e) => {
                 setSearch(e.target.value);
