@@ -73,33 +73,30 @@ export default function Historial() {
 useEffect(() => {
   if (!user) return;
 
-  const fetchHistorial = async () => {
+  const fetchHistorial = async (currentPage = page) => {
     try {
       setLoading(true);
 
-      // Crear parámetros de query
       const params = new URLSearchParams({
-        page: '1',              // Siempre página 1 al filtrar
+        page: currentPage.toString(),
         per_page: perPage.toString(),
       });
 
-      // Solo enviar search si hay una fecha seleccionada
       if (search && search.trim() !== '') {
         params.set('search', search);
-        params.set('page', '1'); // Reinicia a página 1
+        // Reiniciar a página 1 si cambió la búsqueda
+        currentPage = 1;
+        params.set('page', '1');
       }
 
-      // Convertir params a string
       const url = `${API_BASE}/v1/historial?${params.toString()}`;
       console.log('Cargando historial:', url);
 
-      // Fetch con cookies (sesión)
       const res = await fetch(url, {
         method: 'GET',
         credentials: 'include',
       });
 
-      // Manejo de errores HTTP
       if (!res.ok) {
         const text = await res.text();
         throw new Error(`Error ${res.status}: ${text}`);
@@ -108,13 +105,11 @@ useEffect(() => {
       const result = await res.json();
       if (!result.success) throw new Error('Error en API');
 
-      // Actualizar estado
       const data = result.data;
       setHistorial(data.items || []);
       setTotal(data.pagination.total || 0);
       setPages(data.pagination.pages || 0);
-      setPage(1); // Forzar página 1 visualmente
-
+      setPage(currentPage); // ahora sí actualizamos la página correcta
     } catch (err) {
       console.error(err);
       setError(err.message);
@@ -123,8 +118,9 @@ useEffect(() => {
     }
   };
 
-  fetchHistorial();
-}, [user, search, perPage]);
+  fetchHistorial(page);
+}, [user, search, perPage, page]);
+
 
   // --- LOGOUT ---
   const handleLogout = async () => {

@@ -387,6 +387,16 @@ def api_noticias():
         print("Error inesperado:", e)
         return jsonify({"error": "Error al procesar los datos"}), 500
 
+@app.route('/api/total-usuarios')
+# @login_required  # Descomenta si solo quieres que usuarios logueados vean el número
+def total_usuarios():
+    try:
+        total = User.query.count()
+        return jsonify({"total": total})
+    except Exception as e:
+        print("Error al contar usuarios:", e)
+        return jsonify({"total": 0}), 500
+    
 @app.route('/')
 def home():
     return jsonify({"mensaje": "API funcionando correctamente"})
