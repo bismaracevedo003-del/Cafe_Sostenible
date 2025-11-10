@@ -282,20 +282,28 @@ def obtener_historial():
 @app.route('/api/v1/historial', methods=['GET'])
 @login_required
 def api_v1_historial():
+    """
+    Obtener historial de cálculos del usuario con paginación y filtro por fecha.
+    Compatible con MSSQL.
+    """
+    # Parámetros de query
     page = request.args.get('page', 1, type=int)
     per_page = request.args.get('per_page', 6, type=int)
     search = request.args.get('search', '').strip()
 
+    # Query base
     query = CalculoEUDR.query.filter_by(user_id=session['user_id'])
 
-    # Filtro por fecha EXACTA
+    # Filtro por fecha si viene search
     if search:
         try:
             fecha = datetime.strptime(search, '%Y-%m-%d').date()
+            # Usar cast para MSSQL
             query = query.filter(cast(CalculoEUDR.fecha, Date) == fecha)
         except ValueError:
             pass  # Fecha inválida → ignorar
 
+    # Paginación
     paginated = query.order_by(CalculoEUDR.fecha.desc()).paginate(
         page=page, per_page=per_page, error_out=False
     )
