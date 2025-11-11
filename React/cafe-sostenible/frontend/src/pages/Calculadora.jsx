@@ -55,7 +55,7 @@ export default function Calculadora() {
     },
     {
       title: "Fertilizantes",
-      bg: "https://cdn.agclassroom.org/media/uploads/LP232/fertilizer_and_environment.jpg",
+      bg: "",
       fields: [
         { label: "Fertilizante total (kg)", name: "fertilizanteTotal", type: "number" },
         { label: "Tipo de fertilizante", name: "tipoFertilizante", type: "select", options: ["sintetico", "organico"] },
@@ -63,7 +63,7 @@ export default function Calculadora() {
     },
     {
       title: "Energía",
-      bg: "https://figures.semanticscholar.org/d370521a0ab8fd3b94dd1fee102e55c3f542a07a/9-Figure2-1.png",
+      bg: "",
       fields: [
         { label: "Energía eléctrica (kWh)", name: "energiaElectrica", type: "number" },
         { label: "Combustible (litros)", name: "combustibleLitros", type: "number", step: "0.1" },
@@ -71,7 +71,7 @@ export default function Calculadora() {
     },
     {
       title: "Árboles de Sombra",
-      bg: "https://crowdroaster.com/images/upload/2023/07/2xwhv6a2dpcfq5odu3sfa4wftmaryf9v.jpg",
+      bg: "",
       fields: [
         { label: "Número de árboles de sombra", name: "arbolesSombra", type: "number" },
         { label: "Área promedio de copa (m²/árbol)", name: "areaCopaPromedio", type: "number", step: "0.1" },
@@ -79,7 +79,7 @@ export default function Calculadora() {
     },
     {
       title: "Transporte",
-      bg: "https://knowhow.distrelec.com/wp-content/uploads/2021/10/iStock-1139306496-1-1024x683.jpg",
+      bg: "",
       fields: [
         { label: "Distancia promedio (km)", name: "distanciaKm", type: "number", step: "0.1" },
         { label: "Volumen total (cargas)", name: "volumenCargas", type: "number" },
@@ -87,14 +87,14 @@ export default function Calculadora() {
     },
     {
       title: "Procesamiento",
-      bg: "https://www.shutterstock.com/image-photo/coffee-roasted-aroma-bean-fly-600nw-2486287983.jpg",
+      bg: "",
       fields: [
         { label: "Tipo de procesamiento", name: "tipoProcesamiento", type: "select", options: ["lavado", "miel", "natural"] },
       ]
     },
     {
       title: "Residuos",
-      bg: "https://www.homebiogas.com/wp-content/uploads/2023/09/shutterstock_2057386766.jpg",
+      bg: "",
       fields: [
         { label: "Residuos totales (kg)", name: "residuosTotales", type: "number" },
         { label: "Residuos compostados (kg)", name: "residuosCompostados", type: "number" },
@@ -102,7 +102,7 @@ export default function Calculadora() {
     },
     {
       title: "Deforestación",
-      bg: "https://static.dw.com/image/68096865_902.jpg",
+      bg: "",
       fields: [
         { label: "Bosque base 2020 (ha)", name: "bosqueBase", type: "number", step: "0.1" },
         { label: "Bosque actual (ha)", name: "bosqueActual", type: "number", step: "0.1" },
