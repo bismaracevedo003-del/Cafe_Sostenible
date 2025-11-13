@@ -220,40 +220,7 @@ export default function Inicio() {
 
       {/* ESTILOS */}
       <style jsx>{`
-        /* === MAIN CONTAINER === */
-        .main-container {
-          display: flex;
-          min-height: calc(100vh - 80px);
-          background: linear-gradient(135deg, #f8f9fa 0%, #e8f5e9 100%);
-        }
-
-        /* === SIDEBAR (fijo) === */
-        .sidebar {
-          width: 280px;
-          flex-shrink: 0;
-          background: #2d6a4f;
-          padding: 30px 20px;
-          color: white;
-        }
-
-        .nav-menu { display: flex; flex-direction: column; gap: 12px; }
-        .nav-item {
-          display: flex; align-items: center; gap: 14px; padding: 14px 18px;
-          color: white; text-decoration: none; border-radius: 12px;
-          transition: all 0.3s ease; font-size: 15px;
-        }
-        .nav-item:hover { background: #3a7a5f; transform: translateX(4px); }
-        .nav-item.active { background: #95d5b2; color: #1b4332; font-weight: 600; }
-        .nav-icon { width: 24px; height: 24px; filter: brightness(0) invert(1); }
-        .nav-item.active .nav-icon { filter: brightness(0) invert(0); }
-
-        .logout-btn {
-          margin-top: 30px; background: #d00000; color: white; padding: 12px 24px;
-          border-radius: 50px; font-weight: 600; font-size: 15px; text-align: center;
-          transition: all 0.3s ease; border: none; cursor: pointer;
-        }
-        .logout-btn:hover { background: #9b0000; transform: translateY(-2px); }
-
+       
         /* === CONTENT === */
         .content {
           flex: 1; padding: 2.5rem; overflow-y: auto; font-family: 'Inter', sans-serif;
@@ -353,7 +320,7 @@ export default function Inicio() {
         /* === RESPONSIVE === */
         @media (max-width: 768px) {
           .main-container { flex-direction: column; }
-          .sidebar { width: 100%; padding: 20px; }
+          
           .content { padding: 1.5rem; }
           .welcome-title { font-size: 1.6rem; }
           .welcome-avatar { width: 70px; height: 70px; }

@@ -21,20 +21,28 @@ export default function Login() {
   const setButtonLoading = (btn, loading) => {
     if (!btn) return;
     btn.disabled = loading;
-    btn.textContent = loading 
-      ? (isRegistering ? 'Registrando...' : 'Entrando...') 
-      : (isRegistering ? 'Registrar' : 'Entrar');
+    btn.textContent = loading ? (isRegistering ? 'Registrando...' : 'Entrando...') : (isRegistering ? 'Registrar' : 'Entrar');
+  };
+
+  // === VALIDACIÓN PARA LOGIN ===
+  const validateLogin = (username, password) => {
+    if (!username.trim()) return 'El usuario es requerido';
+    if (!password) return 'La contraseña es requerida';
+    if (username.length < 3) return 'El usuario debe tener al menos 3 caracteres';
+    if (password.length < 6) return 'La contraseña debe tener al menos 6 caracteres';
+    return null;
   };
 
   // === LOGIN ===
   const handleLogin = async (e) => {
     e.preventDefault();
     const formData = new FormData(e.target);
-    const username = formData.get('username');
+    const username = formData.get('username').trim();
     const password = formData.get('password');
 
-    if (!username || !password) {
-      showMessage('Completa todos los campos', 'error');
+    const validationError = validateLogin(username, password);
+    if (validationError) {
+      showMessage(validationError, 'error');
       return;
     }
 
@@ -43,22 +51,19 @@ export default function Login() {
     setButtonLoading(btn, true);
 
     try {
-     const res = await fetch(`${API_BASE}/login`, { 
-      method: 'POST',
-      body: formData,
-      credentials: 'include',
-    });
-
-
-      if (!res.ok) throw new Error('Respuesta no OK');
+      const res = await fetch(`${API_BASE}/login`, {
+        method: 'POST',
+        body: formData,
+        credentials: 'include',
+      });
 
       const data = await res.json();
 
-      if (data.status === 'success') {
+      if (res.ok && data.status === 'success') {
         showMessage('¡Bienvenido!', 'success');
         setTimeout(() => navigate('/inicio'), 800);
       } else {
-        showMessage(data.message || 'Credenciales incorrectas', 'error');
+        showMessage(data.message || 'Usuario o contraseña inválida', 'error');
       }
     } catch (err) {
       console.error(err);
@@ -69,17 +74,43 @@ export default function Login() {
     }
   };
 
+  // === VALIDACIÓN PARA REGISTRO ===
+  const validateRegister = (nombre, apellido, username, password, codigo_asociado) => {
+    if (!nombre.trim()) return 'El nombre es requerido';
+    if (!apellido.trim()) return 'El apellido es requerido';
+    if (!username.trim()) return 'El usuario es requerido';
+    if (username.length < 3) return 'El usuario debe tener al menos 3 caracteres';
+    if (!/^[a-zA-Z0-9_]+$/.test(username)) return 'El usuario solo puede contener letras, números y guiones bajos';
+    if (!password) return 'La contraseña es requerida';
+    if (password.length < 6) return 'La contraseña debe tener al menos 6 caracteres';
+    if (!codigo_asociado.trim()) return 'El código de asociado es requerido';
+    if (!/^\d{4}$/.test(codigo_asociado)) return 'El código de asociado debe tener exactamente 4 dígitos numéricos';
+    return null;
+  };
+
   // === REGISTRO ===
   const handleRegister = async (e) => {
     e.preventDefault();
     const formData = new FormData(e.target);
-    const btn = e.target.querySelector('button[type="submit"]');
-    const originalText = btn.textContent;
-    setButtonLoading(btn, true);
+    const nombre = formData.get('nombre').trim();
+    const apellido = formData.get('apellido').trim();
+    const username = formData.get('username').trim();
+    const password = formData.get('password');
+    const codigo_asociado = formData.get('codigo_asociado').trim();
+
+    const validationError = validateRegister(nombre, apellido, username, password, codigo_asociado);
+    if (validationError) {
+      showMessage(validationError, 'error');
+      return;
+    }
 
     // Limpia foto si está vacía
     const foto = formData.get('foto_perfil');
     if (foto && foto.size === 0) formData.delete('foto_perfil');
+
+    const btn = e.target.querySelector('button[type="submit"]');
+    const originalText = btn.textContent;
+    setButtonLoading(btn, true);
 
     try {
       const res = await fetch(`${API_BASE}/register`, {
@@ -88,11 +119,9 @@ export default function Login() {
         credentials: 'include',
       });
 
-      if (!res.ok) throw new Error('Respuesta no OK');
-
       const data = await res.json();
 
-      if (data.status === 'success') {
+      if (res.ok && data.status === 'success') {
         showMessage('¡Registro exitoso! Inicia sesión.', 'success');
         e.target.reset();
         setPreviewUrl('');
@@ -113,7 +142,6 @@ export default function Login() {
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     setPreviewUrl('');
-
     if (!file) return;
 
     if (file.size > 5 * 1024 * 1024) {
@@ -165,29 +193,14 @@ export default function Login() {
           {/* LOGIN FORM */}
           <form id="login-form" onSubmit={handleLogin} className={!isRegistering ? '' : 'hidden'}>
             <h1>Iniciar Sesión</h1>
-
             <labeled-input>
               <label htmlFor="username">Usuario</label>
-              <input
-                type="text"
-                id="username"
-                name="username"
-                placeholder="Ingrese su usuario"
-                required
-              />
+              <input type="text" id="username" name="username" placeholder="Ingrese su usuario" required />
             </labeled-input>
-
             <labeled-input>
               <label htmlFor="password">Contraseña</label>
-              <input
-                type="password"
-                id="password"
-                name="password"
-                placeholder="Ingrese su contraseña"
-                required
-              />
+              <input type="password" id="password" name="password" placeholder="Ingrese su contraseña" required minLength="6" />
             </labeled-input>
-
             <button type="submit">Entrar</button>
           </form>
 
@@ -199,59 +212,42 @@ export default function Login() {
           {/* REGISTRO */}
           <div className={`register-section ${isRegistering ? 'active' : ''}`}>
             <h2>Registrarse</h2><br />
-
             <form id="register-form" onSubmit={handleRegister} encType="multipart/form-data">
               <labeled-input>
                 <label htmlFor="reg_nombre">Nombre</label>
                 <input type="text" id="reg_nombre" name="nombre" placeholder="Ingresa tu nombre" required />
               </labeled-input>
-
               <labeled-input>
                 <label htmlFor="reg_apellido">Apellido</label>
                 <input type="text" id="reg_apellido" name="apellido" placeholder="Ingresa tu apellido" required />
               </labeled-input>
-
               <labeled-input>
                 <label htmlFor="reg_username">Usuario</label>
-                <input type="text" id="reg_username" name="username" placeholder="Ingresa tu usuario" required />
+                <input type="text" id="reg_username" name="username" placeholder="Ingresa tu usuario" required minLength="3" pattern="[a-zA-Z0-9_]+" />
               </labeled-input>
-
               <labeled-input>
                 <label htmlFor="reg_password">Contraseña</label>
-                <input type="password" id="reg_password" name="password" placeholder="Mínimo 6 caracteres" minLength={6} required />
+                <input type="password" id="reg_password" name="password" placeholder="Mínimo 6 caracteres" minLength="6" required />
               </labeled-input>
-
               <labeled-input>
                 <label htmlFor="reg_code">Código de Asociado</label>
-                <input type="text" id="reg_code" name="codigo_asociado" placeholder="Ej: ASOC-1234" required />
+                <input type="text" id="reg_code" name="codigo_asociado" placeholder="Ej: ASOC-1234" required pattern="\d{4}"/>
               </labeled-input>
-
               <labeled-input>
                 <label htmlFor="reg_foto">Foto de Perfil</label>
-                <input
-                  type="file"
-                  id="reg_foto"
-                  name="foto_perfil"
-                  accept="image/*"
-                  onChange={handleFileChange}
-                />
+                <input type="file" id="reg_foto" name="foto_perfil" accept="image/*" onChange={handleFileChange} />
                 <small>Opcional. Máx 5MB. PNG, JPG, WEBP, GIF</small>
               </labeled-input>
-
               {previewUrl && (
                 <div id="foto-preview-container">
                   <img id="foto-preview" src={previewUrl} alt="Vista previa" />
                   <p>Vista previa</p>
                 </div>
               )}
-
               <button type="submit">Registrar</button>
             </form>
-
             <p className="toggle-register">
-              <a href="#" id="show-login" onClick={(e) => { e.preventDefault(); toggleRegister(false); }}>
-                Volver al inicio de sesión
-              </a>
+              <a href="#" id="show-login" onClick={(e) => { e.preventDefault(); toggleRegister(false); }}> Volver al inicio de sesión </a>
             </p>
           </div>
         </div>
