@@ -746,7 +746,8 @@ const guardarEnHistorial = async () => {
 <style jsx>{`
   /* ← WIZARD CONTAINER */
   .wizard-container {
-    max-width: 680px;
+    max-width: 880px;
+    min-height: 320px;
     margin: 0px auto;
     padding: 28px;
     background: linear-gradient(135deg, #e8f5e9 0%, #f1f8e9 100%);
@@ -1377,7 +1378,12 @@ const guardarEnHistorial = async () => {
     .eudr-indicators { grid-template-columns: 1fr; }
   }
   @media (max-width: 480px) {
-    .wizard-container { margin: 15px; padding: 16px; }
+    .wizard-container {
+    margin: 0;
+    border-radius: 20px 20px 0 0;
+    min-height: 100vh;
+    padding: 28px 20px;
+  }
     .wizard-title { font-size: 24px; }
     .form-card { padding: 20px; }
     .progress-indicator { height: 8px; }

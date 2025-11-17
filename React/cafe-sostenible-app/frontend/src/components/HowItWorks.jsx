@@ -1,6 +1,6 @@
 export default function HowItWorks() {
   const steps = [
-    { number: 1, title: "Regístrate", text: "Con tu código de asociado." },
+    { number: 1, title: "Instala la app",   text: "Descárgala gratis en tu celular y úsala sin internet." },
     { number: 2, title: "Ingresa datos", text: "De tu finca y procesos." },
     { number: 3, title: "Obtén resultados", text: "Reporte + recomendaciones." },
   ];

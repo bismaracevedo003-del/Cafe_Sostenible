@@ -60,15 +60,10 @@ export default function CTAFinal() {
     <section className="cta-final">
       <h2>Únete al cambio</h2>
       <p>
-        {loading ? (
-          "Cargando..."
-        ) : (
-          <>
-            Más de <strong>{displayCount}</strong> caficultores ya miden su huella.
-          </>
-        )}
+            Muchos caficultores ya miden su huella.
+    
       </p>
-      <a href="/home" className="btn-primary">
+      <a href="/calculadora" className="btn-primary">
         Comenzar Ahora
       </a>
     </section>

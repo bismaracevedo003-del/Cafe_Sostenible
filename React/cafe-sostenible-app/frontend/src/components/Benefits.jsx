@@ -2,7 +2,7 @@ export default function Benefits() {
   const benefits = [
     { icon: "icon-leaf.svg", title: "Sostenible", text: "Reduce emisiones y mejora tu suelo." },
     { icon: "icon-graph.svg", title: "Datos Reales", text: "Calculadora basada en normas internacionales." },
-    { icon: "icon-certificate.svg", title: "Certificación", text: "Obtén sello de café carbono neutro." },
+    { icon: "icon-profile.svg", title: "Personalizado", text: "Datos adaptados a tu finca y variedad de café." },
   ];
 
   return (
