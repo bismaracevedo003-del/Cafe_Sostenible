@@ -1,7 +1,7 @@
 # ☕ **Calculadora de Huella de Carbono – Café Sostenible**  
 ### *Proyecto de Innovación 2025 – UNAN-Managua & SOPPEXCCA*
 
-![Banner]()  
+![Banner](./React/cafe-sostenible/frontend/public/Cap%20web/pou.jpeg)  
 *Herramienta digital para cuantificar y reducir la huella de carbono en fincas cafetaleras de SOPPEXCCA (Jinotega, Nicaragua).*
 
 <p align="left">
