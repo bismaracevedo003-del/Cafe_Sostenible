@@ -15,6 +15,12 @@
 
 ---
 
+Live demo frontend: http://cafe-sostenible-1.onrender.com 
+
+Live demo backend: http://cafe-sostenible.onrender.com 
+
+Sitio oficial de la cooperativa: http://www.soppexcca.org.ni
+
 # 📑 **Índice**
 
 1. [📌 Descripción del Proyecto](#-descripción-del-proyecto)  
