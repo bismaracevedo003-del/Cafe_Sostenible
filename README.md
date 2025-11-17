@@ -55,11 +55,11 @@ Permite:
 
 ## 👥 **Autores (VIII Semestre – Innovación y Desarrollo de Proyectos)**
 
-- Br. Jeimy Yolanda Martínez López  
-- Br. Wiston Alejandro Mejía Sequeira  
-- **Br. Bismarck Agustín Acevedo Cruz** (Desarrollador)  
-- Br. Geylin Valeria García Gómez  
-- Br. Miguel Antonio Aragón Alfaro  
+- **Br. Bismarck Agustín Acevedo Cruz (Desarrollador)**
+- Br. Miguel Antonio Aragón Alfaro
+- Br. Geylin Valeria García Gómez
+- Br. Jeimy Yolanda Martínez López
+- Br. Wiston Alejandro Mejía Sequeira
 
 ---
 
