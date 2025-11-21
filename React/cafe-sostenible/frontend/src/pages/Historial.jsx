@@ -2,6 +2,8 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import '../index.css';
+import { jsPDF } from 'jspdf';
+import logoEUDR from '../assets/IMG_6194.PNG';
 
 // --- GRÁFICO ---
 import {
@@ -68,58 +70,53 @@ export default function Historial() {
     checkAuth();
   }, [navigate]);
 
-  // --- CARGAR HISTORIAL CON PAGINACIÓN ---
-// --- CARGAR HISTORIAL CON BÚSQUEDA POR FECHA ---
-useEffect(() => {
-  if (!user) return;
+  // --- CARGAR HISTORIAL CON BÚSQUEDA POR MES ---
+  useEffect(() => {
+    if (!user) return;
 
-  const fetchHistorial = async (currentPage = page) => {
-    try {
-      setLoading(true);
+    const fetchHistorial = async (currentPage = page) => {
+      try {
+        setLoading(true);
 
-      const params = new URLSearchParams({
-        page: currentPage.toString(),
-        per_page: perPage.toString(),
-      });
+        const params = new URLSearchParams({
+          page: currentPage.toString(),
+          per_page: perPage.toString(),
+        });
 
-      if (search && search.trim() !== '') {
-        params.set('search', search);
-        // Reiniciar a página 1 si cambió la búsqueda
-        currentPage = 1;
-        params.set('page', '1');
+        if (search && search.trim() !== '') {
+          params.set('month', search);
+        }
+
+        const url = `${API_BASE}/v1/historial?${params.toString()}`;
+        console.log('Cargando historial:', url);
+
+        const res = await fetch(url, {
+          method: 'GET',
+          credentials: 'include',
+        });
+
+        if (!res.ok) {
+          const text = await res.text();
+          throw new Error(`Error ${res.status}: ${text}`);
+        }
+
+        const result = await res.json();
+        if (!result.success) throw new Error('Error en API');
+
+        const data = result.data;
+        setHistorial(data.items || []);
+        setTotal(data.pagination.total || 0);
+        setPages(data.pagination.pages || 0);
+      } catch (err) {
+        console.error(err);
+        setError(err.message);
+      } finally {
+        setLoading(false);
       }
+    };
 
-      const url = `${API_BASE}/v1/historial?${params.toString()}`;
-      console.log('Cargando historial:', url);
-
-      const res = await fetch(url, {
-        method: 'GET',
-        credentials: 'include',
-      });
-
-      if (!res.ok) {
-        const text = await res.text();
-        throw new Error(`Error ${res.status}: ${text}`);
-      }
-
-      const result = await res.json();
-      if (!result.success) throw new Error('Error en API');
-
-      const data = result.data;
-      setHistorial(data.items || []);
-      setTotal(data.pagination.total || 0);
-      setPages(data.pagination.pages || 0);
-      setPage(currentPage); // ahora sí actualizamos la página correcta
-    } catch (err) {
-      console.error(err);
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  fetchHistorial(page);
-}, [user, search, perPage, page]);
+    fetchHistorial(page);
+  }, [user, search, perPage, page]);
 
 
   // --- LOGOUT ---
@@ -148,9 +145,158 @@ useEffect(() => {
     });
   };
 
+  // --- FORMATEAR MES PARA REPORTE ---
+  const formatMonth = (monthString) => {
+    if (!monthString) return 'General';
+    const [year, month] = monthString.split('-');
+    const date = new Date(year, month - 1, 1);
+    return date.toLocaleDateString('es-NI', { year: 'numeric', month: 'long' });
+  };
+
   // --- MANEJAR EXPANSIÓN ---
   const toggleExpand = (id) => {
     setExpanded((prev) => ({ ...prev, [id]: !prev[id] }));
+  };
+
+  // --- GENERAR PDF ---
+  const generatePDF = () => {
+    if (historial.length === 0) {
+      alert('No hay datos para generar el reporte.');
+      return;
+    }
+
+    const doc = new jsPDF();
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const pageHeight = doc.internal.pageSize.getHeight();
+
+    // ESTILOS
+    const COLOR_PRIMARIO = "#1b4332";
+    const COLOR_SUAVE = "#e9ecef";
+
+    const drawSeparator = (y) => {
+      doc.setDrawColor(180);
+      doc.setLineWidth(0.3);
+      doc.line(15, y, pageWidth - 15, y);
+    };
+
+    const addPageFooter = () => {
+      doc.setFontSize(9);
+      doc.setTextColor("#555");
+      doc.text("Generado por EUDR Calculator App", 15, pageHeight - 8);
+      doc.text(`Página ${doc.getCurrentPageInfo().pageNumber}`, pageWidth - 40, pageHeight - 8);
+    };
+
+    // =============================
+    //   PÁGINA 1: PORTADA
+    // =============================
+    doc.setFillColor("#f8f9fa");
+    doc.rect(0, 0, pageWidth, pageHeight, "F");
+
+    doc.addImage(logoEUDR, "PNG", (pageWidth - 80) / 2, 40, 80, 80);
+
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(24);
+    doc.setTextColor(COLOR_PRIMARIO);
+    doc.text("Reporte Mensual de Huella de Carbono", pageWidth / 2, 140, { align: "center" });
+
+    doc.setFontSize(18);
+    doc.text("Reglamento EUDR", pageWidth / 2, 155, { align: "center" });
+
+    doc.setFontSize(12);
+    doc.setTextColor("#222222");
+    let y = 180;
+    doc.text(`Mes: ${formatMonth(search)}`, pageWidth / 2, y, { align: "center" }); y += 10;
+    doc.text(`Total Cálculos: ${historial.length}`, pageWidth / 2, y, { align: "center" });
+
+    doc.setFontSize(10);
+    doc.setTextColor("#555");
+    doc.text(`Fecha: ${new Date().toLocaleDateString("es-ES")}`, pageWidth / 2, y + 20, { align: "center" });
+
+    addPageFooter();
+
+    // =============================
+    //   PÁGINA 2: LISTA DE CÁLCULOS
+    // =============================
+    doc.addPage();
+    y = 20;
+
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(18);
+    doc.setTextColor(COLOR_PRIMARIO);
+    doc.text("Lista de Cálculos", 15, y);
+    y += 15;
+    drawSeparator(y);
+    y += 10;
+
+    const sectionTitle = (title) => {
+      doc.setFillColor(COLOR_SUAVE);
+      doc.rect(15, y - 5, pageWidth - 30, 10, "F");
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(14);
+      doc.setTextColor(COLOR_PRIMARIO);
+      doc.text(title, 18, y + 2);
+      y += 14;
+    };
+
+    const addLine = (label, value) => {
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(12);
+      doc.setTextColor("#222222");
+      doc.text(label, 18, y);
+      doc.text(String(value), 95, y);
+      y += 7;
+    };
+
+    sectionTitle("Detalles de Cálculos");
+
+    historial.forEach((calculo, index) => {
+      addLine(`Cálculo #${index + 1} - ID: ${calculo.id}`, "");
+      addLine("Finca", calculo.nombre_finca || 'Sin nombre');
+      addLine("Fecha", formatDate(calculo.fecha));
+      addLine("Huella Total", `${calculo.huella_total.toFixed(2)} kg CO₂eq`);
+      addLine("Huella por kg", `${calculo.huella_por_kg.toFixed(2)} kg CO₂eq/kg`);
+      y += 5; // Espacio entre cálculos
+
+      if (y > 250) {
+        addPageFooter();
+        doc.addPage();
+        y = 20;
+      }
+    });
+
+    addPageFooter();
+
+    // =============================
+    //   PÁGINA 3: RESUMEN MENSUAL
+    // =============================
+    doc.addPage();
+    y = 20;
+
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(18);
+    doc.setTextColor(COLOR_PRIMARIO);
+    doc.text("Resumen Mensual", 15, y);
+    y += 15;
+    drawSeparator(y);
+    y += 10;
+
+    sectionTitle("Indicadores Agregados");
+
+    const totalHuella = historial.reduce((sum, c) => sum + c.huella_total, 0);
+    const avgHuellaPorKg = historial.reduce((sum, c) => sum + c.huella_por_kg, 0) / historial.length || 0;
+    const totalProduccion = historial.reduce((sum, c) => sum + (c.produccion_verde || 0), 0);
+    const avgRendimiento = historial.reduce((sum, c) => sum + (c.rendimiento || 0), 0) / historial.length || 0;
+    const totalArea = historial.reduce((sum, c) => sum + (c.area_cultivada || 0), 0);
+
+    addLine("Huella Total", `${totalHuella.toFixed(2)} kg CO₂eq`);
+    addLine("Huella Promedio por kg", `${avgHuellaPorKg.toFixed(2)} kg CO₂eq/kg`);
+    addLine("Producción Total Verde", `${totalProduccion.toFixed(2)} kg`);
+    addLine("Rendimiento Promedio", `${avgRendimiento.toFixed(1)} qq/ha`);
+    addLine("Área Total Cultivada", `${totalArea.toFixed(2)} ha`);
+
+    addPageFooter();
+
+    doc.save(`reporte_mensual_${search || 'general'}.pdf`);
   };
 
   // --- GRÁFICO: solo datos de la página actual ---
@@ -284,7 +430,7 @@ useEffect(() => {
           {/* CONTROLES: BÚSQUEDA + PER PAGE */}
           <div className="controls-bar">
             <input
-              type="date"
+              type="month"
               value={search}
               onChange={(e) => {
                 const nuevaFecha = e.target.value;
@@ -292,7 +438,7 @@ useEffect(() => {
                 setPage(1); // Reinicia página
               }}
               className="search-input"
-              placeholder="Filtrar por fecha"
+              placeholder="Filtrar por mes"
             />
             <select
               value={perPage}
@@ -457,6 +603,15 @@ useEffect(() => {
                 ))}
               </div>
 
+              {/* SECCIÓN DE REPORTES */}
+              <section className="reports-section">
+                <h2 className="reports-title">Reportes Mensuales en PDF</h2>
+                <p className="reports-desc">Selecciona un mes en el filtro superior y descarga el reporte con datos agregados.</p>
+                <button onClick={generatePDF} className="btn-primary download-btn">
+                  Descargar Reporte PDF
+                </button>
+              </section>
+
               {/* PAGINACIÓN */}
               {pages > 1 && (
                 <div className="pagination">
@@ -514,7 +669,7 @@ useEffect(() => {
         </main>
       </div>
 
-      {/* ESTILOS (sin tocar los originales) */}
+      {/* ESTILOS */}
       <style jsx>{`
         /* --- ESTILOS ORIGINALES (intactos) --- */
         .historial-content { padding: 2rem; max-width: 1200px; margin: 0 auto; }
@@ -658,6 +813,33 @@ useEffect(() => {
         @keyframes fadeIn {
           from { opacity: 0; transform: translateY(-10px); }
           to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* --- ESTILOS PARA SECCIÓN DE REPORTES --- */
+        .reports-section {
+          margin-top: 3rem;
+          padding: 1.5rem;
+          background: white;
+          border-radius: 12px;
+          box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+          text-align: center;
+        }
+
+        .reports-title {
+          font-size: 1.5rem;
+          color: #2e7d32;
+          margin-bottom: 0.5rem;
+        }
+
+        .reports-desc {
+          color: #666;
+          font-size: 0.95rem;
+          margin-bottom: 1rem;
+        }
+
+        .download-btn {
+          margin-top: 0;
+          cursor: pointer;
         }
 
         @media (max-width: 768px) {

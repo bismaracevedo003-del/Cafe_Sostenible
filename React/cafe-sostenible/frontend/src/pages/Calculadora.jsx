@@ -333,7 +333,30 @@ export default function Calculadora() {
                                         #e0e0e0 100%)`
                                     }}
                                   />
-                                  <span className="slider-value">{value || 0} {campo.name.includes('ha') ? 'ha' : campo.name.includes('kg') ? 'kg' : campo.name.includes('kWh') ? 'kWh' : campo.name.includes('litros') ? 'L' : campo.name.includes('km') ? 'km' : campo.name.includes('cargas') ? 'cargas' : 'm²'}</span>
+                        <span className="slider-value">
+                          {value || 0} {
+                            (() => {
+                              const n = campo.name.toLowerCase();
+
+                              if (n === "areacultivada") return "ha";              // área en hectáreas
+                              if (n === "produccionverde") return "kg";            // producción en kilogramos
+                              if (n === "fertilizantetotal") return "kg";          // fertilizantes en kg
+                              if (n === "energiaelectrica") return "kWh";          // energía
+                              if (n === "combustiblelitros") return "L";           // litros de combustible
+                              if (n === "arbolessombra") return "árboles";         // cantidad
+                              if (n === "areacopapromedio") return "m²";           // área en metros
+                              if (n === "distanciakm") return "km";                // distancia
+                              if (n === "volumencargas") return "cargas";          // cargas
+                              if (n === "residuostotales") return "kg";            // kg de residuos
+                              if (n === "residuoscompostados") return "kg";        // kg compostados
+                              if (n === "bosquebase") return "m²";                 // metros
+                              if (n === "bosqueactual") return "m²";
+
+                              return "m²"; // por defecto
+                            })()
+                          }
+                        </span>
+
                                 </div>
                               </>
                             )}
